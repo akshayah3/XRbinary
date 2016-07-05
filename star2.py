@@ -224,4 +224,3 @@ class star2:
         topy = y 
     
         return topy
-
