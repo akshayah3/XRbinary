@@ -24,23 +24,23 @@ def WriteLightCurves():
     file litecurves.out
     """
     out = open(filename.lightcurves, "w")
-    if( is_open(filename.lightcurves) and open_status(filename.lightcurves) == "w"):
+    if( out == None):
         Quit("Cannot open lightcurve output file .LC")
 
     if( orbit.normalize == "OFF"):
-        out.write(" NORMALIZE=        %s\n\n" % (orbit.normalize))
+        out.write(" NORMALIZE=        {}\n\n".format( (orbit.normalize)))
     else:
         if( orbit.normalize == "MAXVALUE"):
-            out.write(" NORMALIZE=   %s  %12.4e\n\n" % (orbit.normalize, orbit.normvalue))
+            out.write(" NORMALIZE=   {}  {}\n\n".format( (orbit.normalize, orbit.normvalue)))
         if( orbit.normalize == "FITDATA"):
             if( orbit.normfilter == "SQUARE"): 
                 lambda1 = 1.0e8 * orbit.normMinlambda
                 lambda2 = 1.0e8 * orbit.normMaxlambda
-                out.write(" NORMALIZE=   %s  %s  %7.1f  %7.1f\n" % orbit.normalize, orbit.normfilter, lambda1, lambda2)
+                out.write(" NORMALIZE=   {}  {}  {}  {}\n".format( orbit.normalize, orbit.normfilter, lambda1, lambda2))
             else:
-	          out.write(" NORMALIZE=  %s  %s\n" %
-		                   orbit.normalize, orbit.normfilter)
-            out.write(" chi^2 = %12.5e\n\n" % (data.chisquare))
+	          out.write(" NORMALIZE=  {}  {}\n".format(
+		                   orbit.normalize, orbit.normfilter))
+            out.write(" chi^2 = {}\n\n".format( (data.chisquare)))
 
     outputline = "    Orbital "
     for band in range(1, orbit.nbands):
@@ -58,7 +58,7 @@ def WriteLightCurves():
         if( orbit.filter[band] == "SQUARE"):
             lambda1 = 1.0e8 * orbit.minlambda[band]
             lambda2 = 1.0e8 * orbit.maxlambda[band]
-            dummy = "      (%4.0f A - %4.0f A) " % (lambda1, lambda2)
+            dummy = "      ({} A - {} A) ".format(lambda1, lambda2)
             outputline += dummy
         else:
             outputline += "                           "
@@ -66,9 +66,9 @@ def WriteLightCurves():
     out.write("%s" %outputline)
 
     for i in range(0, orbit.maxpindex):
-        outputline = "    %7.4f " % (LCphase[i])
+        outputline = "    {} ".format(LCphase[i])
         for band in range(1, orbit.nbands):
-            dummy =  " %11.4e  %11.4e" %( LCflux[band][i], NormLC[band][i])
+            dummy =  " {}  {}".format( LCflux[band][i], NormLC[band][i])
             outputline += dummy
         outputline += "\n"
         out.write("%s"% (outputline))

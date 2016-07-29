@@ -24,6 +24,331 @@ def ReadInput():
 
     return
 
+def ReadPars():
+    """
+    This function reads the input parameters from a file named 
+    "parfile.dat".
+    The file "input.txt" describes the parameter file.                    
+    """
+    out = open(filename.parfile, "r")
+    lines = out.readlines()
+    if out == None:
+        Quit("Cannot open the input parameter file.")
+
+    while(lines != None):
+        for line in lines:
+            linesplit = line.split()
+            nfields = len(linesplit)
+            keyword = linesplit[0]
+            param1, param2, param3, param4, param5, param6, param6, param7, param8
+           
+            if(nfields < 1):
+                keyword = "" 
+            elif( keyword == "END"):
+                break
+            elif( keyword == ""): 
+                x = 1.0
+            elif( keyword == "COMMENT="):
+                x = 1.0
+
+            elif( keyword == "VERBOSE="):
+      	     verbose =  linesplit[1]
+            elif( keyword == "DIAGNOSTICS="):
+                if( nfields < 4 ):
+                    Quit("Too few parameters for keyword DIAGNOSTICS.");
+                control.diagnostics = "%s"%linesplit[1]
+                control.diagnosephase = "%lf"%linesplit[2]
+                control.diagnoseband =  "%s"%linesplit[3]
+
+            elif( keyword == "STAR1="):
+                control.star1 = linesplit[1]
+            elif( keyword == "STAR2="):
+	           control.star2 = linesplit[1]
+            elif( keyword == "STAR2SPOTS="):
+	           control.star2spots = linesplit[1]
+            elif( keyword == "DISK="):
+	           control.disk = linesplit[1]
+            elif( keyword == "DISKRIM="):
+	           control.diskrim = linesplit[1]
+            elif( keyword == "DISKTORUS="):
+	           control.disktorus = linesplit[1]
+            elif( keyword == "INNERDISK="):
+	           control.innerdisk = linesplit[1]
+            elif( keyword == "DISKSPOTS="):
+	           control.diskspots = linesplit[1]
+            elif( keyword == "ADC="):
+	           control.adc = linesplit[1]
+            elif( keyword == "THIRDLIGHT="):
+	           control.thirdlight = linesplit[1]
+            elif( keyword == "IRRADIATION="):
+	           control.irradiation = linesplit[1]
+
+            elif( keyword == "PHASES="):
+                if( nfields < 4 ):
+	               Quit("Too few parameters for keyword PHASES.")
+                orbit.phasemin = "%lf"%linesplit[1]
+                orbit.phasemax = "%lf"%linesplit[2]
+                orbit.deltaphase = "%lf"%linesplit[3]
+            elif( keyword == "PHASEOFFSET="):
+                orbit.phaseoffset = "%lf"%linesplit[1]
+            elif( keyword == "BANDPASS="):
+                if( nfields < 3 ):
+                    Quit("Too few parameters for keyword BANDPASS.")
+                    orbit.nbands += 1
+                if( orbit.nbands > (MAXBANDPASSES - 1) ):
+	               Quit("Too many bandpasses.")
+                if( linesplit[1] == "FILTER"):
+                    orbit.filter[orbit.nbands] = "%s"%linesplit[2]
+                    orbit.minlambda[orbit.nbands] = -1.0
+                    orbit.maxlambda[orbit.nbands] = -1.0
+                elif( linesplit[1] == "SQUARE"):
+                    if( nfields < 4 ):
+                        Quit("Too few parameters for BANDPASS= SQUARE.")
+                    orbit.filter[orbit.nbands] = "SQUARE"
+                    orbit.minlambda[orbit.nbands] = "%lf"%linesplit[2]
+                    orbit.maxlambda[orbit.nbands] = "%lf"%linesplit[3]
+                else:
+	              Quit("BANDPASS: Unrecognized bandpass type.")
+            elif( keyword == "NORMALIZE="):
+                orbit.normalize = "%s"%linesplit[1]
+                if( orbit.normalize == "MAXVALUE"):
+                    if( nfields < 3 ):
+                        Quit("Too few parameters for keyword NORMALIZE MAXVALUE.")
+                orbit.normvalue = "%lf"%linesplit[2]
+                if( orbit.normalize == "FITDATA"):
+                    if( nfields < 3 ):
+                        Quit("Too few parameters for keyword NORMALIZE FITDATA.")
+                    orbit.normfilter = "%s"%linesplit[2]
+                if( orbit.normfilter == "SQUARE"):
+                    if( nfields < 5 ):
+                        Quit("Too few parameters for keyword NORMALIZE FITDATA.");
+                    orbit.normMinlambda = "%lf"%linesplit[3]
+                    orbit.normMaxlambda = "%lf"%linesplit[4] 
+
+            elif( keyword == "PERIOD="):
+                syspars.p = "%lf"%linesplit[1]
+            elif( keyword == "K2="): 
+                syspars.K2 = "%lf"%linesplit[1]
+            elif( keyword == "M1="):
+                syspars.M1 = "%lf"%linesplit[1]
+            elif( keyword == "MASSRATIO="):
+                syspars.q = "%lf"%linesplit[1]
+            elif( keyword == "INCLINATION="):
+                syspars.i = "%lf"%linesplit[1]
+
+
+            elif( keyword == "STAR1LUM="):
+	          star1.L = "%lf"%linesplit[1]
+            elif( keyword == "STAR1TEMP="):
+	          star1.T = "%lf"%linesplit[1]
+
+            elif( keyword == "STAR2TILES="):
+                star2.targetNtiles = "%ld"%linesplit[1]
+            elif( keyword == "STAR2TEMP="):
+                star2.meanT = "%lf"%linesplit[1]
+            elif( keyword == "STAR2ALBEDO="):
+                star2.albedo = "%lf"%linesplit[1]
+
+            elif( keyword == "STAR2SPOT="):
+                if( nfields < 5 ):
+	               Quit("Too few parameters in keyword STAR2SPOT.")
+                star2spot.nspots += 1
+                if( star2spot.nspots >= 20 ):
+	               Quit("Too many star 2 spots.")
+                star2spot.theta[star2spot.nspots] = "%lf"%linesplit[1]
+                star2spot.phi[star2spot.nspots]   = "%lf"%linesplit[2]
+                star2spot.radius[star2spot.nspots] = "%lf"%linesplit[3]
+                star2spot.SpotToverStarT[star2spot.nspots] = "%lf"%linesplit[4]
+
+            elif( keyword == "DISKTILES="):
+                disk.targetNtiles = "%ld"%linesplit[1]
+            elif( keyword == "DISKE="):
+                disk.e = "%lf"%linesplit[1]
+            elif( keyword == "DISKZETAZERO="):
+                disk.zetazero = "%lf"%linesplit[1]
+            elif( keyword == "DISKALBEDO="):
+                disk.albedo = "%lf"%linesplit[1]
+
+            elif( keyword == "MAINDISKA="):
+                if( nfields < 3 ):
+                    Quit("Too few parameters for keyword MAINDISKRHO.")
+                maindisk.amin = "%lf"%linesplit[1] 
+                maindisk.amax = "%lf"%linesplit[2]
+            elif( keyword == "MAINDISKH="):
+                if( nfields < 3 ):
+                    Quit("Too few parameters for keyword MAINDISKH.")
+                maindisk.Hmax = "%lf"%linesplit[1]
+                maindisk.Hpow = "%lf"%linesplit[2]
+            elif( keyword == "MAINDISKT="):
+                if( nfields < 2 ):
+                    Quit("Too few parameters for keyword MAINDISKT.");
+                maindisk.Ttype = "%s"%linesplit[1]
+                if( maindisk.Ttype == "POWERLAW"):
+                    if( nfields < 4 ):
+                        Quit("Too few parameters for keyword MAINDISKT.");
+                    maindisk.Tpow = "%lf"%linesplit[1]
+                    maindisk.maindiskL = "%lf"%linesplit[2]
+                elif( maindisk.Ttype == "VISCOUS"):
+                    if( nfields < 3 ):
+                        Quit("Too few parameters for keyword MAINDISKT.")
+                    maindisk.maindiskL = "%lf"%linesplit[1]
+                else:
+                    Quit("Unrecognized temperature distribution for MAINDISKT")
+
+            elif( keyword == "DISKEDGET="):
+                if( nfields < 5 ):
+                    Quit("Too few parameters for keyword DISKRIMT.")
+                diskedge.T = "%lf"%linesplit[1]
+                diskedge.Tspot = "%lf"%linesplit[2]
+                diskedge.ZetaMid = "%lf"%linesplit[3]
+                diskedge.ZetaWidth = "%lf"%linesplit[4]
+
+            elif( keyword == "INNERDISKT="):
+                if( nfields < 2 ):
+                    Quit("Too few parameters for keyword INNERDISKT.")
+                innerdisk.T = "%lf"%linesplit[1]
+            elif( keyword == "INNERDISKL="):
+                if( nfields < 2 ):
+                    Quit("Too few parameters for keyword INNERDISKL.")
+                innerdisk.L = "%lf"%linesplit[1]
+
+            elif( keyword == "DISKRIMAWIDTH="):
+                diskrim.awidth = "%lf"%linesplit[1]
+            elif( keyword == "DISKRIMPARS="):
+                if( linesplit[1] == "SINUSOID"):
+                    if( diskrim.type == "MISSING"):
+                        diskrim.type = linesplit[1]
+                    elif( diskrim.type != "SINUSOID"):
+                        Quit("DISKRIMPARS: Inconsistent disk rim types.")
+                    if( nfields < 8 ):
+                        Quit("Too few parameters in keyword DISKRIMPARS.")
+                    diskrim.Hmax = "%lf"%linesplit[2]
+                    diskrim.Hmin = "%lf"%linesplit[3]
+                    diskrim.ZetaHmax = "%lf"%linesplit[4]
+                    diskrim.Tmax = "%lf"%linesplit[5]
+                    diskrim.Tmin = "%lf"%linesplit[6]
+                    diskrim.ZetaTmax = "%lf"%linesplit[7]
+                elif( linesplit[1] == "POINT"):
+                    if( diskrim.type == "MISSING"):
+                        diskrim.type = linesplit[1]
+                    elif( diskrim.type != "POINT"):
+                        Quit("DISKRIMPARS: Inconsistent disk rim types.")
+                    if ( nfields < 5 ):
+                        Quit("Too few parameters in keyword DISKRIMPARS.")
+                    diskrim.points += 1
+                    if( diskrim.points > (MAXZETAPOINTS - 1) ):
+                        Quit("DISKRIMPARS: Too many points in the POINT rim.")
+                    diskrim.PointZeta[diskrim.points] = "%lf"%linesplit[2]
+                    diskrim.PointH[diskrim.points] = "%lf"%linesplit[3]
+                    diskrim.PointT[diskrim.points] = "%lf"%linesplit[4]
+                else:
+                    Quit("DISKRIMPARS: Unrecognized rim type.")
+
+            elif( keyword == "DISKTORUSAZERO="):
+                disktorus.azero = "%lf"%linesplit[1]
+            elif( keyword == "DISKTORUSAWIDTH="):
+                disktorus.awidth = "%lf"%linesplit[1]
+            elif( keyword == "DISKTORUSPARS="):
+                if( linesplit[1] == "SINUSOID"):
+                    if( disktorus.type == "MISSING"):
+                        disktorus.type = linesplit[1]
+                    elif( disktorus.type != "SINUSOID"):
+                        Quit("DISKTORUSPARS: Inconsistent disk torus types.")
+                    if( nfields < 8 ):
+                        Quit("Too few parameters in keyword DISKTORUSPARS.")
+                    disktorus.Hmax = "%lf"%linesplit[2]
+                    disktorus.Hmin = "%lf"%linesplit[3]
+                    disktorus.ZetaHmax = "%lf"%linesplit[4]
+                    disktorus.Tmax = "%lf"%linesplit[5]
+                    disktorus.Tmin = "%lf"%linesplit[6]
+                    disktorus.ZetaTmax = "%lf"%linesplit[7]
+            elif( linesplit[1] == "POINT"):
+                if( disktorus.type == "MISSING"):
+                    disktorus.type = linesplit[1]
+                elif( disktorus.type != "POINT"):
+                    Quit("DISKTORUSPARS: Inconsistent disk torus types.")
+                if( nfields < 5 ):
+                    Quit("Too few parameters in keyword DISKTORUSPARS.")
+                disktorus.points += 1
+                if( disktorus.points > (MAXZETAPOINTS - 1) ):
+                    Quit("DISKTORUSPARS: Too many points in the POINT torus.")
+                disktorus.PointZeta[disktorus.points] = "%lf"%linesplit[2]
+                disktorus.PointH[disktorus.points] = "%lf"%linesplit[3]
+                disktorus.PointT[disktorus.points] = "%lf"%linesplit[4]
+            else:
+                Quit("DISKTORUSPARS: Unrecognized torus type.")
+
+        elif( keyword == "DISKSPOT="):
+            if( nfields < 6 ):
+                Quit("Too few parameters in keyword DISKSPOT.");
+            diskspot.nspots += 1
+            if( diskspot.nspots >= 20 ):
+                Quit("Too many disk spots.")
+            diskspot.zetamin[diskspot.nspots] = "%lf"%linesplit[1]
+            diskspot.zetamax[diskspot.nspots] = "%lf"%linesplit[2]
+            diskspot.amin[diskspot.nspots] = "%lf"%linesplit[3]
+            diskspot.amax[diskspot.nspots] = "%lf"%linesplit[4]
+            diskspot.spotToverT[diskspot.nspots] = "%lf"%lineslpit[5]
+
+        elif( keyword == "ADCLUM="):
+            adc.L = "%lf"%linesplit[1]
+        elif( keyword == "ADCHEIGHT="):
+            adc.height = "%lf"%linesplit[1]
+
+        elif( keyword == "3rdLIGHTPHASE="):
+            thirdlight.orbphase = "%lf"%linesplit[1]
+        elif( keyword == "3rdLIGHTFRACTION="):
+            if( nfields < 4 ):
+                Quit("Too few parameters for keyword 3rdLIGHTFRACTION."
+            thirdlight.nbands += 1
+            if( thirdlight.nbands > (MAXBANDPASSES - 1) ):
+                Quit("Too many 3rdLIGHT bandpasses.")
+            if( param1 == "FILTER"):
+                thirdlight.filter[thirdlight.nbands] = "%s"%linesplit[2]
+                thirdlight.minlambda[thirdlight.nbands] = -1.0
+                thirdlight.maxlambda[thirdlight.nbands] = -1.0
+                thirdlight.fraction[thirdlight.nbands] = "%s"%linesplit[3]
+            elif( linesplit[1] == "SQUARE"):
+                if( nfields < 5 ):
+                    Quit("Too few parameters for BANDPASS= SQUARE.")
+                thirdlight.filter[thirdlight.nbands] = "SQUARE")
+                thirdlight.minlambda[thirdlight.nbands] = "%lf"%linesplit[2]
+                thirdlight.maxlambda[thirdlight.nbands] = "%lf"%linesplit[3]
+                thirdlight.fraction[thirdlight.nbands] = "%lf"%linesplit[4] 
+            else:
+                Quit("BANDPASS: Unrecognized bandpass type.");
+
+        elif( keyword == "READDATA="):
+            if( nfields < 4 ):
+                Quit("Too few parameters for keyword READDATA."):
+            data.nbands += 1
+            if( data.nbands > (MAXBANDPASSES - 1) ):
+                Quit("Too many data bandpasses.")
+            if( linesplit[1] == "FILTER"):
+                data.filter[data.nbands] = "%s"%linesplit[2]
+                data.minlambda[data.nbands] = -1.0
+                data.maxlambda[data.nbands] = -1.0;
+                data.filename[data.nbands] = "%s"%linesplit[3]
+            elif( linesplit[1] == "SQUARE"):
+                if( nfields < 5 ):
+                    Quit("Too few parameters for READDATA= SQUARE.")
+                data.filter[data.nbands] == "SQUARE"
+                data.minlambda[data.nbands] = "%lf"%linesplit[2]
+                data.maxlambda[data.nbands] = "%lf"%linesplit[3]
+                data.filename[data.nbands] = "%lf"%linesplit[4] 
+            else:
+                Quit("BANDPASS: Unrecognized bandpass type.")
+            data.npoints[data.nbands] = 0
+            ReadData( data.nbands )
+
+        else:
+            print("Unrecognized keyword in get_data.\n")
+            print("   keyword =%20s\n", keyword)
+            Quit("")
+        x = x
+        out.close()
+        return
+
 def CheckPars():
     """
     This function checks the input parameters to insure that
@@ -324,10 +649,12 @@ def ReadGDTable():
         Quit("Cannot open file GDTable.dat.")
 
     i = -1
-    while(fgets(inputline, 80, in) != NULL):
+    for inputline in out:
         if( inputline[0] != '*' ):
             i = i +1
-            sscanf(inputline, "%lf %lf", &GDT[i], &fourbeta[i] )
+            a = inputline.split()
+            GDT[i], fourbeta[i] = ("%lf")%(a[0]), ("%lf")%(a[1])
+            #sscanf(inputline, "%lf %lf", &GDT[i], &fourbeta[i] )
     maxGDindex = i
     out.close()
 
@@ -366,241 +693,222 @@ def ReadLDTable():
     in header.h.  Be careful.
     """
     filename = "LDTable.dat"
-    out = open(filename, "r")    
-    if((out == None):
+    out = open(filename, "r")
+    lines = out.readlines()    
+    if(out == None):
         Quit("Cannot open file LDTable.dat.")
 
-   for(;;) {
-      fgets(inputline, 80, out)
-      if( inputline[0] != '*' ) {
-            sscanf( inputline, "%lf %lf %lf", &Tmin, &Tmax, &deltaT);
-            maxLDTindex = ( Tmax - Tmin + 0.1 ) / deltaT;
-            for( i = 0; i <= maxLDTindex; i++) {
-	       LDT[i] = Tmin + i * deltaT;
-            }
-         fgets(inputline, 80, in);
-            sscanf( inputline, "%lf %lf %lf", &gmin, &gmax, &deltag);
-            maxLDgindex = ( gmax - gmin + 0.001) / deltag;
-            for( i = 0; i <= maxLDgindex; i++) {
-	       LDlogg[i] = gmin + i * deltag;
-            }
-         fgets(inputline, 80, in);
-            sscanf( inputline, "%ld %s %s %s %s %s %s %s %s %s %s %s %s", 
-		      &nfilters,
-                      LDfilterName[0], LDfilterName[1],  LDfilterName[2],
-                      LDfilterName[3], LDfilterName[4],  LDfilterName[5],
-                      LDfilterName[6], LDfilterName[7],  LDfilterName[8],
-		      LDfilterName[9], LDfilterName[10], LDfilterName[11]);
-            maxLDfilterindex = nfilters - 1;
-            if( maxLDfilterindex > (MAXFILTERS - 1) )
-	      Quit("Too many filters in the LD table.");
-         break;
-      }
-   }
+    while(True):
+        #for i in out: #fgets(inputline, 80, out)
+        if( lines[0][0] != '*' ):
+            e = lines[0].split() #sscanf( inputline, "%lf %lf %lf", &Tmin, &Tmax, &deltaT);
+            Tmin, Tmax, deltaT = float(e[0]), float(e[1]), float(e[2])
+            maxLDTindex = ( Tmax - Tmin + 0.1 ) / deltaT
+            for i in range(1, maxLDTindex):
+                LDT[i] = Tmin + i * deltaT
+            b = lines[1].split()
+            gmin, gmax, deltag = float(b[0]), float(b[1]), float(b[2])
+            maxLDgindex = ( gmax - gmin + 0.001) / deltag
+            for i in range(0, maxLDgindex):
+                LDlogg[i] = gmin + i * deltag
+            c = lines[2].split()
+            nfilters = int(c[0])
+            LDfilterName[0] = float(c[1])
+            LDfilterName[1] = float(c[2])
+            LDfilterName[2] = float(c[3]) 
+            LDfilterName[3] = float(c[4])
+            LDfilterName[4] = float(c[5])
+            LDfilterName[5] = float(c[6])
+            LDfilterName[6] = float(c[8])
+            LDfilterName[7] = float(c[9])
+            maxLDfilterindex = nfilters - 1
+            if( maxLDfilterindex > (MAXFILTERS - 1) ):
+	          Quit("Too many filters in the LD table.")
+            break
 
-   while( fscanf( in , "%lf %lf %s %lf %lf %lf %lf",
-	  &logg, &T, filtername, &a[1], &a[2], &a[3], &a[4] ) != EOF ) {
-      gindex = (logg - gmin + 0.1) / deltag;
-      if( (gindex < 0) || (gindex > maxLDgindex) )
-         Quit("gindex out of range in ReadLDTable.");
-      Tindex = ( T - Tmin + 1.0) / deltaT;
-      if( (Tindex < 0) || (Tindex > maxLDTindex) )
-         Quit("Tindex out of range in ReadLDTable.");
-      findex = -1;
-      for( i = 0; i <= maxLDfilterindex; i++ ) {
-         if( strcmp( filtername, LDfilterName[i]) == 0 ) 
-            findex = i;
-      }
-      if( (findex < 0) || (findex > maxLDfilterindex) )
-         Quit("Unrecognized filter name in ReadLDTable.");
-      for( i = 1; i <= 4; i++ )
-            LDtable[gindex][Tindex][findex][i] = a[i];
-   }
-   fclose ( in );
-   return;
-}
-
-
-void ReadIperpTable()
-/*****************************************************************
-*
-*   This function reads IperpTable.dat.   The file containing the Iperp
-*   data must have the format:
-*       Tmin    Tmax    deltaT    =  The minimum and maximum temperature
-*                                    and the temperature spacing.
-*       gmin    gmax    deltag    =  The minimum and maximum LOG g
-*                                    and the spacing in log g.
-*         n    filter1  filter2 filter3 filter4 ........
-*        t   logg    Iz(lambda1)  Iz(lambda2)  Iz(lambda3)  Iz(lambda4)......
-*        .     .           .            .            .            .
-*        .     .           .            .            .            .
-*        .     .           .            .            .            .
-*
-*    n is the number of filters.  "filter1" "filter2", etc. are the
-*      names of the filters, eg U B V R I
-*
-*   The Iperp data are stored in the global variables
-*      long maxIperpgindex, maxIperpTindex, maxIperplindex
-*      double Iperplogg[gindex], IperpT[Tindex], Iperplambda[lindex]
-*      double Iperptable[gindex][Tindex][lindex]
-*  
-*******************************************************************/
-{
-   FILE *in;
-   char filename[40], inputline[201], Iperpfilter[15][20];
-   long Tindex, gindex, findex, nfilters;
-   double Tmin, Tmax, deltaT, gmin, gmax, deltag, xlogg, xT, xIperp[20];
-
-   strcpy(filename, "IperpTable.dat");
-   if((in = fopen(filename, "r")) == NULL)
-      Quit("Cannot open file IperpTable.dat.");
-
-   fscanf( in, "%lf  %lf  %lf", &Tmin, &Tmax, &deltaT);
-      maxIperpTindex = ( Tmax - Tmin + 1.0 ) / deltaT;
-      for( Tindex = 0; Tindex <= maxIperpTindex; Tindex++) {
-	 IperpT[Tindex] = Tmin + Tindex * deltaT;
-      }
-   fscanf( in, "%lf  %lf  %lf", &gmin, &gmax, &deltag);
-      maxIperpgindex = ( gmax - gmin + 0.01) / deltag;
-      for( gindex = 0; gindex <= maxIperpgindex; gindex++) {
-         Iperplogg[gindex] = gmin + gindex * deltag;
-      }
-   fgets(inputline, 120, in);
-   fgets(inputline, 120, in);
-   sscanf( inputline, "%ld %s %s %s %s %s %s %s %s %s %s %s %s",
-            &nfilters,
-            IperpfilterName[0],  IperpfilterName[1],  IperpfilterName[2], 
-            IperpfilterName[3],  IperpfilterName[4],  IperpfilterName[5],
-	    IperpfilterName[6],  IperpfilterName[7],  IperpfilterName[8],
-	    IperpfilterName[9], IperpfilterName[10], IperpfilterName[11] );
-   maxIperpfilterindex = nfilters - 1;
-   if( maxIperpfilterindex > (MAXFILTERS - 1) )
-     Quit("Too many filters in the Iperp table.");
-
-   while( fgets( inputline, 200, in) != NULL ) {
-      sscanf( inputline, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-	        &xT, &xlogg, 
-                &xIperp[0],  &xIperp[1],  &xIperp[2], 
-                &xIperp[3],  &xIperp[4],  &xIperp[5],
-	        &xIperp[6],  &xIperp[7],  &xIperp[8],
-	        &xIperp[9],  &xIperp[10], &xIperp[11]);
-      gindex = (xlogg - gmin + 0.01) / deltag;
-      if( (gindex < 0) || (gindex > maxIperpgindex) )
-         Quit("gindex out of range in ReadIperpTable.");
-      Tindex = ( xT - Tmin + 1.0) / deltaT;
-      if( (Tindex < 0) || (Tindex > maxIperpTindex) )
-         Quit("Tindex out of range in ReadIperpTable.");
-      for( findex = 0; findex <= maxIperpfilterindex; findex++) {
-         Iperptable[gindex][Tindex][findex] = xIperp[findex];
-      }
-   }
-   fclose ( in );
-
-   return;
-}
+    d = lines[3].split()
+    logg = float(d[0])
+    T =    float(d[1])
+    filtername = (d[2])
+    a[1] = float(d[3]) 
+    a[2] = float(d[4])
+    a[3] = float(d[5])
+    a[4] = float(d[6])
+    gindex = (logg - gmin + 0.1) / deltag
+    if( (gindex < 0) or (gindex > maxLDgindex) ):
+         Quit("gindex out of range in ReadLDTable.")
+    Tindex = ( T - Tmin + 1.0) / deltaT
+    if( (Tindex < 0) or (Tindex > maxLDTindex) ):
+         Quit("Tindex out of range in ReadLDTable.")
+    findex = -1
+    for i in range(0, maxLDfilterindex):
+        if( filtername == LDfilterName[i]): 
+            findex = i
+    if( (findex < 0) or (findex > maxLDfilterindex) ):
+        Quit("Unrecognized filter name in ReadLDTable.")
+    for i in range(1,4):
+        LDtable[gindex][Tindex][findex][i] = a[i]
+    out.close()
+    return
 
 
-void ReadIBBfilterTable( void )
-/*****************************************************************
-*
-*   This function reads the intensities of a black body
-*   observed through a filter.
-*
-*   The file name must be "IBBfilter.dat" and must have the format:
-*       
-*       Tmin    Tmax    deltaT    =  The minimum and maximum temperature
-*                                    and the temperature spacing.
-*         N filtername1 filtername2 filtername3 ... filternameN
-*        T   Ifilter1  Ifilter2  Ifilter3 ... IfilterN
-*        .      .         .         .            .
-*        .      .         .         .            .
-*        .      .         .         .            .
-*
-*   The filter can have comment lines beginning with a "*" at the
-*   beginning.
-*
-*******************************************************************/
-{
-   FILE *in;
-   char filename[40], inputline[201];
-   long i, nfilters, Tindex, findex;
-   double xT, xIBB[20];
+def ReadIperpTable():
+    """
+    This function reads IperpTable.dat.   The file containing the Iperp
+    data must have the format:
+        Tmin    Tmax    deltaT    =  The minimum and maximum temperature
+                                     and the temperature spacing.
+        gmin    gmax    deltag    =  The minimum and maximum LOG g
+                                     and the spacing in log g.
+          n    filter1  filter2 filter3 filter4 ........
+         t   logg    Iz(lambda1)  Iz(lambda2)  Iz(lambda3)  Iz(lambda4)......
+         .     .           .            .            .            .
+         .     .           .            .            .            .
+         .     .           .            .            .            .
+ 
+     n is the number of filters.  "filter1" "filter2", etc. are the
+       names of the filters, eg U B V R I
+ 
+    The Iperp data are stored in the global variables
+       long maxIperpgindex, maxIperpTindex, maxIperplindex
+       double Iperplogg[gindex], IperpT[Tindex], Iperplambda[lindex]
+       double Iperptable[gindex][Tindex][lindex]
+    """
+    filename = "IperpTable.dat"
+    out = open(filename, "r")
+    lines = out.readlines()
+    if out == None:
+        Quit("Cannot open file IperpTable.dat.")
 
-   strcpy(filename, "IBBfilterTable.dat");
-   if((in = fopen(filename, "r")) == NULL)
-      Quit("Cannot open file IBBfilter.dat.");
+    b = lines[0].split()#fscanf( in, "%lf  %lf  %lf", &Tmin, &Tmax, &deltaT);
+    Tmin ,Tmax, deltaT = float(b[0]), float(b[1]), float(b[2])
+    maxIperpTindex = ( Tmax - Tmin + 1.0 ) / deltaT
+    for Tindex in range(0, maxIperpTindex):
+        IperpT[Tindex] = Tmin + Tindex * deltaT
+    c = lines[1].split()#fscanf( in, "%lf  %lf  %lf", &gmin, &gmax, &deltag);
+    gmin, gmax, deltag = float(c[0]), float(c[1]), float(c[2])
+    maxIperpgindex = ( gmax - gmin + 0.01) / deltag
+    for gindex in range(0, maxIperpgindex):
+        Iperplogg[gindex] = gmin + gindex * deltag
+    d = lines[2].split()
+    nfilters = int(d[0])
+    IperpfilterName[0] = float(d[1])
+    IperpfilterName[1] = float(d[2])
+    IperpfilterName[2] = float(d[3]) 
+    IperpfilterName[3] = float(d[4])
+    IperpfilterName[4] = float(d[5])
+    IperpfilterName[5] = float(d[6])
+    IperpfilterName[6] = float(d[8])
+    IperpfilterName[7] = float(d[9])
+    maxIperpfilterindex = nfilters - 1
+    if( maxIperpfilterindex > (MAXFILTERS - 1) ):
+        Quit("Too many filters in the Iperp table.")
 
-   /******************************************************
-   *
-   *   Skip over any initial comment lines (lines beginning
-   *   with a '*') then read two lines containing the
-   *   information about the contents of the table.
-   *
-   ********************************************************/
-   for(;;) {
-      fgets(inputline, 80, in);
-      if( inputline[0] != '*' ) {
-            sscanf( inputline, "%lf %lf %lf", 
-                                &IBBTmin, &IBBTmax, &IBBdeltaT);   
-            maxIBBTindex = ( IBBTmax - IBBTmin + 0.1 ) / IBBdeltaT;
-            for( i = 0; i <= maxIBBTindex; i++) {
-               IBBT[i] = IBBTmin + i * IBBdeltaT;
-            }
-         fgets(inputline, 80, in);
-            sscanf( inputline, "%ld %s %s %s %s %s %s %s %s %s %s %s %s", 
-	           &nfilters,
-                   IBBfilterName[0], IBBfilterName[1],  IBBfilterName[2],
-                   IBBfilterName[3], IBBfilterName[4],  IBBfilterName[5],
-                   IBBfilterName[6], IBBfilterName[7],  IBBfilterName[8],
-	           IBBfilterName[9], IBBfilterName[10], IBBfilterName[11]);
-            maxIBBfilterindex = nfilters - 1;
-            if( maxIBBfilterindex > (MAXFILTERS - 1) )
-	      Quit("Too many filters in the IBBfilter table.");
-         break;
-      }
-   }
-   while( fgets( inputline, 200, in) != NULL ) {
-      sscanf( inputline, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-	        &xT,
-                &xIBB[0], &xIBB[1], &xIBB[2], &xIBB[3], &xIBB[4],  &xIBB[5],
-	        &xIBB[6], &xIBB[7], &xIBB[8], &xIBB[9], &xIBB[10], &xIBB[11]);
-      Tindex = ( xT - IBBTmin + 1.0) / IBBdeltaT;
-      if( (Tindex < 0) || (Tindex > maxIBBTindex) )
-         Quit("Tindex out of range in ReadIBBTable.");
-      for( findex = 0; findex <= maxIBBfilterindex; findex++) {
-         IBBtable[Tindex][findex] = xIBB[findex];
-      }
-   }
-   fclose ( in );
+    while(True):
+        e = lines[3].split()
+        xT = float(d[0])
+        xlogg =    float(e[1])
+        xiperp[0] = float(e[2])
+        xiperp[1] = float(e[3]) 
+        xiperp[2] = float(e[4])
+        xiperp[3] = float(e[5])
+        xiperp[4] = float(e[6])
+        xiperp[5] = float(e[7])
+        xiperp[6] = float(e[8])
+        xiperp[7] = float(e[9])
+        gindex = (xlogg - gmin + 0.01) / deltag
+        if( (gindex < 0) or (gindex > maxIperpgindex) ):
+            Quit("gindex out of range in ReadIperpTable.")
+        Tindex = ( xT - Tmin + 1.0) / deltaT
+        if( (Tindex < 0) or (Tindex > maxIperpTindex) ):
+            Quit("Tindex out of range in ReadIperpTable.")
+        for findex in range(0, maxIperpfilterindex):
+            Iperptable[gindex][Tindex][findex] = xIperp[findex]
+    out.close()
 
-   return;
-}
+    return
 
+def ReadIBBfilterTable():
+    """
+    This function reads the intensities of a black body
+    observed through a filter.
+ 
+    The file name must be "IBBfilter.dat" and must have the format:
+        
+        Tmin    Tmax    deltaT    =  The minimum and maximum temperature
+                                     and the temperature spacing.
+          N filtername1 filtername2 filtername3 ... filternameN
+         T   Ifilter1  Ifilter2  Ifilter3 ... IfilterN
+         .      .         .         .            .
+         .      .         .         .            .
+         .      .         .         .            .
+ 
+    The filter can have comment lines beginning with a "*" at the
+    beginning.
+    """
+    filename = "IBBfilterTable.dat"
+    out = open(filename, "r")
+    if out == None:
+        Quit("Cannot open file IBBfilter.dat.");
 
-void ReadZzetaTable( void )
-/*******************************************************
-*
-*   Read the ZBBzeta table
-*
-***********************************************************/
-{
-   FILE *in;
-   char filename[40];
-   long i;
-   double dummy;
+    while(True):
+        if( lines[0][0] != '*' ):
+            e = lines[0].split() #sscanf( inputline, "%lf %lf %lf", &Tmin, &Tmax, &deltaT);
+            IBBTmin, IBBTmax, IBBdeltaT = float(e[0]), float(e[1]), float(e[2])
+            maxLDTindex = ( IBBTmax - IBBTmin + 0.1 ) / IBBdeltaT
+            for i in range(1, maxIBBindex):
+                IBBT[i] = IBBTmin + i * IBBdeltaT
+            c = lines[1].split()
+            nfilters = int(c[0])
+            IBBfilterName[0] = float(c[1])
+            IBBfilterName[1] = float(c[2])
+            IBBfilterName[2] = float(c[3]) 
+            IBBfilterName[3] = float(c[4])
+            IBBfilterName[4] = float(c[5])
+            IBBfilterName[5] = float(c[6])
+            IBBfilterName[6] = float(c[8])
+            IBBfilterName[7] = float(c[9])
+            maxLDfilterindex = nfilters - 1
+            if( maxIBBfilterindex > (MAXFILTERS - 1) ):
+	          Quit("Too many filters in the LD table.")
+            break
 
-   strcpy( filename, "ZzetaTable.dat");
-   if((in = fopen(filename, "r")) == NULL)
-      Quit("Cannot open file ZzetaTable.dat.");
+    d = lines[2].split()
+    xT = float(d[0])
+    xIBB[0] = float(d[1])
+    xIBB[1]=  float(d[2])
+    xIBB[2] = float(d[3]) 
+    xIBB[3] = float(d[4])
+    xIBB[4] = float(d[5])
+    xIBB[5] = float(d[6])
+    xIBB[6] = float(d[7])
+    xIBB[7] = float(d[8]) 
+    Tindex = ( xT - IBBTmin + 1.0) / IBBdeltaT
+    if( (Tindex < 0) or (Tindex > maxIBBTindex) ):
+        Quit("Tindex out of range in ReadIBBTable.")
+    for findex in range(0, maxIBBfilterindex):
+         IBBtable[Tindex][findex] = xIBB[findex]
+    out.close()
 
-   fscanf( in, "%ld %lf", &maxBBzetaindex, &deltaBBzeta);
-   for( i = 0; i <= maxBBzetaindex; i++) {
-     fscanf( in, "%lf %lf", &dummy, &ZBBzeta[i]);
-   }
-   BBzetamax = maxBBzetaindex * deltaBBzeta;
+    return
 
-   fclose( in );
+def ReadZzetaTable():
+    """ 
+    Read the ZBBzeta table
 
-   return;
-}
+    """
+    filename = "ZzetaTable.dat"
+    out = open(filename, "r")
+    lines = out.readlines()
+    if out == None:
+        Quit("Cannot open file ZzetaTable.dat.")
+   
+    b = lines[0].split()   
+    maxBBzetaindex , deltaBBzeta= float(b[0]), float(b[1])   
+    for i in range(1, maxBBzetaindex):
+        dummy, ZBBzeta[i] = float(lines[i].split()[0]), float(lines[i].split()[1])
+    BBzetamax = maxBBzetaindex * deltaBBzeta
 
+    out.close()
+
+    return
