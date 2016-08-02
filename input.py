@@ -262,92 +262,92 @@ def ReadPars():
                     disktorus.Tmax = "%lf"%linesplit[5]
                     disktorus.Tmin = "%lf"%linesplit[6]
                     disktorus.ZetaTmax = "%lf"%linesplit[7]
-            elif( linesplit[1] == "POINT"):
-                if( disktorus.type == "MISSING"):
-                    disktorus.type = linesplit[1]
-                elif( disktorus.type != "POINT"):
-                    Quit("DISKTORUSPARS: Inconsistent disk torus types.")
-                if( nfields < 5 ):
-                    Quit("Too few parameters in keyword DISKTORUSPARS.")
-                disktorus.points += 1
-                if( disktorus.points > (MAXZETAPOINTS - 1) ):
-                    Quit("DISKTORUSPARS: Too many points in the POINT torus.")
-                disktorus.PointZeta[disktorus.points] = "%lf"%linesplit[2]
-                disktorus.PointH[disktorus.points] = "%lf"%linesplit[3]
-                disktorus.PointT[disktorus.points] = "%lf"%linesplit[4]
+                elif( linesplit[1] == "POINT"):
+                    if( disktorus.type == "MISSING"):
+                        disktorus.type = linesplit[1]
+                    elif( disktorus.type != "POINT"):
+                        Quit("DISKTORUSPARS: Inconsistent disk torus types.")
+                    if( nfields < 5 ):
+                        Quit("Too few parameters in keyword DISKTORUSPARS.")
+                    disktorus.points += 1
+                    if( disktorus.points > (MAXZETAPOINTS - 1) ):
+                        Quit("DISKTORUSPARS: Too many points in the POINT torus.")
+                    disktorus.PointZeta[disktorus.points] = "%lf"%linesplit[2]
+                    disktorus.PointH[disktorus.points] = "%lf"%linesplit[3]
+                    disktorus.PointT[disktorus.points] = "%lf"%linesplit[4]
+                else:
+                    Quit("DISKTORUSPARS: Unrecognized torus type.")
+
+            elif( keyword == "DISKSPOT="):
+                if( nfields < 6 ):
+                    Quit("Too few parameters in keyword DISKSPOT.");
+                diskspot.nspots += 1
+                if( diskspot.nspots >= 20 ):
+                    Quit("Too many disk spots.")
+                diskspot.zetamin[diskspot.nspots] = "%lf"%linesplit[1]
+                diskspot.zetamax[diskspot.nspots] = "%lf"%linesplit[2]
+                diskspot.amin[diskspot.nspots] = "%lf"%linesplit[3]
+                diskspot.amax[diskspot.nspots] = "%lf"%linesplit[4]
+                diskspot.spotToverT[diskspot.nspots] = "%lf"%lineslpit[5]
+
+            elif( keyword == "ADCLUM="):
+                adc.L = "%lf"%linesplit[1]
+            elif( keyword == "ADCHEIGHT="):
+                adc.height = "%lf"%linesplit[1]
+
+            elif( keyword == "3rdLIGHTPHASE="):
+                thirdlight.orbphase = "%lf"%linesplit[1]
+            elif( keyword == "3rdLIGHTFRACTION="):
+                if( nfields < 4 ):
+                    Quit("Too few parameters for keyword 3rdLIGHTFRACTION.")
+                thirdlight.nbands += 1
+                if( thirdlight.nbands > (MAXBANDPASSES - 1) ):
+                    Quit("Too many 3rdLIGHT bandpasses.")
+                if( param1 == "FILTER"):
+                    thirdlight.filter[thirdlight.nbands] = "%s"%linesplit[2]
+                    thirdlight.minlambda[thirdlight.nbands] = -1.0
+                    thirdlight.maxlambda[thirdlight.nbands] = -1.0
+                    thirdlight.fraction[thirdlight.nbands] = "%s"%linesplit[3]
+                elif( linesplit[1] == "SQUARE"):
+                    if( nfields < 5 ):
+                        Quit("Too few parameters for BANDPASS= SQUARE.")
+                    thirdlight.filter[thirdlight.nbands] = "SQUARE"
+                    thirdlight.minlambda[thirdlight.nbands] = "%lf"%linesplit[2]
+                    thirdlight.maxlambda[thirdlight.nbands] = "%lf"%linesplit[3]
+                    thirdlight.fraction[thirdlight.nbands] = "%lf"%linesplit[4] 
+                else:
+                    Quit("BANDPASS: Unrecognized bandpass type.")
+
+            elif( keyword == "READDATA="):
+                if( nfields < 4 ):
+                    Quit("Too few parameters for keyword READDATA.")
+                data.nbands += 1
+                if( data.nbands > (MAXBANDPASSES - 1) ):
+                    Quit("Too many data bandpasses.")
+                if( linesplit[1] == "FILTER"):
+                    data.filter[data.nbands] = "%s"%linesplit[2]
+                    data.minlambda[data.nbands] = -1.0
+                    data.maxlambda[data.nbands] = -1.0;
+                    data.filename[data.nbands] = "%s"%linesplit[3]
+                elif( linesplit[1] == "SQUARE"):
+                    if( nfields < 5 ):
+                        Quit("Too few parameters for READDATA= SQUARE.")
+                    data.filter[data.nbands] == "SQUARE"
+                    data.minlambda[data.nbands] = "%lf"%linesplit[2]
+                    data.maxlambda[data.nbands] = "%lf"%linesplit[3]
+                    data.filename[data.nbands] = "%lf"%linesplit[4] 
+                else:
+                    Quit("BANDPASS: Unrecognized bandpass type.")
+                data.npoints[data.nbands] = 0
+                ReadData( data.nbands )
+
             else:
-                Quit("DISKTORUSPARS: Unrecognized torus type.")
-
-        elif( keyword == "DISKSPOT="):
-            if( nfields < 6 ):
-                Quit("Too few parameters in keyword DISKSPOT.");
-            diskspot.nspots += 1
-            if( diskspot.nspots >= 20 ):
-                Quit("Too many disk spots.")
-            diskspot.zetamin[diskspot.nspots] = "%lf"%linesplit[1]
-            diskspot.zetamax[diskspot.nspots] = "%lf"%linesplit[2]
-            diskspot.amin[diskspot.nspots] = "%lf"%linesplit[3]
-            diskspot.amax[diskspot.nspots] = "%lf"%linesplit[4]
-            diskspot.spotToverT[diskspot.nspots] = "%lf"%lineslpit[5]
-
-        elif( keyword == "ADCLUM="):
-            adc.L = "%lf"%linesplit[1]
-        elif( keyword == "ADCHEIGHT="):
-            adc.height = "%lf"%linesplit[1]
-
-        elif( keyword == "3rdLIGHTPHASE="):
-            thirdlight.orbphase = "%lf"%linesplit[1]
-        elif( keyword == "3rdLIGHTFRACTION="):
-            if( nfields < 4 ):
-                Quit("Too few parameters for keyword 3rdLIGHTFRACTION."
-            thirdlight.nbands += 1
-            if( thirdlight.nbands > (MAXBANDPASSES - 1) ):
-                Quit("Too many 3rdLIGHT bandpasses.")
-            if( param1 == "FILTER"):
-                thirdlight.filter[thirdlight.nbands] = "%s"%linesplit[2]
-                thirdlight.minlambda[thirdlight.nbands] = -1.0
-                thirdlight.maxlambda[thirdlight.nbands] = -1.0
-                thirdlight.fraction[thirdlight.nbands] = "%s"%linesplit[3]
-            elif( linesplit[1] == "SQUARE"):
-                if( nfields < 5 ):
-                    Quit("Too few parameters for BANDPASS= SQUARE.")
-                thirdlight.filter[thirdlight.nbands] = "SQUARE")
-                thirdlight.minlambda[thirdlight.nbands] = "%lf"%linesplit[2]
-                thirdlight.maxlambda[thirdlight.nbands] = "%lf"%linesplit[3]
-                thirdlight.fraction[thirdlight.nbands] = "%lf"%linesplit[4] 
-            else:
-                Quit("BANDPASS: Unrecognized bandpass type.");
-
-        elif( keyword == "READDATA="):
-            if( nfields < 4 ):
-                Quit("Too few parameters for keyword READDATA."):
-            data.nbands += 1
-            if( data.nbands > (MAXBANDPASSES - 1) ):
-                Quit("Too many data bandpasses.")
-            if( linesplit[1] == "FILTER"):
-                data.filter[data.nbands] = "%s"%linesplit[2]
-                data.minlambda[data.nbands] = -1.0
-                data.maxlambda[data.nbands] = -1.0;
-                data.filename[data.nbands] = "%s"%linesplit[3]
-            elif( linesplit[1] == "SQUARE"):
-                if( nfields < 5 ):
-                    Quit("Too few parameters for READDATA= SQUARE.")
-                data.filter[data.nbands] == "SQUARE"
-                data.minlambda[data.nbands] = "%lf"%linesplit[2]
-                data.maxlambda[data.nbands] = "%lf"%linesplit[3]
-                data.filename[data.nbands] = "%lf"%linesplit[4] 
-            else:
-                Quit("BANDPASS: Unrecognized bandpass type.")
-            data.npoints[data.nbands] = 0
-            ReadData( data.nbands )
-
-        else:
-            print("Unrecognized keyword in get_data.\n")
-            print("   keyword =%20s\n", keyword)
-            Quit("")
-        x = x
-        out.close()
-        return
+                print("Unrecognized keyword in get_data.\n")
+                print("   keyword =%20s\n", keyword)
+                Quit("")
+            x = x
+            out.close()
+            return
 
 def CheckPars():
     """
