@@ -224,3 +224,133 @@ class star2:
         topy = y 
     
         return topy
+
+    def GetGDbeta():
+        """
+        This function extracts the appropriate value of the gravity
+        darkening beta parameter from the fourbeta[] array, where
+        gravity darkening law is:
+        Teff = <Teff> * ( g / <g> )^beta
+        """
+        if( maxGDindex == 1):
+            beta = 0.25 * fourbeta[1]
+            return( beta )
+        if( star2.meanT <= GDT[0] ):
+             beta = 0.25 * fourbeta[1]
+             return( beta )
+        if( star2.meanT >= GDT[maxGDindex] ):
+            beta = 0.25 * fourbeta[maxGDindex]
+            return( beta )      
+        for i in range(0, maxGDindex):
+            if( (star2.meanT >= GDT[i]) and (star2.meanT < GDT[i+1]) ):
+                ilow = i
+                ihigh = i + 1
+                break
+
+        if( GDT[ihigh] == GDT[ilow] ):
+            beta = 0.25 * fourbeta[ilow]
+            return( beta )
+        slope = ( fourbeta[ihigh] - fourbeta[ilow] ) / ( GDT[ihigh] - GDT[ilow] )
+        beta = fourbeta[ilow] + slope * ( star2.meanT - GDT[ilow] )
+        beta = 0.25 * beta;
+
+        return( beta )
+
+
+    def ClaretHmu( T, logg, Filter,mu):
+        """
+        This is the Claret (2000, AA, 363, 1081) limb-darkening function.
+        It does not interpolate in logg and T but instead just goes to 
+        the nearest grid point.
+        It does interpolate in mu.
+        """
+        findex = -1
+        for i in range(0, maxLDfilterindex):
+            if( LDfilterName[i] == Filter):
+                findex = i
+                break
+        if( findex == -1 ):
+            Quit("Unknown filter name in ClaretHmu.")
+
+        if( T <= LDT[0] ):
+            Tindex = 0
+        elif( T >= LDT[maxLDTindex] ):
+            Tindex = maxLDTindex
+        else:
+            deltaT = LDT[1] - LDT[0]
+            Tindex = 0.5 + ( T - LDT[0] ) / deltaT
+        if( logg <= LDlogg[0] ):
+            gindex = 0
+        elif( logg >= LDlogg[maxLDgindex] ):
+            gindex = maxLDgindex
+        else:
+            deltag =  LDlogg[1] - LDlogg[0]
+            gindex = 0.5 + ( logg - LDlogg[0] ) / deltag
+
+        a1 = LDtable[gindex][Tindex][findex][1]
+        a2 = LDtable[gindex][Tindex][findex][2]
+        a3 = LDtable[gindex][Tindex][findex][3]
+        a4 = LDtable[gindex][Tindex][findex][4]
+        if( mu < 0.0 ):
+            Quit("mu less than zero in ClaretHmu.")
+        sqrtmu = math.sqrt( mu )
+        h = 1.0 - a1 * (1.0 - sqrtmu)    - a2 * (1.0 - mu) - a3 * (1.0 - mu*sqrtmu) - a4 * (1.0 - mu*mu)
+        return ( h )
+
+
+    def GetIperp( T, logg, Filter ):
+        """
+        This function returns the specific intensity at zero zenith
+        angle by linearly interpolated Iperptable[][][] in temperature
+        and log(g).
+        """
+        findex = -1
+        for i in range(0, maxIperpfilterindex):
+            if( IperpfilterName[i] == Filter):
+                findex = i
+                break
+        if( findex == -1 ):
+            Quit("Unknown filter name in GetIperp.")
+
+        if( T <= IperpT[0] ):
+            Quit("T out of range (too low) in GetIperp.")
+        elif( T >= IperpT[maxIperpTindex] ):
+            Quit("T out of range (too high) in GetIperp.")
+        else:
+            deltaT = IperpT[1] - IperpT[0]
+            Tindex1 = ( T - IperpT[0] + 0.1 ) / deltaT
+            Tindex2 = Tindex1 + 1
+            weightT2 = ( T - IperpT[Tindex1] ) / deltaT
+            weightT1 = 1.0 - weightT2
+        if( logg <= Iperplogg[0] ):
+            gindex1 = 0
+            gindex2 = 0
+            weightg1 = 1.0
+            weightg2 = 0.0
+        elif( logg >= Iperplogg[maxIperpgindex] ):
+            gindex1 = maxIperpgindex
+            gindex2 = maxIperpgindex
+            weightg1 = 0.0
+            weightg2 = 1.0
+        else:
+            deltag =  Iperplogg[1] - Iperplogg[0]
+            gindex1 = ( logg - Iperplogg[0] + 0.1 ) / deltag
+            gindex2 = gindex1 + 1
+            weightg2 = ( logg - Iperplogg[gindex1] ) / deltag
+            weightg1 = 1.0 - weightg2
+        intensity =  weightg1 * weightT1 * Iperptable[gindex1][Tindex1][findex] + weightg1 * weightT2 * Iperptable[gindex1][Tindex2][findex]+ weightg2 * weightT1 * Iperptable[gindex2][Tindex1][findex]+ weightg2 * weightT2 * Iperptable[gindex2][Tindex2][findex]
+
+        return( intensity )
+
+
+    def Star2L():
+        """
+        Calculate the luminosity of star 2 by adding up the fluxes
+        from all the tiles.  This function should not be used until
+        after heating by irradiation has been calculated.
+        """
+        luminosity = 0.0
+        for itile in range(1, star2.Ntiles):
+            luminosity += SIGMA * pow( T2T[itile], 4.0) * T2dS[itile]
+
+        return( luminosity )

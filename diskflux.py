@@ -106,7 +106,7 @@ class Disk:
                     T4 = T4 * ( math.pow( r2, beta) - math.pow( r1, beta)) / (r2*r2 - r1*r1)
                     temperature = math.pow ( T4, 0.25)
             if( control.diskspots == "ON"):
-                for i range(diskspot.nspots):
+                for i in range(1, diskspot.nspots):
                     if( (zeta >= diskspot.zetamin[i]) 
                              & (zeta <= diskspot.zetamax[i]) ):
                         if( (a >= diskspot.amin[i]) 
@@ -148,24 +148,22 @@ class Disk:
             return temperature
 
         if( disktorus.type == "SINUSOID"):
-            temperature =    0.5 * ( disktorus.Tmax + disktorus.Tmin )
-                     + 0.5 * ( disktorus.Tmax - disktorus.Tmin ) 
-                                   * math.cos( zeta - disktorus.ZetaTmax )
+            temperature =    0.5 * ( disktorus.Tmax + disktorus.Tmin ) + 0.5 * ( disktorus.Tmax - disktorus.Tmin ) * math.cos( zeta - disktorus.ZetaTmax )
         elif( disktorus.type == "POINT" ):
             if( disktorus.points == 1 ):
-            temperature = disktorus.PointT[1]
+                temperature = disktorus.PointT[1]
             else:
-	  for i in range(diskrim.points):
-	      zetalow = disktorus.PointZeta[i]
-            Tlow = disktorus.PointT[i]
+                for i in range(diskrim.points):
+                    zetalow = disktorus.PointZeta[i]
+                    Tlow = disktorus.PointT[i]
             if( i < disktorus.points ):
-	          zetahigh = disktorus.PointZeta[i+1]
+                zetahigh = disktorus.PointZeta[i+1]
                 Thigh = disktorus.PointT[i+1]
             else:
-	          zetahigh = 2*math.pi
+                zetahigh = 2*math.pi
                 Thigh = disktorus.PointT[1]
-	      if( (zeta >= zetalow) & (zeta < zetahigh) ):
-	          slope = (Thigh - Tlow) / (zetahigh - zetalow)
+            if( (zeta >= zetalow) and (zeta < zetahigh) ):
+                slope = (Thigh - Tlow) / (zetahigh - zetalow)
                 temperature = Tlow + slope * (zeta - zetalow)
                 break
         else:
@@ -207,24 +205,22 @@ class Disk:
             temperature = 0.0
             return temperature
         if( disktorus.type == "SINUSOID"):
-            temperature =    0.5 * ( disktorus.Tmax + disktorus.Tmin )
-                     + 0.5 * ( disktorus.Tmax - disktorus.Tmin ) 
-                                   * math.cos( zeta - disktorus.ZetaTmax )
+            temperature =    0.5 * ( disktorus.Tmax + disktorus.Tmin ) + 0.5 * ( disktorus.Tmax - disktorus.Tmin ) * math.cos( zeta - disktorus.ZetaTmax )
         elif( disktorus.type == "POINT"):
             if( disktorus.points == 1 ):
                 temperature = disktorus.PointT[1]
             else:
 	          for i in range(disktorus.points):
-	              zetalow = disktorus.PointZeta[i]
+                    zetalow = disktorus.PointZeta[i]
                     Tlow = disktorus.PointT[i]
                     if( i < disktorus.points ):
-	                  zetahigh = disktorus.PointZeta[i+1]
+                        zetahigh = disktorus.PointZeta[i+1]
                         Thigh = disktorus.PointT[i+1]
                     else:
-	                  zetahigh = 2*math.pi
+                        zetahigh = 2*math.pi
                         Thigh = disktorus.PointT[1]
-	              if( (zeta >= zetalow) and (zeta < zetahigh) ):
-	                  slope = (Thigh - Tlow) / (zetahigh - zetalow)
+                    if( (zeta >= zetalow) and (zeta < zetahigh) ):
+                        slope = (Thigh - Tlow) / (zetahigh - zetalow)
                         temperature = Tlow + slope * (zeta - zetalow)
                         break
         else:
@@ -243,12 +239,12 @@ class Disk:
             if( z1 < 0.0 ):
                 if( zeta >= (z1 + 2*math.pi) ):
                     temperature = diskedge.Tspot
-	          if( zeta <= z2 ):
+                if( zeta <= z2 ):
                     temperature = diskedge.Tspot
             elif( z2 > 2*math.pi ):
                 if( zeta < (z2 - 2*math.pi) ):
 	              temperature = diskedge.Tspot
-	          if( zeta >= z1 ):
+                if( zeta >= z1 ):
  	              temperature = diskedge.Tspot
             elif( (zeta >= z1) and (zeta <= z2) ):
 	          temperature = diskedge.Tspot
@@ -274,3 +270,44 @@ class Disk:
                 if( TDiskT[itile] < disk.TopTmin ):
                     disk.TopTmin = TDiskT[itile]
         return luminosity
+
+    def InnerDiskFlambda( Filter, minlambda, maxlambda):
+        """
+        This function returns the contribution of the inner disk to the
+        observed spectrum at wavelength lambda.  Note that the wavelengths
+        must be in centimeters but the returned flux is in
+        ergs/sec/cm^2/Angstrom.  The returned quantity must be 
+        multiplied by the geometric projection factor
+                    mu = cos( theta ) 
+        to get the observed quantity.
+        """
+        if( Filter == "SQUARE"):
+            flux = ( innerdisk.L / (2.0 * innerdisk.sigmaT4) )* BBSquareIntensity( innerdisk.T, minlambda, maxlambda )
+        else:
+            flux = ( innerdisk.L / (2.0 * innerdisk.sigmaT4) )* BBFilterIntensity( innerdisk.T, Filter )
+
+        return( flux )
+
+
+    def ADCTotFlux(distance):
+        """
+        This function returns the integrated flux from ONE of
+        the ADC points:
+        The integrated flux is just adc.L/2.0 diluted by the
+        area of the sphere around the ADC point.
+        """
+        totalflux = 0.5 * adc.L / (4*math.pi * distance * distance )
+        return( totalflux )
+
+    def InnerDiskTotFlux(distance):
+        """
+        This function returns the integrated flux from the inner disk.
+        The flux has been integrated over wavelength and over 
+        the surface of the disk.  The returned quantity must by
+        multiplied by the geometric projection factor 
+             mu = cos( theta ) 
+        to get the irradiating flux.  The factor is TWOPI
+        instead of FOURPI because of the mu factor.
+        """
+        totalflux = innerdisk.L / (2*math.pi * distance * distance )
+        return( totalflux )

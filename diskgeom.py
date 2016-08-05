@@ -280,4 +280,386 @@ def MakeDiskTiles():
                  height = Disk.Hmax * math.pow( x, Disk.Hpow )
         return height
 
+def DiskRimH( a, zeta ):
+    """
+    This function returns the height of the disk rim at 
+    position (a, zeta) .  The cross section of the rim is 
+    modeled as a truncated ellipse added on top of the main 
+    disk with
+       vertical semi-major axis   = H
+       horizontal semi-minor axis = diskrim.awidth
+ 
+        (h/H)^2 + ( (maindisk.amax -a) / awidth )^2 = 1
+ 
+    The rim height H is a function of zeta but its width is not.
+    There are currently two possibilities for the zeta dependence
+ 
+    1) SINUSOID
+       H = 0.5 * (Hmax + Hmin)
+             + 0.5* (Hmax - Hmin) * cos( zeta - zetaHmax );
+ 
+    2) POINT
+       The disk rim height and temperature is defined by a set 
+       of points, one point per DISKRIMPARS= line in the parameter file:
+          DISKRIMPARS=  POINT   Zeta1   H1   T1
+          DISKRIMPARS=  POINT   Zeta2   H2   T2    
+             .        .       .     .    .
+             .        .       .     .    .
+       The Zetas need not be in order.
+       The heights are linearly interpolated between the specified points.
+ 
+    The weird factor (1.0 + 1.0e-7) is protection against 
+    roundoff error at the edge of the disk.
+    """
+    if( zeta > 2*math.pi ):
+        Quit("zeta greater than TWOPI in DiskRimH.")
+    if( zeta < 0.0 ):
+        Quit("zeta less than zero in DiskRimH.")
+
+    if( a < (maindisk.amax - diskrim.awidth) ):
+        height = 0.0
+        return( height )
+    if( a > ( (1.0 + 1.0e-7) * maindisk.amax ) ):
+        height = 0.0
+        return( height )
+
+    if( diskrim.type == "SINUSOID" ):
+        Hzeta =    0.5 * ( diskrim.Hmax + diskrim.Hmin ) + 0.5 * ( diskrim.Hmax - diskrim.Hmin ) * math.cos( zeta - diskrim.ZetaHmax )
+    elif( diskrim.type == "POINT" ):
+        if( diskrim.points == 1 ):
+            Hzeta = diskrim.PointH[1]
+        else:
+	      for i in range(1, diskrim.points):
+               zetalow = diskrim.PointZeta[i]
+               Hlow = diskrim.PointH[i]
+               if( i < diskrim.points ):
+                   zetahigh = diskrim.PointZeta[i+1];
+                   Hhigh = diskrim.PointH[i+1]
+               else:
+                   zetahigh = 2*math.pi
+                   Hhigh = diskrim.PointH[1]
+               if( (zeta >= zetalow) and (zeta < zetahigh) ):
+                  slope = (Hhigh - Hlow) / (zetahigh - zetalow)
+                  Hzeta = Hlow + slope * (zeta - zetalow)
+                  break
+    else:
+        Quit("Unrecognized disk rim type in DiskRimH.")
+
+    x = (maindisk.amax - a) / diskrim.awidth
+    y = sqrt( 1.0 - x*x)
+    height = Hzeta * y
+
+    return( height )
+
+
+def DiskTorusH( a, zeta ):
+    """
+    This function returns the height of the disk torus
+    at position (a, zeta).   The cross section of the torus is 
+    modeled as an ellipse added on top of the main disk with
+       ellipse center             = disktorus.azero
+       vertical semi-major axis   = H
+       horizontal semi-minor axis = 0.5 * disktorus.awidth
+ 
+        (h/H)^2 + ( (disktorus.azero -a) / awidth )^2 = 1
+ 
+    The torus height H is a function of zeta but its width is not. 
+    There are currently two possibilities for the zeta dependence
+ 
+    1) SINUSOID
+       H = 0.5 * (Hmax + Hmin)
+             + 0.5* (Hmax - Hmin) * cos( zeta - zetaHmax );
+ 
+    2) POINT
+       The disk torus height and temperature is defined by a set of
+       points, one point per DISKTORUSPARS= line in the parameter file:
+          DISKTORUSPARS=  POINT   Zeta1   H1   T1
+          DISKTORUSPARS=  POINT   Zeta2   H2   T2    
+             .        .       .     .    .
+             .        .       .     .    .
+       The heights are linearly interpolated between the specified points.
+ 
+       The Zetas must be in increasing order and disktorus.PointZeta[1]
+       must be 0 degrees (this avoids messy computer code).
+       The heights are linearly interpolated between the specified points.
+    """
+    if( zeta > 2*math.pi ):
+        Quit("zeta greater than TWOPI in DiskTorusH.")
+    if( zeta < 0.0 ):
+        Quit("zeta less than zero in DiskTorusH.")
+
+    if( a < (disktorus.azero - 0.5 * disktorus.awidth) ):
+        height = 0.0
+        return( height )
+    if( a > (disktorus.azero + 0.5 * disktorus.awidth) ):
+        height = 0.0
+        return( height )
+
+    if( disktorus.type == "SINUSOID" ):
+        Hzeta =    0.5 * ( disktorus.Hmax + disktorus.Hmin ) + 0.5 * ( disktorus.Hmax - disktorus.Hmin ) * math.cos( zeta - disktorus.ZetaHmax )
+    elif( disktorus.type == "POINT" ):
+        if( disktorus.points == 1 ):
+            Hzeta = disktorus.PointH[1]
+        else:
+	      for i in range(1, disktorus.points):
+               zetalow = disktorus.PointZeta[i]
+               Hlow = disktorus.PointH[i]
+               if( i < disktorus.points ):
+                   zetahigh = disktorus.PointZeta[i+1]
+                   Hhigh = disktorus.PointH[i+1]
+               else:
+                   zetahigh = 2*math.pi
+                   Hhigh = disktorus.PointH[1]
+               if( (zeta >= zetalow) and (zeta < zetahigh) ):
+                   slope = (Hhigh - Hlow) / (zetahigh - zetalow)
+                   Hzeta = Hlow + slope * (zeta - zetalow);
+                   break
+    else:
+        Quit("Unrecognized disk torus type in DiskTorusH.");
+
+    x = (disktorus.azero - a) / (0.5 * disktorus.awidth)
+    y = math.sqrt( 1.0 - x*x)
+    height = Hzeta * y
+
+    return( height )
+
+def DiskNormal( where, a1, a2, zeta1, zeta2):
+    """
+    This function calculates the unit vector that is
+    normal to the surface of a disk tile.  Note: the vector is
+    normal to the tile, not normal to the surface of the disk
+    underlying the tile.
+    """ 
+    if( (a2 - a1) <= 0.0 ):
+        Quit("a2 le a1 in DiskNormal().")
+    if( (zeta2 - zeta1) <= 0.0 ):
+        Quit("zeta2 le zeta1 in DiskNormal().")
+    a = 0.5 * (a1 + a2)
+    zeta = 0.5 * (zeta1 + zeta2)
+    if( where == "TOP"):
+        rho1 = AToRho( a1, zeta)
+        rho2 = AToRho( a2, zeta)
+        rho =  AToRho( a,  zeta)
+        h1 = DiskTopH( a1, zeta)
+        h2 = DiskTopH( a2, zeta)
+        DhDrho = (h2 - h1) / (rho2 - rho1)
+        h1 = DiskTopH( a, zeta1)
+        h2 = DiskTopH( a, zeta2)
+        DhDzeta = (h2 - h1) / (zeta2 - zeta1)
+        norm.rho  = -DhDrho
+        norm.zeta = -(1.0 / rho) * DhDzeta
+        norm.h    =  1.0
+    elif( where == "EDGE"):
+        rho1 = AToRho( a, zeta1)
+        rho2 = AToRho( a, zeta2)
+        rho =  AToRho( a, zeta)
+        DrhoDzeta = (rho2 - rho1) / (zeta2 - zeta1)
+        norm.rho  = 1.0
+        norm.zeta = -(1.0 / rho) * DrhoDzeta
+        norm.h    = 0.0
+    else:
+      Quit("Unrecognized location in DiskNormal.")
+
+    beta = 1.0 / math.sqrt( norm.rho*norm.rho + norm.zeta*norm.zeta + norm.h*norm.h)
+    norm.rho  = beta * norm.rho
+    norm.zeta = beta * norm.zeta
+    norm.h    = beta * norm.h
+
+    return( norm )
+
+
+def TopTileArea( itile, a1, a2, zeta1, zeta2):
+    """
+    This function calculates the area of tiles on the top surface
+    of the disk extending from a1 to a2, and from zeta1 to zeta2.
+    Note that the tile is finite in size, so the expression
+    for flatarea is not just  d S = rho d rho d zeta.
+    """
+    if( zeta1 < 0.0 ):
+        Quit("zeta less than zero in TopTileArea.")
+    if( zeta2 > 2*math.pi ):
+        Quit("zeta greater than TWOPI in TopTileArea.")
+    zeta = 0.5 * (zeta1 + zeta2)
+    dzeta = zeta2 - zeta1
+    if( dzeta < 0.0 ):
+        Quit("dzeta is less than zero in TopTileArea.")
+
+    rho1 = AToRho( a1, zeta)
+    rho2 = AToRho( a2, zeta)
+    flatarea = math.pi * (rho2*rho2 - rho1*rho1) * ( dzeta / 2*math.pi )
+
+    if( TDisknormCyl[itile].h == 0.0 ):
+        Quit("TDisknormCyl.h equals zero in TopTileArea.")
+    Area = flatarea / TDisknormCyl[itile].h
+
+    return( Area )
+
+def EdgeTileArea( itile, zeta1, zeta2, dh):
+    """
+    This function calculates the area of edge tiles.
+    """
+    if( zeta1 < 0.0 ):
+        Quit("zeta less than zero in EdgeTileArea.")
+    if( zeta2 > 2*math.pi ):
+        Quit("zeta greater than TWOPI in EdgeTileArea.")
+    zeta = 0.5 * (zeta1 + zeta2)
+    dzeta = zeta2 - zeta1
+    if( dzeta < 0.0 ):
+        Quit("dzeta less than zero in EdgeTileArea.")
+
+    flatarea = TDiskRho[itile] * dzeta * dh
+
+    if( TDisknormCyl[itile].rho == 0.0 ):
+        Quit("TDisknormCyl.rho equals zero in EdgeTileArea.")
+    Area = flatarea / TDisknormCyl[itile].rho
+
+    return( Area )
+
+def RhoToA( rho, zeta ):
+    """
+    Calculates a from (rho, zeta).
+    """
+    if( disk.e == 0.0 ):
+        a = rho
+    else:
+        a = rho * (1.0 + disk.e * math.cos(zeta - disk.zetazero) ) / (1.0 - disk.e * disk.e)
+
+    return( a )
+
+def AToRho( a, zeta ):
+    """
+    Calculates rho from ( a, zeta).
+    """
+    if( disk.e == 0.0 ):
+        rho = a
+    else:
+        rho =  ( a * (1.0 - disk.e * disk.e) ) / (1.0 + disk.e * cos(zeta - disk.zetazero) )
+                             
+    return( rho )
+
+def MakeDiskRim():
+    """
+    This function is invoked if the disk rim is ON and the rim
+    is specified by a set of discrete points along its rim.  
+    It does the following:
+       1)  Sort the rim points in order of increasing zeta.
+       2)  Check for duplicate points.
+       3)  Create a point a zeta = 0 if one does not already
+             exist by linearly interpolating in zeta.
+       4)  Finds maximum and minimum values for H and T.
+ 
+    Note:  The function assumes that zeta is given in degrees.
+    """
+    if( diskrim.points <= 0 ):
+        Quit("SortRimPoints:  diskrim.points le 0.")
+    elif( diskrim.points > 1 ):
+        for i in range(1, diskrim.points):
+            for j in range(i+1, diskrim.points):
+                if( diskrim.PointZeta[i] > diskrim.PointZeta[j] ):
+                    dummy = diskrim.PointZeta[i]
+                    diskrim.PointZeta[i] = diskrim.PointZeta[j]
+                    diskrim.PointZeta[j] = dummy
+                    dummy = diskrim.PointH[i]
+                    diskrim.PointH[i] = diskrim.PointH[j]
+                    diskrim.PointH[j] = dummy
+                    dummy = diskrim.PointT[i]
+                    diskrim.PointT[i] = diskrim.PointT[j]
+                    diskrim.PointT[j] = dummy
+
+    if( diskrim.points > 1 ):
+        for i in range(1, diskrim.points):
+            if( diskrim.PointZeta[i] == diskrim.PointZeta[i+1] ):
+                Quit("DISKRIMPARS: At least two points have the same PointZeta.")
+    if( diskrim.PointZeta[1] != 0.0 ):
+        diskrim.points += 1
+        for i in range(diskrim.points, 2, -1):
+             diskrim.PointZeta[i] = diskrim.PointZeta[i-1]
+             diskrim.PointH[i]    = diskrim.PointH[i-1]
+             diskrim.PointT[i]    = diskrim.PointT[i-1]
+        diskrim.PointZeta[1] = 0.0
+        zeta2 = diskrim.PointZeta[2];
+        zetaN = 360.0 - diskrim.PointZeta[diskrim.points];
+        diskrim.PointH[1] = ( zetaN * diskrim.PointH[2] + zeta2 * diskrim.PointH[diskrim.points]) / (zeta2 + zetaN)
+        diskrim.PointT[1] = ( zetaN * diskrim.PointT[2] + zeta2 * diskrim.PointT[diskrim.points]) / (zeta2 + zetaN)
+    diskrim.Hmax = diskrim.PointH[1]
+    diskrim.Hmin = diskrim.PointH[1]
+    diskrim.ZetaHmax = diskrim.PointZeta[1]
+    diskrim.Tmin = diskrim.PointT[1]
+    diskrim.Tmax = diskrim.PointT[1]
+    diskrim.ZetaTmax = diskrim.PointZeta[1]
+    for i in range(1, diskrim.points):
+        if( diskrim.PointH[i] > diskrim.Hmax ):
+            diskrim.Hmax = diskrim.PointH[i]
+            diskrim.ZetaHmax = diskrim.PointZeta[i]
+        if( diskrim.PointH[i] < diskrim.Hmin ):
+            diskrim.Hmin = diskrim.PointH[i]
+        if( diskrim.PointT[i] > diskrim.Tmax ):
+            diskrim.Tmax = diskrim.PointT[i]
+            diskrim.ZetaTmax = diskrim.PointZeta[i]
+        if( diskrim.PointT[i] < diskrim.Tmin ):
+            diskrim.Tmin = diskrim.PointT[i]
+    return
+
+def MakeDiskTorus():
+    """
+    This function is invoked if the disk torus is ON and the torus
+    is specified by a set of discrete points around the disk.  
+    It does the following:
+       1)  Sort the torus points in order of increasing zeta.
+       2)  Check for duplicate points.
+       3)  Create a point a zeta = 0 if one does not already
+             exist by linearly interpolating in zeta.
+       4)  Finds maximum and minimum values for H and T.
+ 
+    Note:  The function assumes that zeta is given in degrees.
+    """
+    if( disktorus.points <= 0 ):
+        Quit("SortTorusPoints:  disktorus.points le 0.")
+    elif( disktorus.points > 1 ):
+        for i in range(1, disktorus.points):
+            for j in range(i+1, disktorus.points):
+                if( disktorus.PointZeta[i] > disktorus.PointZeta[j] ):
+                    dummy = disktorus.PointZeta[i]
+                    disktorus.PointZeta[i] = disktorus.PointZeta[j]
+                    disktorus.PointZeta[j] = dummy
+                    dummy = disktorus.PointH[i]
+                    disktorus.PointH[i] = disktorus.PointH[j]
+                    disktorus.PointH[j] = dummy
+                    dummy = disktorus.PointT[i]
+                    disktorus.PointT[i] = disktorus.PointT[j]
+                    disktorus.PointT[j] = dummy
+    if( disktorus.points > 1 ):
+        for i in range(1, disktorus.points):
+            if( disktorus.PointZeta[i] == disktorus.PointZeta[i+1] ):
+                Quit("DISKTORUSPARS: At least two points have the same PointZeta.")
+
+    if( disktorus.PointZeta[1] != 0.0 ):
+        disktorus.points += 1
+        for i in range(disktorus.points,2,-1):
+            disktorus.PointZeta[i] = disktorus.PointZeta[i-1]
+            disktorus.PointH[i]    = disktorus.PointH[i-1]
+            disktorus.PointT[i]    = disktorus.PointT[i-1]
+        disktorus.PointZeta[1] = 0.0
+        zeta2 = disktorus.PointZeta[2]
+        zetaN = 360.0 - disktorus.PointZeta[disktorus.points]
+        disktorus.PointH[1] = ( zetaN * disktorus.PointH[2] + zeta2 * disktorus.PointH[disktorus.points]) / (zeta2 + zetaN)
+        disktorus.PointT[1] = ( zetaN * disktorus.PointT[2] + zeta2 * disktorus.PointT[disktorus.points]) / (zeta2 + zetaN)
+    disktorus.Hmax = disktorus.PointH[1]
+    disktorus.Hmin = disktorus.PointH[1]
+    disktorus.ZetaHmax = disktorus.PointZeta[1]
+    disktorus.Tmin = disktorus.PointT[1]
+    disktorus.Tmax = disktorus.PointT[1]
+    disktorus.ZetaTmax = disktorus.PointZeta[1]
+    for i in range(1, disktorus.points):
+        if( disktorus.PointH[i] > disktorus.Hmax ):
+            disktorus.Hmax = disktorus.PointH[i]
+            disktorus.ZetaHmax = disktorus.PointZeta[i]
+        if( disktorus.PointH[i] < disktorus.Hmin ):
+            disktorus.Hmin = disktorus.PointH[i]
+        if( disktorus.PointT[i] > disktorus.Tmax ):
+            disktorus.Tmax = disktorus.PointT[i]
+            disktorus.ZetaTmax = disktorus.PointZeta[i]
+        if( disktorus.PointT[i] < disktorus.Tmin ):
+            disktorus.Tmin = disktorus.PointT[i]
+    return
     

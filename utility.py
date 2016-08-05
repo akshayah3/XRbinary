@@ -97,3 +97,152 @@ def BBSquareIntensity(T, lowlambda, highlambda):
         intensity = slope * (T - IBBT[minTindex]) + IBBtable[minTindex][findex]
 
         return intensity
+
+def AngleDistance( theta1, phi1, theta2, phi2):
+    """
+    Calculates the angular distance between two directions, where
+    the directions are given by their coordinates (theta,phi) in
+    the spherical polar coordinate system.  All angles in radians.
+    """
+    cosa = math.cos(theta1) * math.cos(theta2) + math.sin(theta1) * math.sin(theta2) * math.cos(phi2 - phi1)
+    a = math.acos( cosa )
+
+    return( a )
+
+def CartDotProd( A, B):
+    """
+    Calculates the dot product of two vectors, both of which
+    are in Cartesian coordinates.
+    """
+    prod = A.x * B.x + A.y * B.y + A.z * B.z
+
+    return( prod )
+
+def Cart2Sphere( Acart, theta, phi ):
+    """
+    This converts a vector from Cartesian coordinates to 
+    spherical polar coordinates.  More specifically, it calculates
+    the components of the vector in spherical polar coordinates
+    given its components in Cartesian coordinates.
+    """
+    sint = math.sin( theta )
+    cost = math.cos( theta )
+    sinp = math.sin( phi )
+    cosp = math.cos( phi )
+
+    m11 =   sint * cosp
+    m21 =   cost * cosp
+    m31 = - sinp
+
+    m12 =   sint * sinp
+    m22 =   cost * sinp
+    m32 =   cosp
+
+    m13 =   cost
+    m23 = - sint
+    m33 =   0.0
+
+    Asphere.r     = m11 * Acart.x + m12 * Acart.y + m13 * Acart.z
+    Asphere.theta = m21 * Acart.x + m22 * Acart.y + m23 * Acart.z
+    Asphere.phi   = m31 * Acart.x + m32 * Acart.y + m33 * Acart.z
+
+    return( Asphere )
+
+def Sphere2Cart( Asphere, theta, phi ):
+    """
+    This converts a vector from spherical polar coordinates to 
+    Cartesian coordinates.  More specifically, it calculates
+    the components of the vector in Cartesian coordinates
+    given its components in Spherical polar coordinates.
+    """
+    sint = math.sin( theta )
+    cost = math.cos( theta )
+    sinp = math.sin( phi )
+    cosp = math.cos( phi )
+
+    m11 =   sint * cosp
+    m21 =   sint * sinp
+    m31 =   cost
+
+    m12 =   cost * cosp
+    m22 =   cost * sinp
+    m32 = - sint
+
+    m13 = - sinp
+    m23 =   cosp
+    m33 =   0.0
+
+    Acart.x = m11 * Asphere.r + m12 * Asphere.theta + m13 * Asphere.phi
+    Acart.y = m21 * Asphere.r + m22 * Asphere.theta + m23 * Asphere.phi
+    Acart.z = m31 * Asphere.r + m32 * Asphere.theta + m33 * Asphere.phi
+
+    return( Acart )
+
+def Cyl2Cart( Asphere, zeta ):
+    """
+    This converts a vector from cylindrical coordinates to 
+    Cartesian coordinates.  More specifically, it calculates
+    the components of the vector in Cartesian coordinates
+    given its components in cylindrical coordinates.
+    """
+    sinzeta = math.sin( zeta )
+    coszeta = math.cos( zeta )
+
+    m11 =   sinzeta
+    m21 =   0.0
+    m31 =   coszeta
+
+    m12 =   coszeta
+    m22 =   0.0
+    m32 = - sinzeta
+
+    m13 =   0.0
+    m23 =   1
+    m33 =   0.0
+
+    Acart.x = m11 * Asphere.rho + m12 * Asphere.zeta + m13 * Asphere.h
+    Acart.y = m21 * Asphere.rho + m22 * Asphere.zeta + m23 * Asphere.h
+    Acart.z = m31 * Asphere.rho + m32 * Asphere.zeta + m33 * Asphere.h
+
+    return( Acart )
+
+def Planck( mode, temperature, lambdanu ):
+    """
+    Returns the specific intensity emitted by the surface of a black body:
+ 
+      Fnu     = ( 2*h*nu^3 / c^2)      / ( exp[ h*nu / k*T ] - 1 )
+
+       Flambda = ( 2*h*c^2 / lambda^5 ) / ( exp[ h*c / lambda*k*T ] -1 )
+
+     Input data:
+      mode         "NU"     returns Fnu     in units of erg/sec/cm^2/Hz
+                   "LAMBDA" returns Flambda in units of erg/sec/cm^2/cm
+      temperature  in degrees Kelvin
+      lambdanu     wavelength in cm if mode=LAMBDA
+                   frequency  in Hz if mode=NU
+ 
+    Note that the Planck function is normalized such that 
+      (integral over frequency) = ( sigma / pi ) * T**4
+    Thus, it is the monochromatic specific intensity per unit area.
+    """
+    h = 6.62608e-27
+    c=  2.99792e+10 
+    k = 1.38066e-16 
+    if( temperature <= 1.0 ):
+        Quit("Temperature out of range in function Planck.")
+    if( mode == "NU" ):
+        nu = lambdanu
+        x = ( 2.0 * h * nu * nu * nu ) / ( c * c )
+        y = ( h * nu ) / ( k * temperature )
+        Fnu = x / ( math.exp( y ) - 1.0 )
+        return( Fnu )
+    elif( mode == "LAMBDA"):
+        Lambda = lambdanu
+        x = ( 2.0 * h * c * c ) / pow( Lambda, 5.0 )
+        y = ( h * c ) / ( Lambda * k * temperature )
+        Flambda = x / ( math.exp( y ) - 1.0 )
+        return( Flambda )
+    else:
+        Quit("Unrecognized mode in function Planck().")
+      
+    return(-1.0)
