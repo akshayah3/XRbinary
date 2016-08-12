@@ -5,6 +5,9 @@ classes
 
 
 class CartVector():
+    x = None
+    y = None
+    z = None
     def __init__(self, x=None, y=None, z=None):
         self.x = x
         self.y = y
@@ -22,6 +25,9 @@ class CartVector():
         self.z = z
     
 class CylVector():
+    rho = None
+    zeta = None
+    h = None
     def __init__(self, rho=None, zeta=None, h=None):
         self.rho = rho
         self.zeta = zeta
@@ -39,6 +45,9 @@ class CylVector():
         self.h = h
 
 class SphereVector():
+    r = None
+    theta = None
+    phi = None
     def __init__(self, r=None, theta=None, phi=None):
         self.r = r
         self.theta = theta
@@ -57,6 +66,9 @@ class SphereVector():
         self.phi = phi
 
 class filenames():
+    parfile = None
+    syspars = None
+    lightcurves = None
     def __init__(self, parfile=None, syspars=None, lightcurves=None):
         self.parfile = parfile
         self.syspars = syspars
@@ -75,6 +87,21 @@ class filenames():
         self.lightcurves = lightcurves
 
 class flowcontrol():
+    star1 = None
+    star2 = None
+    star2spots = None
+    disk = None
+    diskrim = None
+    disktorus = None
+    innerdisk = None
+    diskspots = None
+    adc = None
+    thirdlight = None
+    irradiation = None
+    diagnostics = None
+    diagnosephase = None
+    diagnoseband = None
+    diagnoseindex = None    
     def __init__(self, star1=None, star2=None, star2spots=None, disk=None, diskrim=None, disktorus=None, innerdisk=None,
             diskspots=None, adc=None, thirdlight=None, irradiation=None, diagnostics=None, diagnosephase=None, diagnoseband=None, diagnoseindex=None):
                       self.star1 = star1
@@ -154,6 +181,19 @@ class flowcontrol():
         self.diagnoseindex = diagnoseindex
 
 class orbitparams():
+    phasemin = None
+    deltaphase = None
+    maxpindex = None
+    phaseoffset = None
+    nbands = None
+    filtermax = None
+    minlambda = []
+    maxlambda = []
+    normalize = None
+    normfilter = None
+    normMinlambda = None
+    normMaxlambda = None
+    normvalue = None
     def __init__(self, phasemin=None, phasemax=None, deltaphase=None, maxpindex=None,
                  phaseoffset=None, nbands=None, filtermax = None, minlambda = None,
                  maxlambda=None, normalize=None, normfilter=None, normMinlambda=None,
@@ -230,6 +270,19 @@ class orbitparams():
         self.normvalue = normvalue
 
 class systemparams():
+    p = None
+    omega = None
+    k2 = None
+    q = None
+    i = None
+    a = None
+    zcm = None
+    M1 = None
+    M2 = None
+    VL1 = None
+    rL1 = None
+    MeanLobe1Radius = None
+    MeanLobe2Radius = None    
     def __init__(self, p=None, omega=None, K2=None, q=None, i=None, a=None, zcm=None,
                  M1=None, M2=None, rL1=None, VL1=None, MeanLobe1Radius=None, MeanLobe2Radius=None):
                      self.p = p
@@ -299,6 +352,11 @@ class systemparams():
         self.MeanLobe2Radius = r
 
 class star2spotparams():
+    nspots = None
+    theta = []
+    phi = []
+    radius = []
+    SpotoverStarT = None
     def __init__(self, nspots=None, theta=None, phi=None, radius=None, SpotToverStarT=None):
         self.nspots = nspots
         self.theta = theta
@@ -326,6 +384,13 @@ class star2spotparams():
         self.SpotToverStarT = s
 
 class wholediskpars():
+    targetNtiles = None
+    e = None
+    zetazero = None
+    albedo = None
+    L = None
+    TopTmax = None
+    TopTmin = None
     def __init__(self, targetNtiles=None, Ntiles=None, e=None, zetazero=None, albedo=None,
                  L=None, TopTmax=None, TopTmin=None):
                      self.targetNtiles = targetNtiles
@@ -370,6 +435,10 @@ class wholediskpars():
         self.Toptmin = t
 
 class diskedgepars():
+    T = None
+    Tspot = None
+    ZetaMid = None
+    ZetaWidth = None
     def __init__(self, T=None, Tspot=None, ZetaMid=None, ZetaWidth=None):
         self.T = T
         self.Tspot = Tspot
@@ -393,6 +462,18 @@ class diskedgepars():
         self.ZetaWidth = ZetaWidth
 
 class diskrimpars():
+    Type = None
+    awidth = None
+    Hmax = None
+    Hmin = None
+    ZetaHmax = None
+    Tmax = None
+    Tmin = None
+    ZetaTmax = None
+    points = None
+    PointZeta = []
+    PointH = []
+    PointT = []
     def __init__(self, Type=None, awidth=None, Hmax=None, Hmin=None, ZetaHmax=None,
                  Tmax=None, Tmin=None, ZetaTmax=None, points=None, PointZeta=None,
                  PointH=None, PointT=None):
@@ -457,6 +538,19 @@ class diskrimpars():
         self.PointT = p
 
 class disktorusparams():
+    Type = None
+    awidth = None
+    Hmax = None
+    Hmin = None
+    ZetaHmax = None
+    Tmax = None
+    Tmin = None
+    ZetaTmax = None
+    points = None
+    PointZeta = []
+    PointH = []
+    PointT = []
+    azero = None
     def __init(self, Type=None, awidth=None, Hmax=None, Hmin=None, ZetaHmax=None,
                  Tmax=None, Tmin=None, ZetaTmax=None, points=None, PointZeta=None,
                  PointH=None, PointT=None, azero=None):
@@ -526,6 +620,12 @@ class disktorusparams():
         self.azero = azero
 
 class diskspotpars():
+    nspots = None
+    zetamin = []
+    zetamax = []
+    amin = []
+    amax = []
+    spotToverT = []
     def __init__(self, nspots=None, zetamin=None, zetamax=None, amin=None, amax=None,
                  spotToverT):
                      self.nspots = nspots
@@ -560,6 +660,10 @@ class diskspotpars():
         self.spotToverT = s
 
 class innerdiskpars():
+    T = None
+    L = None
+    sigmaT4 = None
+    radius = None
     def __init__(self, T=None, L=None, sigmaT4=None, radius=None):
         self.T = T
         self.L = L
@@ -583,6 +687,8 @@ class innerdiskpars():
         self.radius = r
 
 class adcpars():
+    L = None
+    height = None
     def __init__(self, L=None, height=None):
         self.L = L
         self.height = height
@@ -596,6 +702,13 @@ class adcpars():
         self.height = height
 
 class thirdlightparams():
+    orbphase = None
+    nbands = None
+    Filter = []
+    minlambda = []
+    maxlambda = []
+    fraction = []
+    addFlux = None
     def __init__(self, orbphase=None, nbands=None, Filter=None, minlambda=None,
                  maxlambda=None, fraction=None, addFlux=None):
                      self.orbphase = orbphase
@@ -635,6 +748,19 @@ class thirdlightparams():
         self.addFlux = addFlux
 
 class XYGrid():
+    Nxtiles = None
+    Nztiles = None
+    deltax = None
+    deltaz = None
+    deltal = None
+    xmin = None
+    xmax = None
+    ymin = None
+    ymax = None
+    zmin = None
+    zmax = None
+    Topy = []
+    Bottomy = []
     def __init__(self, Nxtiles=None, Nztiles=None, deltax=None, deltaz=None, deltal=None,
                  xmin=None, xmax=None, ymin=None, ymax=None, zmin=None, zmax=None,
                  Topy=[], Bottomy=[]):
@@ -705,6 +831,16 @@ class XYGrid():
         self.Bottomy = y
 
 class dataparams():
+    nbands = None
+    filename = []
+    Filter = []
+    minlambda = []
+    maxlambda = []
+    npoints = None
+    phase = []
+    flux = []
+    standdev = []
+    chisquare = None
     def __init__(self, nbands=None, filename=None, Filter=None, minlambda=None,
                  maxlambda=None, npoints=None, phase=None, flux=None, standdev=None, chisquare=None):
                      self.nbands = nbands

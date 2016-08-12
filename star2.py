@@ -7,6 +7,19 @@ All functions concerned with the secondary star (the lobe-filling star or
 import math
 
 class star2:
+    targetNtiles = None
+    meanT = None
+    albedo = None
+    L = None
+    volume = None
+    meang = None
+    meanr = None
+    logg = None
+    beta = None
+    frontradius = None
+    backradius = None
+    sideradius = None
+    poleradius = None
     """
     Parameters
     ==========

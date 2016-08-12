@@ -4,20 +4,26 @@
 """
 
 import math
+import sys
+from .diskflux import maindisk
+from .star1 import Star1
+from .star2 import Star2
+from .parmeter import filenames, flowcontrol, orbitparams, systemparams, star2spotparams, wholediskpars, diskedgepars
+from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, XYGrid, dataparams, ReadInput
 
 def MakeLightCurves():
     """
     This function makes the orbital light curve.
     """
-    if( control.thirdlight == "ON" ):
+    if( flowcontrol.thirdlight == "ON" ):
         if( verbose == "ON" ):
             print(" Calculating third light fluxes.\n")
         ThirdLight()
     if( verbose == "ON" ): 
-        printf(" Begin calculating the light curves.\n")
+        print(" Begin calculating the light curves.\n")
 
-    for iphase in range(0, orbit.maxpindex):
-        LCphase[iphase] = orbit.phasemin + iphase * orbit.deltaphase
+    for iphase in range(0, orbitparams.maxpindex):
+        LCphase[iphase] = orbitparams.phasemin + iphase * orbitparams.deltaphase
         k = iphase / 10
         k = iphase - 10 * k
         if( k == 0 ):
@@ -28,13 +34,13 @@ def MakeLightCurves():
         for band in range(1, orbit.nbands):
             LCflux[band][iphase] = TotalFlux[band]
 
-    if( orbit.normalize == "OFF" ):
+    if( orbitparams.normalize == "OFF" ):
         if( verbose == "ON" ):
 	       print(" Normalizing the light curves.\n")
         Normalize()
     else:
-        for band in range(1, orbit.nbands):
-            for iphase in range(0, orbit.maxpindex):
+        for band in range(1, orbitparams.nbands):
+            for iphase in range(0, orbitparams.maxpindex):
 	           NormLC[band][iphase] = 0.0
 
     return
@@ -44,23 +50,23 @@ def FluxesAtPhase( phase, TotalFlux ):
     This function calculates the total fluxes from the system at
     a particular orbital phase.  It is the heart of the program.
     """
-    calcphase = phase - orbit.phaseoffset
+    calcphase = phase - orbitparams.phaseoffset
     if( calcphase < -0.5 ): 
         calcphase += 1.0
     if( calcphase > 1.0 ):
         calcphase -= 1.0
-    sunvector.x = -1.0 * math.sin( syspars.i ) * math.sin( calcphase * 2*math.pi )
-    sunvector.y =        math.cos( syspars.i )
-    sunvector.z = -1.0 * math.sin( syspars.i ) * math.cos( calcphase * 2*math.pi )
+    sunvector.x = -1.0 * math.sin( systemparams.i ) * math.sin( calcphase * 2*math.pi )
+    sunvector.y =        math.cos( systemparams.i )
+    sunvector.z = -1.0 * math.sin( systemparams.i ) * math.cos( calcphase * 2*math.pi )
 
-    if( control.star1 == "ON" ):
+    if( flowcontrol.star1 == "ON" ):
         start.x = 0.0
         start.y = 0.0
-        start.z = syspars.a
+        start.z = systemparams.a
         Star1Escape = EscapeFraction( start, sunvector)
 
-    if( control.star2 == "ON"):
-        for itile in range(1, star2.Ntiles):
+    if( flowcontrol.star2 == "ON"):
+        for itile in range(1, Star2.Ntiles):
             T2mu[itile] = CartDotProd( sunvector, T2normCart[itile] )
             if( T2mu[itile] > 0.0 ):
                 start.x = T2x[itile]
@@ -70,8 +76,8 @@ def FluxesAtPhase( phase, TotalFlux ):
             else:
                 T2Escape[itile] = 0.0
 
-    if( control.disk == "ON"):
-        for itile in range(1, disk.Ntiles):
+    if( flowcontrol.disk == "ON"):
+        for itile in range(1, wholediskpars.Ntiles):
             TDiskmu[itile] = CartDotProd( sunvector, TDisknormCart[itile] )
             if( TDiskmu[itile] > 0.0 ):
                 start.x = TDiskx[itile]
@@ -80,20 +86,20 @@ def FluxesAtPhase( phase, TotalFlux ):
                 TDiskEscape[itile] = EscapeFraction( start, sunvector)
             else:
                 TDiskEscape[itile] = 0.0
-        if( control.innerdisk == "ON" ):
+        if( flowcontrol.innerdisk == "ON" ):
             start.x = 0.0
             start.y = 0.0
             start.z = syspars.a
             InnerDiskEscape = EscapeFraction( start, sunvector)
 
 
-    for band in range(1, orbit.nbands):
+    for band in range(1, orbitparams.nbands):
         TotalFlux[band] = 0.0
 
-        if( control.star1 == "ON" ):
+        if( flowcontrol.star1 == "ON" ):
             Star1Emitted = Star1Flambda( orbit.filter[band], 
-                                   orbit.minlambda[band],
-                                   orbit.maxlambda[band] )
+                                   orbitparams.minlambda[band],
+                                   orbitparams.maxlambda[band] )
             star1flux = Star1Emitted * Star1Escape
             TotalFlux[band] += star1flux
 

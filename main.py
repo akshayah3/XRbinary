@@ -2,12 +2,18 @@
 """
 
 """
-
+SIGMA = 5.6704e-5
+import math
 import sys
+from .diskflux import maindisk
+from .star1 import Star1
+from .star2 import Star2
+from .parmeter import filenames, flowcontrol, orbitparams, systemparams, star2spotparams, wholediskpars, diskedgepars
+from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, XYGrid, dataparams, ReadInput
 
 def main():
     if( sys.argv != 2 ):
-        Quit("Wrong number of command line parameters.")
+        sys.exit("Wrong number of command line parameters.")
 
     Initialize( sys.argv[0] )
 
@@ -15,14 +21,14 @@ def main():
 
     CalcSysPars()
 
-    if( control.star2 == "ON" ):
+    if( flowcontrol.star2 == "ON" ):
         MakeStar2Tiles()
 
-    if( control.disk == "ON"):
+    if( flowcontrol.disk == "ON"):
         MakeDiskTiles()
 
     MakeYlimits()
-    if( control.irradiation == "ON"):
+    if( flowcontrol.irradiation == "ON"):
         Irradiate()
     star2.L = Star2L()
     disk.L  = DiskL()
@@ -42,26 +48,26 @@ def Initialize(parfilename ):
 
      ***************************************************/
     """
-    filename.parfile = parfilename
-    filename.syspars = parfilename
-    filename.syspars += ".SysPars"
-    filename.lightcurves = parfilename
-    filename.lightcurves += ".LC"
+    filenames.parfile = parfilename
+    filenames.syspars = parfilename
+    filenames.syspars += ".SysPars"
+    filenames.lightcurves = parfilename
+    filenames.lightcurves += ".LC"
 
     verbose = "OFF"
-    control.diagnostics = "OFF"
-    control.diagnosephase = -1.0
+    flowcontrol.diagnostics = "OFF"
+    flowcontrol.diagnosephase = -1.0
 
-    control.star1 = "MISSING"
-    control.star2 = "MISSING"
-    control.disk = "MISSING"
-    control.diskrim = "MISSING"
-    control.disktorus = "MISSING"
-    control.innerdisk = "MISSING"
-    control.diskspots = "MISSING"
-    control.adc = "MISSING"
-    control.thirdlight = "MISSING"
-    control.irradiation = "MISSING"
+    flowcontrol.star1 = "MISSING"
+    flowcontrol.star2 = "MISSING"
+    flowcontrol.disk = "MISSING"
+    flowcontrol.diskrim = "MISSING"
+    flowcontrol.disktorus = "MISSING"
+    flowcontrol.innerdisk = "MISSING"
+    flowcontrol.diskspots = "MISSING"
+    flowcontrol.adc = "MISSING"
+    flowcontrol.thirdlight = "MISSING"
+    flowcontrol.irradiation = "MISSING"
 
     maxGDindex          = -1
     maxLDgindex         = -1
@@ -77,57 +83,57 @@ def Initialize(parfilename ):
     IBBdeltaT           = -1.0
     maxBBzetaindex      = -1
 
-    orbit.phasemin      = -1.0
-    orbit.phasemax      = -1.0
-    orbit.deltaphase    = -1.0
-    orbit.maxpindex     = -1
-    orbit.phaseoffset   = -1.0
-    orbit.nbands        =  0
-    orbit.normalize = "MISSING"
-    orbit.normvalue  = -1.0
+    orbitparams.phasemin      = -1.0
+    orbitparams.phasemax      = -1.0
+    orbitparams.deltaphase    = -1.0
+    orbitparams.maxpindex     = -1
+    orbitparams.phaseoffset   = -1.0
+    orbitparams.nbands        =  0
+    orbitparams.normalize = "MISSING"
+    orbitparams.normvalue  = -1.0
 
-    syspars.p           = -1.0
-    syspars.omega       = -1.0
-    syspars.K2          = -1.0
-    syspars.q           = -1.0
-    syspars.i           = -1.0
-    syspars.a           = -1.0
-    syspars.zcm         = -1.0
-    syspars.M1          = -1.0
-    syspars.M2          = -1.0
-    syspars.rL1         = -1.0
-    syspars.VL1         = -1.0
+    systemparams.p           = -1.0
+    systemparams.omega       = -1.0
+    systemparams.K2          = -1.0
+    systemparams.q           = -1.0
+    systemparams.i           = -1.0
+    systemparams.a           = -1.0
+    systemparams.zcm         = -1.0
+    systemparams.M1          = -1.0
+    systemparams.M2          = -1.0
+    systemparams.rL1         = -1.0
+    systemparams.VL1         = -1.0
 
-    star1.L             = -1.0
-    star1.T             = -1.0
-    star1.sigmaT4       = -1.0
-    star1.radius        = -1.0
+    Star1.L             = -1.0
+    Star1.T             = -1.0
+    Star1.sigmaT4       = -1.0
+    Star1.radius        = -1.0
 
-    star2.targetNtiles  = -1
-    star2.Ntiles        = -1
-    star2.volume        = -1.0
-    star2.meanr         = -1.0
-    star2.meang         =  0.0
-    star2.logg          = -1.0
-    star2.meanT         = -1.0
-    star2.beta          = -1.0
-    star2.albedo        = -1.0
-    star2.L             = -1.0
-    star2.frontradius   = -1.0
-    star2.poleradius    = -1.0
-    star2.sideradius    = -1.0
-    star2.backradius    = -1.0
+    Star2.targetNtiles  = -1
+    Star2.Ntiles        = -1
+    Star2.volume        = -1.0
+    Star2.meanr         = -1.0
+    Star2.meang         =  0.0
+    Star2.logg          = -1.0
+    Star2.meanT         = -1.0
+    Star2.beta          = -1.0
+    Star2.albedo        = -1.0
+    Star2.L             = -1.0
+    Star2.frontradius   = -1.0
+    Star2.poleradius    = -1.0
+    Star2.sideradius    = -1.0
+    Star2.backradius    = -1.0
 
-    star2spot.nspots    =  0
+    star2spotparams.nspots    =  0
 
-    disk.targetNtiles   = -1
-    disk.Ntiles         = -1
-    disk.e              = -1.0
-    disk.zetazero       = -1.0
-    disk.albedo         = -1.0
-    disk.L              = -1.0
-    disk.TopTmax        = -1.0
-    disk.TopTmin        = -1.0
+    wholediskpars.targetNtiles   = -1
+    wholediskpars.Ntiles         = -1
+    wholediskpars.e              = -1.0
+    wholediskpars.zetazero       = -1.0
+    wholediskpars.albedo         = -1.0
+    wholediskpars.L              = -1.0
+    wholediskpars.TopTmax        = -1.0
+    wholediskpars.TopTmin        = -1.0
 
     maindisk.amin       = -1.0
     maindisk.amax       = -1.0
@@ -140,47 +146,47 @@ def Initialize(parfilename ):
     maindisk.Tamax      = -1.0
     maindisk.Tamin      = -1.0
 
-    diskedge.T          = -1.0
-    diskedge.Tspot      = -1.0
-    diskedge.ZetaMid    = -1.0
-    diskedge.ZetaWidth  = -1.0
+    diskedgepars.T          = -1.0
+    diskedgepars.Tspot      = -1.0
+    diskedgepars.ZetaMid    = -1.0
+    diskedgepars.ZetaWidth  = -1.0
 
-    diskrim.type = "MISSING"
-    diskrim.awidth      = -1.0
-    diskrim.Hmax        = -1.0
-    diskrim.Hmin        = -1.0
-    diskrim.ZetaHmax    = -1.0
-    diskrim.Tmax        = -1.0
-    diskrim.Tmin        = -1.0
-    diskrim.ZetaTmax    = -1.0
-    diskrim.points      =  0
+    diskrimpars.type = "MISSING"
+    diskrimpars.awidth      = -1.0
+    diskrimpars.Hmax        = -1.0
+    diskrimpars.Hmin        = -1.0
+    diskrimpars.ZetaHmax    = -1.0
+    diskrimpars.Tmax        = -1.0
+    diskrimpars.Tmin        = -1.0
+    diskrimpars.ZetaTmax    = -1.0
+    diskrimpars.points      =  0
 
-    disktorus.type = "MISSING"
-    disktorus.azero     = -1.0
-    disktorus.awidth    = -1.0
-    disktorus.Hmax      = -1.0
-    disktorus.Hmin      = -1.0
-    disktorus.ZetaHmax  = -1.0
-    disktorus.Tmax      = -1.0
-    disktorus.Tmin      = -1.0
-    disktorus.ZetaTmax  = -1.0
-    disktorus.points    =  0
+    disktorusparams.type = "MISSING"
+    disktorusparams.azero     = -1.0
+    disktorusparams.awidth    = -1.0
+    disktorusparams.Hmax      = -1.0
+    disktorusparams.Hmin      = -1.0
+    disktorusparams.ZetaHmax  = -1.0
+    disktorusparams.Tmax      = -1.0
+    disktorusparams.Tmin      = -1.0
+    disktorusparams.ZetaTmax  = -1.0
+    disktorusparams.points    =  0
 
-    innerdisk.T         = -1.0
-    innerdisk.L         = -1.0
+    innerdiskpars.T         = -1.0
+    innerdiskpars.L         = -1.0
     
-    diskspot.nspots     = 0
+    diskspotpars.nspots     = 0
 
-    adc.L               = -1.0
-    adc.height          = -1.0
+    adcpars.L               = -1.0
+    adcpars.height          = -1.0
 
-    thirdlight.nbands   = 0
-    thirdlight.orbphase = -100.0
+    thirdlightparams.nbands   = 0
+    thirdlightparams.orbphase = -100.0
 
-    Grid.Nxtiles        = -1
-    Grid.Nztiles        = -1
+    XYGrid.Nxtiles        = -1
+    XYGrid.Nztiles        = -1
 
-    data.nbands         = 0
+    dataparams.nbands         = 0
 
     return
 
@@ -194,132 +200,132 @@ def CalcSysPars():
 
     *********************************************************/
     """
-    if control.diagnostics != "OFF":
-        if( (control.diagnosephase < orbit.phasemin)
-	         or (control.diagnosephase > orbit.phasemax) ):
-            Quit("diagnosephase must be ge phasemin and le phasemax.")
-        control.diagnoseindex = 0.5 + ( control.diagnosephase - orbit.phasemin ) / orbit.deltaphase
+    if flowcontrol.diagnostics != "OFF":
+        if( (flowcontrol.diagnosephase < orbitparams.phasemin)
+	         or (flowcontrol.diagnosephase > orbitparams.phasemax) ):
+            sys.exit("diagnosephase must be ge phasemin and le phasemax.")
+        flowcontrol.diagnoseindex = 0.5 + ( flowcontrol.diagnosephase - orbitparams.phasemin ) / orbitparams.deltaphase
 
-    orbit.maxpindex    = 1.0e-7 + (orbit.phasemax - orbit.phasemin) / orbit.deltaphase
-    for band in range(1, orbit.nbands):
-        orbit.minlambda[band] *= 1.0e-8
-        orbit.maxlambda[band] *= 1.0e-8
-    if( orbit.normalize == "FITDATA"):
-        if( orbit.normfilter == "SQUARE"):
-            orbit.normMinlambda *= 1.0e-8
-            orbit.normMaxlambda *= 1.0e-8
-    syspars.p          *= 86400.0;
-    syspars.omega      = math.pi*2 / syspars.p
-    syspars.i          *= math.pi*2 / 360.0
-    if( syspars.K2 > 0.0 ):
-        syspars.K2         *= 1.0e5;
-        V2orb              = syspars.K2 / math.sin( syspars.i )
-        syspars.a          = V2orb * (1.0 + syspars.q) / syspars.omega
-        M1plusM2           = pow( syspars.omega, 2) * pow( syspars.a, 3) / G
-        syspars.M1         = M1plusM2 / (1.0 + syspars.q)
-        syspars.M2         = syspars.M1 * syspars.q
+    orbitparams.maxpindex    = 1.0e-7 + (orbitparams.phasemax - orbitparams.phasemin) / orbitparams.deltaphase
+    for band in range(1, orbitparams.nbands):
+        orbitparams.minlambda[band] *= 1.0e-8
+        orbitparams.maxlambda[band] *= 1.0e-8
+    if( orbitparams.normalize == "FITDATA"):
+        if( orbitparams.normfilter == "SQUARE"):
+            orbitparams.normMinlambda *= 1.0e-8
+            orbitparams.normMaxlambda *= 1.0e-8
+    systemparams.p          *= 86400.0;
+    systemparams.omega      = math.pi*2 / systemparams.p
+    systemparams.i          *= math.pi*2 / 360.0
+    if( systemparams.K2 > 0.0 ):
+        systemparams.K2         *= 1.0e5;
+        V2orb              = systemparams.K2 / math.sin( systemparams.i )
+        systemparams.a          = V2orb * (1.0 + systemparams.q) / systemparams.omega
+        M1plusM2           = pow( systemparams.omega, 2) * pow( systemparams.a, 3) / G
+        systemparams.M1         = M1plusM2 / (1.0 + systemparams.q)
+        systemparams.M2         = systemparams.M1 * systemparams.q
     else:
-        syspars.M1      = syspars.M1 * MSOL
-        syspars.M2      = syspars.M1 * syspars.q
-        M1plusM2        = syspars.M1 + syspars.M2
-        a3              = (G * M1plusM2 * syspars.p * syspars.p) / (4.0 * math.pi * math.pi )
-        syspars.a       = pow( a3, 0.3333333333333 )
-        a_2             = syspars.a / (1.0 + syspars.q)
-        V2orb           = syspars.omega * a_2 / 1.0e5
-        syspars.K2      = V2orb * math.sin( syspars.i )
-    syspars.zcm        = syspars.a / (1.0 + syspars.q)
-    syspars.rL1        = FindL1()  
-    syspars.VL1        = V( syspars.rL1, 0.0, 0.0 )
-    syspars.MeanLobe2Radius = MeanRocheRadius( syspars.q )
-    syspars.MeanLobe1Radius = MeanRocheRadius( 1.0 / syspars.q )
+        systemparams.M1      = systemparams.M1 * MSOL
+        systemparams.M2      = systemparams.M1 * systemparams.q
+        M1plusM2        = systemparams.M1 + systemparams.M2
+        a3              = (G * M1plusM2 * systemparams.p * systemparams.p) / (4.0 * math.pi * math.pi )
+        systemparams.a       = pow( a3, 0.3333333333333 )
+        a_2             = systemparams.a / (1.0 + systemparams.q)
+        V2orb           = systemparams.omega * a_2 / 1.0e5
+        systemparams.K2      = V2orb * math.sin( systemparams.i )
+    systemparams.zcm        = systemparams.a / (1.0 + systemparams.q)
+    systemparams.rL1        = FindL1()  
+    systemparams.VL1        = V( systemparams.rL1, 0.0, 0.0 )
+    systemparams.MeanLobe2Radius = MeanRocheRadius( systemparams.q )
+    systemparams.MeanLobe1Radius = MeanRocheRadius( 1.0 / systemparams.q )
 
-    star1.sigmaT4      = SIGMA * pow( star1.T, 4.0 )
-    r2                 = star1.L / ( 4.0 * math.pi * star1.sigmaT4 )
-    star1.radius       = math.sqrt( r2 )
+    Star1.sigmaT4      = SIGMA * pow( Star1.T, 4.0 )
+    r2                 = Star1.L / ( 4.0 * math.pi * Star1.sigmaT4 )
+    Star1.radius       = math.sqrt( r2 )
 
-    if( star2spot.nspots > 0 ):
-        for i in range (1, star2spot.nspots):
-            star2spot.theta[i]  *= 2*math.pi / 360.0
-            star2spot.phi[i]    *= 2*math.pi / 360.0
-            star2spot.radius[i] *= 2*math.pi / 360.0
-    disk.zetazero      *= math.pi*2 / 360.0
-    maindisk.amin      *= syspars.a
-    maindisk.amax      *= syspars.a
-    maindisk.Hmax      *= syspars.a
+    if( star2spotparams.nspots > 0 ):
+        for i in range (1, star2spotparams.nspots):
+            star2spotparams.theta[i]  *= 2*math.pi / 360.0
+            star2spotparams.phi[i]    *= 2*math.pi / 360.0
+            star2spotparams.radius[i] *= 2*math.pi / 360.0
+    wholediskpars.zetazero      *= math.pi*2 / 360.0
+    maindisk.amin      *= systemparams.a
+    maindisk.amax      *= systemparams.a
+    maindisk.Hmax      *= systemparams.a
 
-    diskedge.ZetaMid   *= 2*math.pi / 360.0
-    diskedge.ZetaWidth *= 2*math.pi / 360.0
+    diskedgepars.ZetaMid   *= 2*math.pi / 360.0
+    diskedgepars.ZetaWidth *= 2*math.pi / 360.0
 
-    if( control.diskrim == "ON"):
-        if( diskrim.type == "POINT"):
+    if( flowcontrol.diskrim == "ON"):
+        if( diskrimpars.type == "POINT"):
             MakeDiskRim()
-            for i in range(1, diskrim.points):
-                diskrim.PointZeta[i] *= 2*math.pi / 360.0
-                diskrim.PointH[i]    *= syspars.a
-        diskrim.awidth     *= syspars.a
-        diskrim.Hmax       *= syspars.a
-        diskrim.Hmin       *= syspars.a
-        diskrim.ZetaHmax   *= math.pi*2 / 360.0
-        diskrim.ZetaTmax   *= math.pi*2 / 360.0
+            for i in range(1, diskrimpars.points):
+                diskrimpars.PointZeta[i] *= 2*math.pi / 360.0
+                diskrimpars.PointH[i]    *= systemparams.a
+        diskrimpars.awidth     *= systemparams.a
+        diskrimpars.Hmax       *= systemparams.a
+        diskrimpars.Hmin       *= systemparams.a
+        diskrimpars.ZetaHmax   *= math.pi*2 / 360.0
+        diskrimpars.ZetaTmax   *= math.pi*2 / 360.0
 
-    if( control.disktorus == "ON"):
-        if( disktorus.type == "POINT"):
+    if( flowcontrol.disktorus == "ON"):
+        if( disktorusparams.type == "POINT"):
             MakeDiskTorus()
-            for i in range(1, disktorus.points):
-                disktorus.PointZeta[i] *= 2*math.pi / 360.0
-                disktorus.PointH[i]    *= syspars.a
-        disktorus.azero    *= syspars.a
-        disktorus.awidth   *= syspars.a
-        disktorus.Hmax     *= syspars.a
-        disktorus.Hmin     *= syspars.a
-        disktorus.ZetaHmax *= 2*math.pi / 360.0
-        disktorus.ZetaTmax *= 2*math.pi / 360.0
+            for i in range(1, disktorusparams.points):
+                disktorusparams.PointZeta[i] *= 2*math.pi / 360.0
+                disktorusparams.PointH[i]    *= systemparams.a
+        disktorusparams.azero    *= systemparams.a
+        disktorusparams.awidth   *= systemparams.a
+        disktorusparams.Hmax     *= systemparams.a
+        disktorusparams.Hmin     *= systemparams.a
+        disktorusparams.ZetaHmax *= 2*math.pi / 360.0
+        disktorusparams.ZetaTmax *= 2*math.pi / 360.0
 
-    if( control.innerdisk == "ON"):
-        innerdisk.sigmaT4      = SIGMA * pow( innerdisk.T, 4.0 )
-        r2                     = innerdisk.L / ( 2.0 * math.pi * innerdisk.sigmaT4 )
-        innerdisk.radius       = math.sqrt( r2 )
+    if( flowcontrol.innerdisk == "ON"):
+        innerdiskpars.sigmaT4      = SIGMA * pow( innerdiskpars.T, 4.0 )
+        r2                     = innerdiskpars.L / ( 2.0 * math.pi * innerdiskpars.sigmaT4 )
+        innerdiskpars.radius       = math.sqrt( r2 )
 
-    if( diskspot.nspots > 0 ):
-      for i in range(1, diskspot.nspots):
-          if( diskspot.zetamin[i] > diskspot.zetamax[i] ):
-              diskspot.nspots += 1
-              if( diskspot.nspots >= 20 ):
-	             Quit("diskspot.nspots too large in function CalcSysPars.")
-              for( j = diskspot.nspots; j > i; j-- ):
-	             diskspot.zetamin[j] = diskspot.zetamin[j-1]
-                   diskspot.zetamax[j] = diskspot.zetamax[j-1]
-                   diskspot.amin[j] = diskspot.amin[j-1]
-                   diskspot.amax[j] = diskspot.amax[j-1]
-                   diskspot.spotToverT[j] = diskspot.spotToverT[j-1]
+    if( diskspotpars.nspots > 0 ):
+      for i in range(1, diskspotpars.nspots):
+          if( diskspotpars.zetamin[i] > diskspotpars.zetamax[i] ):
+              diskspotpars.nspots += 1
+              if( diskspotpars.nspots >= 20 ):
+	             sys.exit("diskspot.nspots too large in function CalcSysPars.")
+              for j in range(diskspotpars.nspots, i, -1):
+                  diskspotpars.zetamin[j] = diskspotpars.zetamin[j-1]
+                  diskspotpars.zetamax[j] = diskspotpars.zetamax[j-1]
+                  diskspotpars.amin[j] = diskspotpars.amin[j-1]
+                  diskspotpars.amax[j] = diskspotpars.amax[j-1]
+                  diskspotpars.spotToverT[j] = diskspotpars.spotToverT[j-1]
                
-              diskspot.zetamax[i+1] = 360.0
-	        diskspot.zetamin[i+1] = diskspot.zetamin[i]
- 	        diskspot.zetamax[i] = diskspot.zetamax[i]
-              diskspot.zetamin[i] = 0.0
+              diskspotpars.zetamax[i+1] = 360.0
+              diskspotpars.zetamin[i+1] = diskspotpars.zetamin[i]
+              diskspotpars.zetamax[i] = diskspotpars.zetamax[i]
+              diskspotpars.zetamin[i] = 0.0
           
-          diskspot.zetamin[i] *= math.pi*2 / 360.0
-          diskspot.zetamax[i] *= math.pi*2 / 360.0
-          diskspot.amin[i]    *= syspars.a
-          if( diskspot.amin[i] < maindisk.amin ):
-              diskspot.amin[i] = maindisk.amin
-          diskspot.amax[i]    *= syspars.a
-         if( diskspot.amax[i] > maindisk.amax ):
-              diskspot.amax[i] = maindisk.amax
+          diskspotpars.zetamin[i] *= math.pi*2 / 360.0
+          diskspotpars.zetamax[i] *= math.pi*2 / 360.0
+          diskspotpars.amin[i]    *= syspars.a
+          if( diskspotpars.amin[i] < maindisk.amin ):
+              diskspotpars.amin[i] = maindisk.amin
+          diskspotpars.amax[i]    *= systemparams.a
+          if( diskspotpars.amax[i] > maindisk.amax ):
+              diskspotpars.amax[i] = maindisk.amax
 
-    if( control.adc == "ON"):
-        adc.height *= syspars.a
+    if( flowcontrol.adc == "ON"):
+        adcpars.height *= systemparams.a
 
-    if( control.thirdlight == "ON"):
-        for( band in range(1, thirdlight.nbands):
-            thirdlight.minlambda[band] *= 1.0e-8
-            thirdlight.maxlambda[band] *= 1.0e-8
+    if( flowcontrol.thirdlight == "ON"):
+        for band in range(1, thirdlightparams.nbands):
+            thirdlightparams.minlambda[band] *= 1.0e-8
+            thirdlightparams.maxlambda[band] *= 1.0e-8
 
-   for band in range(1, data.nbands):
-       data.minlambda[band] *= 1.0e-8
-       data.maxlambda[band] *= 1.0e-8
+    for band in range(1, dataparams.nbands):
+       dataparams.minlambda[band] *= 1.0e-8
+       dataparams.maxlambda[band] *= 1.0e-8
 
-   if( control.diagnostics == "INSPECTSYSPARS"):
+    if( flowcontrol.diagnostics == "INSPECTSYSPARS"):
        WriteSysPars()
-       Quit("Quit in main.c after INSPECTSYSPARS.")
-   return
+       sys.exit("Quit in main.c after INSPECTSYSPARS.")
+    return

@@ -8,6 +8,10 @@ import math
 sigma = 5.6704e-5
 
 class Star1:
+    L = None
+    T = None
+    radius = None
+    sigmaT4 = None
     """
     Star 1 is a small sphere if it represents neutron star, or an invisible point mass if it
     represents a black hole.  In either case, it is much smaller than all other dimensions in the

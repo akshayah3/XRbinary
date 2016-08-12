@@ -3,7 +3,14 @@
 This file contains functions used to diagnose and test the
 line broadening program.
 """
-import math 
+import math
+import sys
+from .diskflux import maindisk
+from .star1 import Star1
+from .star2 import Star2
+from .parmeter import filenames, flowcontrol, orbitparams, systemparams, star2spotparams, wholediskpars, diskedgepars
+from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, XYGrid, dataparams, ReadInput
+
 
 def InspectInput():
     """
@@ -16,8 +23,8 @@ def InspectInput():
     WriteIperpTable()
     WriteIBBfilterTable()
     WriteZzetaTable()
-    if( data.nbands > 0):
-        for band in range(1, data.nbands):
+    if( dataparams.nbands > 0):
+        for band in range(1, dataparams.nbands):
             WriteData( band )
 
     return
@@ -32,71 +39,71 @@ def WritePars():
     filename  = "parfile.inspect"
     out = open(filename, "w")
     if out == None:
-        Quit("Cannot open file parfile.inspect.")
-    out.write( "DIAGNOSTICS=       %s  %5.3f  %s\n"% control.diagnostics,
-                                                      control.diagnosephase,
-                                                      control.diagnoseband)
+        sys.exit("Cannot open file parfile.inspect.")
+    out.write( "DIAGNOSTICS=       %s  %5.3f  %s\n"% flowcontrol.diagnostics,
+                                                      flowcontrol.diagnosephase,
+                                                      flowcontrol.diagnoseband)
 
     out.write( "\n")
-    out.write( "STAR1=             %s\n"% control.star1)
-    out.write( "STAR2=             %s\n"% control.star2)
-    out.write( "DISK=              %s\n"% control.disk)
-    out.write( "DISKRIM=           %s\n"% control.diskrim)
-    out.write( "DISKTORUS=         %s\n"% control.disktorus)
-    out.write( "INNERDISK=         %s\n"% control.innerdisk)
-    out.write( "DISKSPOTS=         %s\n"% control.diskspots)
-    out.write( "ADC=               %s\n"% control.adc)
-    out.write( "THIRDLIGHT=        %s\n"% control.thirdlight)
-    out.write( "IRRADIATION=       %s\n"% control.irradiation)
+    out.write( "STAR1=             %s\n"% flowcontrol.star1)
+    out.write( "STAR2=             %s\n"% flowcontrol.star2)
+    out.write( "DISK=              %s\n"% flowcontrol.disk)
+    out.write( "DISKRIM=           %s\n"% flowcontrol.diskrim)
+    out.write( "DISKTORUS=         %s\n"% flowcontrol.disktorus)
+    out.write( "INNERDISK=         %s\n"% flowcontrol.innerdisk)
+    out.write( "DISKSPOTS=         %s\n"% flowcontrol.diskspots)
+    out.write( "ADC=               %s\n"% flowcontrol.adc)
+    out.write( "THIRDLIGHT=        %s\n"% flowcontrol.thirdlight)
+    out.write( "IRRADIATION=       %s\n"% flowcontrol.irradiation)
 
     out.write( "\n")
     out.write( "PHASES=            %6.3f  %6.3f  %6.3f\n"% 
-	                   orbit.phasemin, orbit.phasemax, orbit.deltaphase)
-    out.write( "PHASEOFFSET=      %7.4f\n"%  orbit.phaseoffset)
-    for band in range(1, orbit.nbands):
-        if( orbit.filter[band] == "SQUARE"): 
+	                   orbitparams.phasemin, orbitparams.phasemax, orbitparams.deltaphase)
+    out.write( "PHASEOFFSET=      %7.4f\n"%  orbitparams.phaseoffset)
+    for band in range(1, orbitparams.nbands):
+        if( orbitparams.filter[band] == "SQUARE"): 
             out.write( "BANDPASS=          SQUARE  %6.0f  %6.0f\n"%
-                   orbit.minlambda[band], orbit.maxlambda[band])
+                   orbitparams.minlambda[band], orbitparams.maxlambda[band])
         else:
-            out.write( "BANDPASS=          FILTER   %s\n"% orbit.filter[band])
-    if( orbit.normalize == "OFF"):
-        out.write("NORMALIZE=         %s\n"% orbit.normalize)
+            out.write( "BANDPASS=          FILTER   %s\n"% orbitparams.filter[band])
+    if( orbitparams.normalize == "OFF"):
+        out.write("NORMALIZE=         %s\n"% orbitparams.normalize)
     else:
-        if( orbit.normalize == "MAXVALUE"):
-            out.write( "NORMALIZE=   %s  %12.4e\n"% orbit.normalize,
-	                                         orbit.normvalue)
-        if( orbit.normalize == "FITDATA"):
-            if( orbit.normfilter == "SQUARE"):
+        if( orbitparams.normalize == "MAXVALUE"):
+            out.write( "NORMALIZE=   %s  %12.4e\n"% orbitparams.normalize,
+	                                         orbitparams.normvalue)
+        if( orbitparams.normalize == "FITDATA"):
+            if( orbitparams.normfilter == "SQUARE"):
                 out.write( "NORMALIZE=   %s  %s  %7.1f  %7.1f\n"%
-		             orbit.normalize, orbit.normfilter, 
-                             orbit.normMinlambda, orbit.normMaxlambda)
+		             orbitparams.normalize, orbitparams.normfilter, 
+                             orbitparams.normMinlambda, orbitparams.normMaxlambda)
             else:
 	          out.write( "NORMALIZE=   %s  %s\n"%
-		   orbit.normalize, orbit.normfilter)
+		   orbitparams.normalize, orbitparams.normfilter)
 
     out.write( "\n")
-    out.write("PERIOD=            %10.8f\n"% syspars.p)
-    out.write( "K2=                %6.2f\n"%  syspars.K2)
-    out.write( "MASSRATIO=         %5.3f\n"%  syspars.q)
-    out.write( "INCLINATION=       %5.2f\n"%  syspars.i)
+    out.write("PERIOD=            %10.8f\n"% systemparams.p)
+    out.write( "K2=                %6.2f\n"%  systemparams.K2)
+    out.write( "MASSRATIO=         %5.3f\n"%  systemparams.q)
+    out.write( "INCLINATION=       %5.2f\n"%  systemparams.i)
 
-    if( control.star1 == "ON"):
+    if( flowcontrol.star1 == "ON"):
         out.write( "\n")
-        out.write( "STAR1LUM=          %9.3e\n"% star1.L)
-        out.write( "STAR1TEMP=         %9.3e\n"% star1.T)
+        out.write( "STAR1LUM=          %9.3e\n"% Star1.L)
+        out.write( "STAR1TEMP=         %9.3e\n"% Star1.T)
 
-    if( control.star2 == "ON"):
+    if( flowcontrol.star2 == "ON"):
         out.write( "\n")
-        out.write( "STAR2TILES=       %5ld\n"%  star2.targetNtiles)
-        out.write( "STAR2TEMP=        %5.0f\n"% star2.meanT)
-        out.write( "STAR2ALBEDO=      %5.2f\n"% star2.albedo)
+        out.write( "STAR2TILES=       %5ld\n"%  Star2.targetNtiles)
+        out.write( "STAR2TEMP=        %5.0f\n"% Star2.meanT)
+        out.write( "STAR2ALBEDO=      %5.2f\n"% Star2.albedo)
 
-    if( control.disk == "ON"):
+    if( flowcontrol.disk == "ON"):
         out.write( "\n")
-        out.write( "DISKTILES=         %5ld\n"%   disk.targetNtiles)
-        out.write( "DISKE=             %5.3f\n"%  disk.e)
-        out.write( "DISKZETAZERO=     %5.1f\n"%  disk.zetazero)
-        out.write( "DISKALBEDO=        %5.2f\n"% diskalbedo)
+        out.write( "DISKTILES=         %5ld\n"%   wholediskpars.targetNtiles)
+        out.write( "DISKE=             %5.3f\n"%  wholediskpars.e)
+        out.write( "DISKZETAZERO=     %5.1f\n"%  wholediskpars.zetazero)
+        out.write( "DISKALBEDO=        %5.2f\n"% wholediskpars.albedo)
 
         out.write("\n")
         out.write( "MAINDISKA=         %5.3f  %5.3f\n"% maindisk.amin,
@@ -107,77 +114,77 @@ def WritePars():
 	                                              maindisk.Tpow)
         out.write( "\n")
         out.write( "DISKEDGET=        %5.0f  %5.0f  %5.1f  %5.1f\n"%
-                                      diskedge.T, diskedge.Tspot, 
-                                      diskedge.ZetaMid, diskedge.ZetaWidth)
+                                      diskedgepars.T, diskedgepars.Tspot, 
+                                      diskedgepars.ZetaMid, diskedgepars.ZetaWidth)
 
-    if( control.diskrim == "ON"):
+    if( flowcontrol.diskrim == "ON"):
         out.write( "\n")
-        out.write( "DISKRIMAWIDTH=     %5.3f\n"%      diskrim.awidth)
-        if( diskrim.type == "SINUSOID"):
+        out.write( "DISKRIMAWIDTH=     %5.3f\n"%      diskrimpars.awidth)
+        if( diskrimpars.type == "SINUSOID"):
             out.write( "DISKRIMPARS=       %s   %5.3f %5.3f %5.1f   %6.0f %6.0f %5.1f\n"%
-	                  diskrim.type, 
-                          diskrim.Hmax, diskrim.Hmin, diskrim.ZetaHmax,
-                          diskrim.Tmax, diskrim.Tmin, diskrim.ZetaTmax)
-        if( diskrim.type == "POINT"):
-            for i in range(1, diskrim.points):
+	                  diskrimpars.type, 
+                          diskrimpars.Hmax, diskrimpars.Hmin, diskrimpars.ZetaHmax,
+                          diskrimpars.Tmax, diskrimpars.Tmin, diskrimpars.ZetaTmax)
+        if( diskrimpars.type == "POINT"):
+            for i in range(1, diskrimpars.points):
                 out.write( "DISKRIMPARS=       %s  %5.1f  %5.3f  %7.1f\n"%
-		     diskrim.type, diskrim.PointZeta[i],
-                         diskrim.PointH[i], diskrim.PointT[i])
+		     diskrimpars.type, diskrimpars.PointZeta[i],
+                         diskrimpars.PointH[i], diskrimpars.PointT[i])
 
-    if( control.disktorus == "ON"):
+    if( flowcontrol.disktorus == "ON"):
         out.write( "\n")
-        out.write( "DISKTORUSAZERO=    %5.3f\n"%    disktorus.azero)
-        out.write( "DISKTORUSAWIDTH=   %5.3f\n"%    disktorus.awidth)
-        if( disktorus.type == "SINUSOID"):
+        out.write( "DISKTORUSAZERO=    %5.3f\n"%    disktorusparams.azero)
+        out.write( "DISKTORUSAWIDTH=   %5.3f\n"%    disktorusparams.awidth)
+        if( disktorusparams.type == "SINUSOID"):
             out.write( "DISKTORUSPARS=     %s   %5.3f %5.3f %5.1f   %6.0f %6.0f %5.1f\n"%
-	                  disktorus.type, 
-                          disktorus.Hmax, disktorus.Hmin, disktorus.ZetaHmax,
-                          disktorus.Tmax, disktorus.Tmin, disktorus.ZetaTmax)
-        if( disktorus.type == "POINT"):
-            for i in range(1, disktorus.points):
+	                  disktorusparams.type, 
+                          disktorusparams.Hmax, disktorusparams.Hmin, disktorusparams.ZetaHmax,
+                          disktorusparams.Tmax, disktorusparams.Tmin, disktorusparams.ZetaTmax)
+        if( disktorusparams.type == "POINT"):
+            for i in range(1, disktorusparams.points):
                 out.write( "DISKTORUSPARS=     %s  %5.1f  %5.3f  %7.1f\n"%
-		     disktorus.type, disktorus.PointZeta[i],
-                         disktorus.PointH[i], disktorus.PointT[i])
+		     disktorusparams.type, disktorusparams.PointZeta[i],
+                         disktorusparams.PointH[i], disktorusparams.PointT[i])
 
-    if( control.diskspots == "ON"):
+    if( flowcontrol.diskspots == "ON"):
         out.write( "\n")
-        for i in range(1, diskspot.nspots):
+        for i in range(1, diskspotpars.nspots):
             out.write( "DISKSPOT=    %5.1f  %5.1f  %5.3f  %5.3f %6.3f\n"%
-	             diskspot.zetamin[i], diskspot.zetamax[i],
-                     diskspot.amin[i], diskspot.amax[i], diskspot.spotToverT[i])
+	             diskspotpars.zetamin[i], diskspotpars.zetamax[i],
+                     diskspotpars.amin[i], diskspotpars.amax[i], diskspotpars.spotToverT[i])
 
-    if( control.innerdisk == "ON"):
+    if( flowcontrol.innerdisk == "ON"):
         out.write( "\n")
-        out.write( "INNERDISKT=       %9.2e\n"% innerdisk.T)
-        out.write( "INNERDISKL=       %9.2e\n"% innerdisk.L)
+        out.write( "INNERDISKT=       %9.2e\n"% innerdiskpars.T)
+        out.write( "INNERDISKL=       %9.2e\n"% innerdiskpars.L)
 
-    if( control.adc == "ON"):
+    if( flowcontrol.adc == "ON"):
         out.write( "\n")
-        out.write( "ADCL=               =  %10.3e\n"% adc.L)
-        out.write( "ADCHEIGHT=          =  %11.4e\n"% adc.height)
+        out.write( "ADCL=               =  %10.3e\n"% adcpars.L)
+        out.write( "ADCHEIGHT=          =  %11.4e\n"% adcpars.height)
 
-    if( control.thirdlight == "ON"):
+    if( flowcontrol.thirdlight == "ON"):
         out.write( "\n")
-        out.write( "3rdLIGHTPHASE =   %6.3f\n"%  thirdlight.orbphase)
-        for i in range(1, thirdlight.nbands):
-            if( thirdlight.filter[i] == "SQUARE"):
+        out.write( "3rdLIGHTPHASE =   %6.3f\n"%  thirdlightparams.orbphase)
+        for i in range(1, thirdlightparams.nbands):
+            if( thirdlightparams.filter[i] == "SQUARE"):
                 out.write( "3rdLIGHTFRACTION=  %s %6.0f %6.0f  %5.3f\n"%
-		        thirdlight.filter[i], thirdlight.minlambda[i],
-                        thirdlight.maxlambda[i], thirdlight.fraction[i] )
+		        thirdlightparams.filter[i], thirdlightparams.minlambda[i],
+                        thirdlightparams.maxlambda[i], thirdlightparams.fraction[i] )
             else:
 	          out.write( "3rdLIGHTFRACTION=  FILTER    %s           %5.3f\n"%
-		        thirdlight.filter[i], thirdlight.fraction[i] )
+		        thirdlightparams.filter[i], thirdlightparams.fraction[i] )
 
-    if( data.nbands > 0):
+    if( dataparams.nbands > 0):
         out.write( "\n")
-        for i in range(1, data.nbands):
-            if( data.filter[i] == "SQUARE"):
+        for i in range(1, dataparams.nbands):
+            if( dataparams.filter[i] == "SQUARE"):
                 out.write( "READDATA=  %s %6.0f %6.0f   %s\n"%
-		        data.filter[i], data.minlambda[i],
-                        data.maxlambda[i], data.filename[i] )
+		        dataparams.filter[i], dataparams.minlambda[i],
+                        dataparams.maxlambda[i], dataparams.filename[i] )
             else:
 	          out.write( "READDATA=  FILTER     %s           %s\n"%
-		        data.filter[i], data.filename[i] )
+		        dataparams.filter[i], dataparams.filename[i] )
 
     out.write( "\nEND\n")
 
@@ -192,7 +199,7 @@ def WriteGDTable():
     filename = "GDTable.inspect"
     out = open(filename, "w")
     if out == None: 
-        Quit("Cannot open file GDTable.inspect.")
+        sys.exit("Cannot open file GDTable.inspect.")
 
     for i in range(0, maxGDindex):
         out.write("  %5.0f  %5.3f\n"% GDT[i], fourbeta[i])
@@ -211,7 +218,7 @@ def WriteLDTable():
     outfile = "LDTable.inspect"
     out = open(outfile, "w")
     if out == None:
-        Quit("Cannot open file LDTable.inspect.")
+        sys.exit("Cannot open file LDTable.inspect.")
 
     delta = LDT[1] - LDT[0]
     out.write( "        %5.0f  %5.0f   %4.0f\n"% 
@@ -248,7 +255,7 @@ def WriteIperpTable():
     outfile = "IperpTable.inspect"
     out = open(outfile, "w")
     if out == None:
-        Quit("Cannot open file IperpTable.inspect.")
+        sys.exit("Cannot open file IperpTable.inspect.")
 
     delta = IperpT[1] - IperpT[0]
     out.write( "     %5.0f  %5.0f   %4.0f\n"% 
@@ -283,7 +290,7 @@ def WriteIBBfilterTable():
     outfile =  "IBBfilterTable.inspect"
     out = open(outfile, "w")
     if out == None:
-        Quit("Cannot open file IBBfilter.inspect.")
+        sys.exit("Cannot open file IBBfilter.inspect.")
 
     delta = IBBT[1] - IBBT[0]
     out.write( "     %5.0f  %5.0f   %4.0f\n"% 
@@ -316,7 +323,7 @@ def WriteZzetaTable():
     outfile = "ZzetaTable.inspect" 
     out = open(outfile, "w")
     if out == None:
-        Quit("Cannot open file ZzetaTable.inspect.")
+        sys.exit("Cannot open file ZzetaTable.inspect.")
 
     out.write( "  %6ld  %6.4f\n"% maxBBzetaindex, deltaBBzeta)
     for i in range(0, maxBBzetaindex):
@@ -336,22 +343,22 @@ def InspectStar2Tiles():
     outfile = "Star2TilesA.inspect" 
     out = open(outfile, "w")
     if out == None:
-        Quit("Cannot open file Star2TilesA.inspect.")
+        sys.exit("Cannot open file Star2TilesA.inspect.")
 
     out.write( "\n")
-    out.write( "  star2.Ntiles   =   %5ld\n"%   star2.Ntiles)
-    out.write( "  star2.volume   =  %10.3e\n"% star2.volume)
-    out.write( "  star2.meanr    =  %10.3e\n"% star2.meanr)
-    out.write( "  star2.meang    =  %10.3e\n"% star2.meang)
-    out.write( "  star2.logg     =  %6.3f\n"%  star2.logg)
-    out.write( "  star2.meanT    =  %5.0f\n"%  star2.meanT)
-    out.write( "  star2.beta     =   %5.3f\n"%  star2.beta)
-    out.write( "  star2.albedo   =  %5.2f\n"%  star2.albedo)
+    out.write( "  star2.Ntiles   =   %5ld\n"%   Star2.Ntiles)
+    out.write( "  star2.volume   =  %10.3e\n"% Star2.volume)
+    out.write( "  star2.meanr    =  %10.3e\n"% Star2.meanr)
+    out.write( "  star2.meang    =  %10.3e\n"% Star2.meang)
+    out.write( "  star2.logg     =  %6.3f\n"%  Star2.logg)
+    out.write( "  star2.meanT    =  %5.0f\n"%  Star2.meanT)
+    out.write( "  star2.beta     =   %5.3f\n"%  Star2.beta)
+    out.write( "  star2.albedo   =  %5.2f\n"%  Star2.albedo)
 
     out.write( "\n")
     out.write( "  Star 2 Tiles:\n\n")
     out.write( "  tile        r         theta     phi          x            y            z\n")
-    for i in range(1, star2.Ntiles):
+    for i in range(1, Star2.Ntiles):
         theta = T2theta[i] * ( 360.0 / 2*math.pi )
         phi   = T2phi[i]   * ( 360.0 / 2*math.pi )
         out.write( "%6ld  %12.5e %8.3f %8.3f   %12.5e %12.5e %12.5e\n"%
@@ -362,7 +369,7 @@ def InspectStar2Tiles():
     outfile =  "Star2TilesB.inspect"
     out = open(outfile, "w")
     if out == None:
-        Quit("Cannot open file Star2TilesB.inspect.")
+        sys.exit("Cannot open file Star2TilesB.inspect.")
 
     out.write( "  Star 2 Tiles:\n\n")
     out.write( "  tile    T2gradV.r   T2gradV.t   T2gradV.p\n")
@@ -375,11 +382,11 @@ def InspectStar2Tiles():
     outfile = "Star2TilesC.inspect"
     out = open(outfile, "w")
     if out == None:
-        Quit("Cannot open file Star2TilesC.inspect.")
+        sys.exit("Cannot open file Star2TilesC.inspect.")
 
     out.write( "  Star 2 Tiles:\n\n")
     out.write( "  tile normSphere.r normSphere.t normSphere.p normCart.x normCart.y normCart.z\n")
-    for i in range(1, star2.Ntiles):
+    for i in range(1, Star2.Ntiles):
         out.write( "%6ld  %9.6f     %8.5f     %8.5f   %8.5f   %8.5f   %8.5f\n"%
             i, T2normSphere[i].r, T2normSphere[i].theta, T2normSphere[i].phi,
                T2normCart[i].x, T2normCart[i].y, T2normCart[i].z)
@@ -389,11 +396,11 @@ def InspectStar2Tiles():
     outfile = "Star2TilesD.inspect"
     out = open(outfile, "w")
     if out == None:
-        Quit("Cannot open file Star2TilesD.inspect.")
+        sys.exit("Cannot open file Star2TilesD.inspect.")
 
     out.write( "  Star 2 Tiles:\n\n")
     out.write( "  tile        g      log(g)       dS          T\n")
-    for i in range(1, star2.Ntiles):
+    for i in range(1, Star2.Ntiles):
         out.write( "%6ld   %10.3e %6.3f   %11.4e   %5.0f\n"%
             i, T2g[i], T2logg[i], T2dS[i], T2T[i] )
 
@@ -402,26 +409,26 @@ def InspectStar2Tiles():
     outfile = "Star2TilesE.inspect"
     out = open(outfile, "w")
     if out == None:
-        Quit("Cannot open file Star2TilesE.inspect.")
+        sys.exit("Cannot open file Star2TilesE.inspect.")
 
     out.write( "  Star 2 Tile Specific Intensities:\n\n")
 
     outputline = "     Tile "
-    for band in range(1, orbit.nbands):
-        if( orbit.filter[band] == "SQUARE"):
+    for band in range(1, orbitparams.nbands):
+        if( orbitparams.filter[band] == "SQUARE"):
             outputline +=  "   "
-            outputline += orbit.filter[band]
+            outputline += orbitparams.filter[band]
             outputline +=  "   "
         else:
             outputline +=  "      "
-            outputline += orbit.filter[band]
+            outputline += orbitparams.filter[band]
             outputline += "     "
     outputline +=  "\n"
     out.write("%s"% outputline)
 
-    for i in range(1, star2.Ntiles):
+    for i in range(1, Star2.Ntiles):
         outputline =  "  %6ld "% (i)
-        for band in range(1, orbit.nbands):
+        for band in range(1, orbitparams.nbands):
             dummy =  " %10.3e "% T2I[band][i]
             outputline += dummy
         outputline += "\n"
@@ -442,18 +449,18 @@ def InspectDiskTiles( targetarea,
     outfile = "DiskTilesA.inspect"
     out = open(outfile, "w")
     if out == None:
-        Quit("Cannot open file DiskTilesA.inspect.")
+        sys.exit("Cannot open file DiskTilesA.inspect.")
 
     out.write( "\n")
     out.write( " Disk Tiles:\n")
 
     out.write( "\n")
-    out.write( " disk.targetNtiles  =   %5ld\n"%  disk.targetNtiles)
-    out.write( " disk.Ntiles        =   %5ld\n"%  disk.Ntiles)
-    out.write( " disk.e             =   %5.3f\n"% disk.e)
-    x = disk.zetazero * (360.0/2*math.pi)
+    out.write( " disk.targetNtiles  =   %5ld\n"%  wholediskpars.targetNtiles)
+    out.write( " disk.Ntiles        =   %5ld\n"%  wholediskpars.Ntiles)
+    out.write( " disk.e             =   %5.3f\n"% wholediskpars.e)
+    x = wholediskpars.zetazero * (360.0/2*math.pi)
     out.write( " disk.zetazero      =   %5.1f\n"% x)
-    out.write( " disk.albedo        =   %5.2f\n"% disk.albedo)
+    out.write( " disk.albedo        =   %5.2f\n"% wholediskpars.albedo)
 
     out.write( "\n")
     out.write( " maindisk.amin      =  %11.4e\n"% maindisk.amin)
@@ -465,61 +472,61 @@ def InspectDiskTiles( targetarea,
     out.write( " maindisk.Tpow      =  %5.2f\n"%  maindisk.Tpow)
 
     out.write( "\n")
-    out.write( " diskedge.T         =   %9.3e\n"% diskedge.T)
-    out.write( " diskedge.Tspot     =   %9.3e\n"% diskedge.Tspot)
-    x = diskedge.ZetaMid * (360.0/2*math.pi)
+    out.write( " diskedge.T         =   %9.3e\n"% diskedgepars.T)
+    out.write( " diskedge.Tspot     =   %9.3e\n"% diskedgepars.Tspot)
+    x = diskedgepars.ZetaMid * (360.0/2*math.pi)
     out.write( " diskedge.ZetaMid   =   %5.1f\n"%  x)
-    x = diskedge.ZetaWidth * (360.0/2*math.pi)
+    x = diskedgepars.ZetaWidth * (360.0/2*math.pi)
     out.write( " diskedge.ZetaWidth =   %5.1f\n"%  x)
 
-    if( control.diskrim == "ON" ):
+    if( flowcontrol.diskrim == "ON" ):
         out.write( "\n")
-        out.write( " diskrim.awidth     =  %11.4e\n"% diskrim.awidth)
-        out.write( " diskrim.type       =   %s\n"%     diskrim.type)
-        out.write( " diskrim.Hmax       =  %11.4e\n"% diskrim.Hmax)
-        out.write( " diskrim.Hmin       =  %11.4e\n"% diskrim.Hmin)
-        x = diskrim.ZetaHmax * (360.0/2*math.pi)
+        out.write( " diskrim.awidth     =  %11.4e\n"% diskrimpars.awidth)
+        out.write( " diskrim.type       =   %s\n"%     diskrimpars.type)
+        out.write( " diskrim.Hmax       =  %11.4e\n"% diskrimpars.Hmax)
+        out.write( " diskrim.Hmin       =  %11.4e\n"% diskrimpars.Hmin)
+        x = diskrimpars.ZetaHmax * (360.0/2*math.pi)
         out.write( " diskrim.ZetaHmax   =   %5.1f\n"%  x)
-        out.write( " diskrim.Tmax       =   %9.3e\n"% diskrim.Tmax)
-        out.write( " diskrim.Tmin       =   %9.3e\n"% diskrim.Tmin)
-        x = diskrim.ZetaTmax * (360.0/2*math.pi)
+        out.write( " diskrim.Tmax       =   %9.3e\n"% diskrimpars.Tmax)
+        out.write( " diskrim.Tmin       =   %9.3e\n"% diskrimpars.Tmin)
+        x = diskrimpars.ZetaTmax * (360.0/2*math.pi)
         out.write( " diskrim.ZetaTmax   =   %5.1f\n"%  x)
-        if( diskrim.type == "POINT"):
+        if( diskrimpars.type == "POINT"):
             out.write( "   i     Zeta[i]       H[i]         T[i]\n")
-            for i in range(1, diskrim.points):
-                x = diskrim.PointZeta[i] * (360.0/2*math.pi)
+            for i in range(1, diskrimpars.points):
+                x = diskrimpars.PointZeta[i] * (360.0/2*math.pi)
                 out.write( "  %2ld     %5.1f     %10.4e    %8.1f\n"%
-                 i, x, diskrim.PointH[i], diskrim.PointT[i])
-    if( control.disktorus ==  "ON"):
+                 i, x, diskrimpars.PointH[i], diskrimpars.PointT[i])
+    if( flowcontrol.disktorus ==  "ON"):
         out.write( "\n")
-        out.write( " disktorus.azero    =  %11.4e\n"% disktorus.azero)
-        out.write( " disktorus.awidth   =  %11.4e\n"% disktorus.awidth)
-        out.write( " disktorus.type     =   %s\n"%     diskrim.type)
-        out.write( " disktorus.Hmax     =  %11.4e\n"% disktorus.Hmax)
-        out.write( " disktorus.Hmin     =  %11.4e\n"% disktorus.Hmin)
-        x = disktorus.ZetaHmax * (360.0/2*math.pi)
+        out.write( " disktorus.azero    =  %11.4e\n"% disktorusparams.azero)
+        out.write( " disktorus.awidth   =  %11.4e\n"% disktorusparams.awidth)
+        out.write( " disktorus.type     =   %s\n"%     diskrimpars.type)
+        out.write( " disktorus.Hmax     =  %11.4e\n"% disktorusparams.Hmax)
+        out.write( " disktorus.Hmin     =  %11.4e\n"% disktorusparams.Hmin)
+        x = disktorusparams.ZetaHmax * (360.0/2*math.pi)
         out.write( " disktorus.ZetaHmax =   %5.1f\n"%  x)
-        out.write( " disktorus.Tmax     =   %9.3e\n"% disktorus.Tmax)
-        out.write( " disktorus.Tmin     =   %9.3e\n"% disktorus.Tmin)
-        x = disktorus.ZetaTmax * (360.0/2*math.pi)
+        out.write( " disktorus.Tmax     =   %9.3e\n"% disktorusparams.Tmax)
+        out.write( " disktorus.Tmin     =   %9.3e\n"% disktorusparams.Tmin)
+        x = disktorusparams.ZetaTmax * (360.0/2*math.pi)
         out.write( " disktorus.ZetaTmax =   %5.1f\n"%  x)
-        if disktorus.type == "POINT":
+        if disktorusparams.type == "POINT":
             out.write( "   i     Zeta[i]       H[i]         T[i]\n")
-            for i in range(1, disktorus.points):
-                x = disktorus.PointZeta[i] * (360.0/2*math.pi)
+            for i in range(1, disktorusparams.points):
+                x = disktorusparams.PointZeta[i] * (360.0/2*math.pi)
                 out.write( "  %2ld     %5.1f     %10.4e    %8.1f\n"%
-                 i, x, disktorus.PointH[i], disktorus.PointT[i])
+                 i, x, disktorusparams.PointH[i], disktorusparams.PointT[i])
 
-    if( diskspot.nspots >= 1 ):
+    if( diskspotpars.nspots >= 1 ):
         out.write( "\n")
-        out.write( "diskspot.npoints = %2ld\n"% diskspot.nspots)
+        out.write( "diskspot.npoints = %2ld\n"% diskspotpars.nspots)
         out.write( "   i  ZetaMin[i]  ZetaMax[i]   aMin[i]     aMax[i]  spotToverT[i] \n")
-        for i in range(1, diskspot.nspots):
-            x = diskspot.zetamin[i] * (360.0 / 2*math.pi)
-            y = diskspot.zetamax[i] * (360.0 / 2*math.pi)
+        for i in range(1, diskspotpars.nspots):
+            x = diskspotpars.zetamin[i] * (360.0 / 2*math.pi)
+            y = diskspotpars.zetamax[i] * (360.0 / 2*math.pi)
             out.write( "  %2ld    %5.1f       %5.1f    %10.4e  %10.4e    %5.2f\n"%
-                   i, x, y, diskspot.amin[i], diskspot.amax[i], 
-                   diskspot.spotToverT[i])
+                   i, x, y, diskspotpars.amin[i], diskspotpars.amax[i], 
+                   diskspotpars.spotToverT[i])
 
     out.write( "\n")
     out.write( " targetarea = %12.4e\n"% targetarea)
@@ -530,7 +537,7 @@ def InspectDiskTiles( targetarea,
 
     out.write( "\n")
     out.write( "  Tile      a      zeta     rho         h          x          y          z\n")
-    for i in range(1, diak.Ntiles):
+    for i in range(1, wholediskpars.Ntiles):
         zeta = TDiskZeta[i] * ( 360.0 / 2*math.pi )
         out.write( "%6ld %10.3e %5.1f %10.3e %10.3e %10.3e %10.3e %10.3e\n"%
 	       i, TDiska[i] ,zeta, TDiskRho[i], TDiskH[i],
@@ -540,7 +547,7 @@ def InspectDiskTiles( targetarea,
     outfile = "DiskTilesB.inspect"
     out = open(outfile, "w")
     if out == None:
-        Quit("Cannot open file DiskTilesB.inspect.");
+        sys.exit("Cannot open file DiskTilesB.inspect.");
 
     out.write( " Disk Tiles:\n\n")
     out.write( " targetarea = %12.4e\n"% targetarea)
@@ -560,7 +567,7 @@ def InspectDiskTiles( targetarea,
     outfile = "DiskTilesC.inspect"
     out = open(outfile, "w")
     if out == None:
-        Quit("Cannot open file DiskTilesC.inspect.")
+        sys.exit("Cannot open file DiskTilesC.inspect.")
 
     out.write( " Disk Tiles:\n\n")
     out.write( " targetarea = %12.4e\n"% targetarea)
@@ -571,7 +578,7 @@ def InspectDiskTiles( targetarea,
 
     out.write( "\n")
     out.write( "  Tile      DiskdS         DiskT\n")
-    for i in range(1, disk.Ntiles): 
+    for i in range(1, wholediskpars.Ntiles): 
         out.write( "%6ld  %12.4e  %12.4e\n"%
 	      i, TDiskdS[i], TDiskT[i] )
     out.close()
@@ -579,7 +586,7 @@ def InspectDiskTiles( targetarea,
     outfile = "DiskTilesD.inspect"
     out = open(outfile, "w")
     if out == None:
-        Quit("Cannot open file DiskTilesD.inspect.")
+        sys.exit("Cannot open file DiskTilesD.inspect.")
 
     out.write( " Disk Tiles:\n\n")
     out.write( " targetarea = %12.4e\n"% targetarea)
@@ -591,21 +598,21 @@ def InspectDiskTiles( targetarea,
     out.write( "  Disk Tile Specific Intensities:\n\n")
 
     outputline =  "     Tile "
-    for band in range(1, orbit.nbands):
-        if( orbit.filter[band] == "SQUARE"):
+    for band in range(1, orbitparams.nbands):
+        if( orbitparams.filter[band] == "SQUARE"):
             outputline += "   "
-            outputline += orbit.filter[band]
+            outputline += orbitparams.filter[band]
             outputline  += "   "
         else:
             outputline += "      "
-            outputline += orbit.filter[band]
+            outputline += orbitparams.filter[band]
             outputline += "     "
     outputline += "\n"
     out.write("%s"% outputline)
 
-    for i in range(1, disk.Ntiles):
+    for i in range(1, wholediskpars.Ntiles):
         outputline =  "  %6ld "% i
-        for band in range(1, orbit.nbands):
+        for band in range(1, orbitparams.nbands):
             dummy =  " %10.3e "% (TDiskI[band][i])
             outputline +=  dummy
         outputline += "\n"
@@ -622,29 +629,29 @@ def InspectYlimits():
     outfile = "ylimits.inspect"
     out = open(outfile, "w")
     if out == None:
-        Quit("Cannot open file ylimits.inspect.")
+        sys.exit("Cannot open file ylimits.inspect.")
 
     out.write( "\n")
-    out.write( "  Grid.Nxtiles  =  %4ld\n"%    Grid.Nxtiles)
-    out.write( "  Grid.Nztiles  =  %4ld\n"%    Grid.Nztiles)
-    out.write( "  Grid.deltax   =  %12.4e\n"% Grid.deltax )
-    out.write( "  Grid.deltaz   =  %12.4e\n"% Grid.deltaz )
-    out.write( "  Grid.deltal   =  %12.4e\n"% Grid.deltal )
-    out.write( "  Grid.xmin     =  %12.4e\n"% Grid.xmin   )
-    out.write( "  Grid.xmax     =  %12.4e\n"% Grid.xmax   )
-    out.write( "  Grid.ymin     =  %12.4e\n"% Grid.ymin   )
-    out.write( "  Grid.ymax     =  %12.4e\n"% Grid.ymax   )
-    out.write( "  Grid.zmin     =  %12.4e\n"% Grid.zmin   )
-    out.write( "  Grid.zmax     =  %12.4e\n"% Grid.zmax   )
+    out.write( "  Grid.Nxtiles  =  %4ld\n"%    XYGrid.Nxtiles)
+    out.write( "  Grid.Nztiles  =  %4ld\n"%    XYGrid.Nztiles)
+    out.write( "  Grid.deltax   =  %12.4e\n"% XYGrid.deltax )
+    out.write( "  Grid.deltaz   =  %12.4e\n"% XYGrid.deltaz )
+    out.write( "  Grid.deltal   =  %12.4e\n"% XYGrid.deltal )
+    out.write( "  Grid.xmin     =  %12.4e\n"% XYGrid.xmin   )
+    out.write( "  Grid.xmax     =  %12.4e\n"% XYGrid.xmax   )
+    out.write( "  Grid.ymin     =  %12.4e\n"% XYGrid.ymin   )
+    out.write( "  Grid.ymax     =  %12.4e\n"% XYGrid.ymax   )
+    out.write( "  Grid.zmin     =  %12.4e\n"% XYGrid.zmin   )
+    out.write( "  Grid.zmax     =  %12.4e\n"% XYGrid.zmax   )
 
     out.write("\n")
     out.write("   ix   iz         x             z           Topy         Bottomy\n")
-    for ix in range(1, Grid.Nxtiles):
-        x = Grid.xmin + (ix - 1) * Grid.deltax
-        for iz in range(1, Grid.Nztiles):
-            z = Grid.zmin + (iz - 1) * Grid.deltaz
+    for ix in range(1, XYGrid.Nxtiles):
+        x = XYGrid.xmin + (ix - 1) * XYGrid.deltax
+        for iz in range(1, XYGrid.Nztiles):
+            z = XYGrid.zmin + (iz - 1) * XYGrid.deltaz
             out.write("  %3ld  %3ld   %12.5e  %12.5e  %12.5e  %12.5e\n"%
-	            ix, iz, x, z, Grid.Topy[ix][iz], Grid.Bottomy[ix][iz])
+	            ix, iz, x, z, XYGrid.Topy[ix][iz], XYGrid.Bottomy[ix][iz])
     out.close()
 
     return
@@ -660,11 +667,11 @@ def InspectEscape( sunvector, f,
     flux emitted from the tiles and whether or not the flux
     is seen from the Earth.
     """
-    if( control.star1 == "ON" ):
+    if( flowcontrol.star1 == "ON" ):
         outfile = "escape1.inspect"
         out = open(outfile, "w")
         if out == None:
-            Quit("Cannot open file escape1.inspect.")
+            sys.exit("Cannot open file escape1.inspect.")
 
         out.write("\n")
         out.write( "  sunvector.x  = %7.4f\n"% sunvector.x)
@@ -677,11 +684,11 @@ def InspectEscape( sunvector, f,
         out.write( "  Star1Escape  =  %6.4f\n\n"% Star1Escape)
         out.close()
   
-    if( control.star2 == "ON" ):
+    if( flowcontrol.star2 == "ON" ):
         outfile = "escape2.inspect"
         out = open(outfile, "w")
         if out == None:
-            Quit("Cannot open file escape2.inspect.")
+            sys.exit("Cannot open file escape2.inspect.")
 
         out.write("\n")
         out.write( "  sunvector.x  = %7.4f\n"% sunvector.x)
@@ -692,16 +699,16 @@ def InspectEscape( sunvector, f,
         out.write("\n")
         out.write( "                       Emitted    Fraction\n")
         out.write( "  itile       mu         Flux     Escaping\n")
-        for itile in range(1, start2.Ntiles):
+        for itile in range(1, Star2.Ntiles):
             out.write("  %5ld   %8.5f  %12.4e   %6.4f\n"%
 	        itile, T2mu[itile], T2Emitted[itile], T2Escape[itile] )
         out.close()
 
-    if( control.disk == "ON" ):
+    if( flowcontrol.disk == "ON" ):
         outfile =  "escapeDisk.inspect" 
         out = open(outfile, "w")
         if out == None:
-            Quit("Cannot open file escapeDisk.inspect.")
+            sys.exit("Cannot open file escapeDisk.inspect.")
 
         out.write("\n")
         out.write( "  sunvector.x  = %7.4f\n"% sunvector.x)
@@ -712,7 +719,7 @@ def InspectEscape( sunvector, f,
         out.write("\n")
         out.write( "                       Emitted     Fraction\n")
         out.write( "  itile       mu         Flux      Escaping\n")
-        for itile in range(1, disk.Ntiles):
+        for itile in range(1, wholediskpars.Ntiles):
             out.write("  %5ld   %8.5f  %12.4e    %6.4f\n"%
 	            itile, TDiskmu[itile], TDiskEmitted[itile], 
                     TDiskEscape[itile] )
@@ -730,11 +737,11 @@ def InspectHeatDiskBy1(TDiskTold, muA1toD,
     outfile = "HeatDiskBy1.inspect"
     out = open(outfile, "w")
     if out == None:
-        Quit("Cannot open file HeatDiskBy1.inspect.")
+        sys.exit("Cannot open file HeatDiskBy1.inspect.")
 
     out.write( "           Original                           Fraction     Heated\n")
     out.write( "   Tile  Temperature     muA   DeltaT41toDisk  1->Disk   Temperature\n")
-    for itile in range(1, disk.Ntiles):
+    for itile in range(1, wholediskpars.Ntiles):
         out.write("  %5ld  %8.0f     %7.4f   %11.4e    %5.4f    %8.0f\n"%
                 itile, TDiskTold[itile], muA1toD[itile],
                 DeltaT41toD[itile], transmit1toD[itile], TDiskT[itile] )
@@ -751,11 +758,11 @@ def InspectHeatDiskByID(TDiskTold, muAidtoD,
     outfile = "HeatDiskByID.inspect"
     out = open(outfile, "w")
     if out == None:      
-        Quit("Cannot open file HeatDiskByID.inspect.")
+        sys.exit("Cannot open file HeatDiskByID.inspect.")
 
     out.write( "           Original                           Fraction     Heated\n")
     out.write( "   Tile  Temperature     muA   DeltaT4idtoDisk id->Disk   Temperature\n")
-    for itile in range(1, disk.Ntiles):
+    for itile in range(1, wholediskpars.Ntiles):
         out.write("  %5ld  %8.0f     %7.4f   %11.4e    %5.4f    %8.0f\n"%
                 itile, TDiskTold[itile], muAidtoD[itile],
                 DeltaT4idtoD[itile], transmitidtoD[itile], TDiskT[itile] )
@@ -776,14 +783,14 @@ def InspectHeatDiskByADC( whatside,
     if( whatside == "BOTTOM"):
         outfile = "HeatDiskByBotADC.inspect"
     else:
-        Quit("Unrecognized side in function InspectHeatDiskByADC.")
+        sys.exit("Unrecognized side in function InspectHeatDiskByADC.")
     out = open(outfile, "w")
-    if( out== NULL):
-        Quit("Cannot open file HeatDiskByxxxADC.inspect.")
+    if( out== None):
+        sys.exit("Cannot open file HeatDiskByxxxADC.inspect.")
 
     out.write( "           Original                           Fraction     Heated\n")
     out.write( "   Tile  Temperature     muA   DeltaT4ADC ADC->Disk   Temperature\n")
-    for itile in range(1, diak.Ntiles):
+    for itile in range(1, wholediskpars.Ntiles):
         out.write("  %5ld  %8.0f     %7.4f   %11.4e    %5.4f    %8.0f\n"%
                 itile, TDiskTold[itile], muAADCtoD[itile],
                 DeltaT4ADCtoD[itile], transmitADCtoD[itile], TDiskT[itile] )
@@ -800,12 +807,12 @@ def InspectHeat2By1( T2Told, muA1to2,
     """
     outfile = "Heat2By1.inspect"
     out = open(outfile, "w")
-    if (out == NULL):
-        Quit("Cannot open file Heat2By1.inspect.")
+    if (out == None):
+        sys.exit("Cannot open file Heat2By1.inspect.")
 
     out.write( "           Original                          Fraction    Heated\n")
     out.write( "   Tile  Temperature     muA    DeltaT41to2    1->2    Temperature\n")
-    for itile in range(1, star2.Ntiles):
+    for itile in range(1, Star2.Ntiles):
         out.write("  %5ld  %8.0f     %7.4f   %11.4e   %5.4f   %8.0f\n"%
 	         itile, T2Told[itile], muA1to2[itile], 
                  DeltaT41to2[itile], transmit1to2[itile], T2T[itile] )
@@ -824,10 +831,10 @@ def InspectHeat2ByID( T2Told, muAidto2,
     outfile = "Heat2ByInDisk.inspect"
     out = open(outfile, "w")
     if out == None:
-        Quit("Cannot open file Heat2ByInDisk.inspect.")
+        sys.exit("Cannot open file Heat2ByInDisk.inspect.")
     out.write( "           Original                          Fraction    Heated\n")
     out.write( "   Tile  Temperature     muA    DeltaT4idto2   id->2    Temperature\n")
-    for itile in range(1, star2.Ntiles):
+    for itile in range(1, Star2.Ntiles):
         out.write("  %5ld  %8.0f     %7.4f   %11.4e   %5.4f   %8.0f\n"%
 	         itile, T2Told[itile], muAidto2[itile], 
                  DeltaT4idto2[itile], transmitidto2[itile], T2T[itile] )
@@ -845,11 +852,11 @@ def InspectHeat2ByDisk( T2Told, DeltaT4Dto2, T2T):
     outfile =  "Heat2ByDisk.inspect"
     out = open(outfile, "w")
     if out == None:
-        Quit("Cannot open file Heat2ByDisk.inspect.")
+        sys.exit("Cannot open file Heat2ByDisk.inspect.")
 
     out.write( "           Original                      Heated\n")
     out.write( "   Tile  Temperature    DeltaT4Dto2    Temperature\n")
-    for itile in range(1, star2.Ntiles):
+    for itile in range(1, Star2.Ntiles):
         out.write("  %5ld  %8.0f      %11.4e    %8.0f\n"%
 	         itile, T2Told[itile], DeltaT4Dto2[itile], T2T[itile] )
 
@@ -870,14 +877,14 @@ def InspectHeat2ByADC( whatside,
     if( whatside == "BOTTOM"):
         outfile = "Heat2ByBotADC.inspect"
     else:
-        Quit("Unrecognized side in function InspectHeat2ByADC.")
+        sys.exit("Unrecognized side in function InspectHeat2ByADC.")
     out = open(outfile, "w")   
-    if (out == NULL):
-        Quit("Cannot open file Heat2ByxxxADC.inspect.")
+    if (out == None):
+        sys.exit("Cannot open file Heat2ByxxxADC.inspect.")
 
     out.write( "           Original                           Fraction     Heated\n")
     out.write( "   Tile  Temperature     muA     DeltaT4ADC    ADC->2   Temperature\n")
-    for itile in range(1, star2.Ntiles):
+    for itile in range(1, Star2.Ntiles):
         out.write("  %5ld  %8.0f     %7.4f   %11.4e    %5.4f    %8.0f\n"%
                 itile, T2Told[itile], muAADCto2[itile],
                 DeltaT4ADCto2[itile], transmitADCto2[itile], T2T[itile] )
@@ -899,18 +906,18 @@ def WriteData(band):
     out = open(filename, "w")
     if out == None:
         print("Cannot open file %s\n"% filename)
-        Quit("")
+        sys.exit("")
 
-    out.write( "Band %2ld from file %s\n"% band, data.filename[band])
-    if( data.filter[band] == "SQUARE"):
-        out.write( "Filter = %s  %5.0f  %5.0f\n"% data.filter[band], 
-                            data.minlambda[band], data.maxlambda[band])
+    out.write( "Band %2ld from file %s\n"% band, dataparams.filename[band])
+    if( dataparams.filter[band] == "SQUARE"):
+        out.write( "Filter = %s  %5.0f  %5.0f\n"% dataparams.filter[band], 
+                            dataparams.minlambda[band], dataparams.maxlambda[band])
     else:
-        out.write( "Filter = %s\n"% data.filter[band])
+        out.write( "Filter = %s\n"% dataparams.filter[band])
 
-    for i in range(1, data.npoints[band]):
-        out.write( " %5.4f  %11.3e  %11.2e\n"% data.phase[band][i],
-	      data.flux[band][i], data.standdev[band][i])
+    for i in range(1, dataparams.npoints[band]):
+        out.write( " %5.4f  %11.3e  %11.2e\n"% dataparams.phase[band][i],
+	      dataparams.flux[band][i], dataparams.standdev[band][i])
 
     out.close()
    

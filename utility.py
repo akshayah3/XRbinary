@@ -9,6 +9,7 @@ Utility functions needed for the project
 """
 
 import math
+import sys
 
 def BBSquareIntensity(T, lowlambda, highlambda):
     """
@@ -229,7 +230,7 @@ def Planck( mode, temperature, lambdanu ):
     c=  2.99792e+10 
     k = 1.38066e-16 
     if( temperature <= 1.0 ):
-        Quit("Temperature out of range in function Planck.")
+        sys.exit("Temperature out of range in function Planck.")
     if( mode == "NU" ):
         nu = lambdanu
         x = ( 2.0 * h * nu * nu * nu ) / ( c * c )
@@ -243,6 +244,6 @@ def Planck( mode, temperature, lambdanu ):
         Flambda = x / ( math.exp( y ) - 1.0 )
         return( Flambda )
     else:
-        Quit("Unrecognized mode in function Planck().")
+        sys.exit("Unrecognized mode in function Planck().")
       
     return(-1.0)
