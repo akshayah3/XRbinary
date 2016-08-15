@@ -103,17 +103,17 @@ def FluxesAtPhase( phase, TotalFlux ):
             star1flux = Star1Emitted * Star1Escape
             TotalFlux[band] += star1flux
 
-        if( control.star2 == "ON" ):
+        if( flowcontrol.star2 == "ON" ):
             star2flux = 0.0
-            if( orbit.filter[band] == "SQUARE"):
-                for itile in range(1, star2.Ntiles):
+            if( orbitparams.filter[band] == "SQUARE"):
+                for itile in range(1, Star2.Ntiles):
                     if( T2mu[itile] < 0.0 ):
                        T2Emitted[itile] = 0.0
                     else:
    	                  T2Emitted[itile] =  T2I[band][itile]*T2mu[itile] * T2dS[itile]
                     star2flux += T2Emitted[itile] * T2Escape[itile]
             else:
-                for itile in range(1, star2.Ntiles):
+                for itile in range(1, Star2.Ntiles):
                     if( T2mu[itile] < 0.0 ):
 		             T2Emitted[itile] = 0.0
                     else:
@@ -123,31 +123,31 @@ def FluxesAtPhase( phase, TotalFlux ):
                             T2Emitted[itile] = T2I[band][itile]* ClaretHmu( T2T[itile],T2logg[itile],orbit.filter[band],T2mu[itile] )* T2mu[itile] * T2dS[itile]
                     star2flux += T2Emitted[itile] * T2Escape[itile];
             TotalFlux[band] += star2flux
-        if( control.disk == "ON" ):
+        if( flowcontrol.disk == "ON" ):
             diskflux = 0.0
-            for itile in range(1, disk.Ntiles):
+            for itile in range(1, wholediskpars.Ntiles):
                 if( TDiskmu[itile] < 0.0 ):
 	              TDiskEmitted[itile] = 0.0
                 else:
    	              TDiskEmitted[itile] = TDiskI[band][itile] * TDiskmu[itile] * TDiskdS[itile]
                 diskflux += TDiskEmitted[itile] * TDiskEscape[itile]
             TotalFlux[band] += diskflux
-            if( control.innerdisk == "ON" ):
+            if( flowcontrol.innerdisk == "ON" ):
                 InnerDiskMu = sunvector.y
-                InnerDiskEmitted = InnerDiskFlambda( orbit.filter[band], orbit.minlambda[band],orbit.maxlambda[band] )
+                InnerDiskEmitted = InnerDiskFlambda( orbitparams.filter[band], orbitparams.minlambda[band],orbitparams.maxlambda[band] )
                 InnerDiskflux = InnerDiskMu * InnerDiskEmitted * InnerDiskEscape;
                 TotalFlux[band] += InnerDiskflux
 
-        if( control.thirdlight == "ON" ):
-            TotalFlux[band] += thirdlight.addFlux[band]
+        if( flowcontrol.thirdlight == "ON" ):
+            TotalFlux[band] += thirdlightparams.addFlux[band]
 
-        if( control.diagnostics == "INSPECTESCAPE"):
-            if( control.diagnoseband == orbit.filter[band] ):
-                InspectEscape( sunvector, orbit.filter[band],
+        if( flowcontrol.diagnostics == "INSPECTESCAPE"):
+            if( flowcontrol.diagnoseband == orbitparams.filter[band] ):
+                InspectEscape( sunvector, orbitparams.filter[band],
                            Star1Emitted, Star1Escape,
                            T2mu, T2Emitted, T2Escape,
                            TDiskmu, TDiskEmitted, TDiskEscape);
-            Quit("Quit after INSPECTESCAPE.")
+            sys.exit("Quit after INSPECTESCAPE.")
 
     return
 
@@ -157,23 +157,23 @@ def ThirdLight():
     to be added to each bandpass.  The flux is actually added in
     function FluxesAtPhase().  
     """
-    FluxesAtPhase( thirdlight.orbphase, TotalFlux )
+    FluxesAtPhase( thirdlightparams.orbphase, TotalFlux )
 
-    for LCband in range(1, orbit.nbands):
+    for LCband in range(1, orbitparams.nbands):
         found = 0
-        for band in range(1, thirdlight.nbands):
-            if( orbit.filter[LCband] == thirdlight.filter[band]):
-                if( orbit.filter[LCband] == "SQUARE"):
-                    if( (orbit.minlambda[LCband] == thirdlight.minlambda[band]) and (orbit.maxlambda[LCband] == thirdlight.maxlambda[band]) ):
-		             found = 1
-                        #alpha = thirdlight.fraction[band]
+        for band in range(1, thirdlightparams.nbands):
+            if( orbitparams.filter[LCband] == thirdlightparams.filter[band]):
+                if( orbitparams.filter[LCband] == "SQUARE"):
+                    if( (orbitparams.minlambda[LCband] == thirdlightparams.minlambda[band]) and (orbitparams.maxlambda[LCband] == thirdlightparams.maxlambda[band]) ):
+                        found = 1
+                        alpha = thirdlightparams.fraction[band]
                 else:
-	              found = 1
-                    #alpha = thirdlight.fraction[band]
+                    found = 1
+                    alpha = thirdlightparams.fraction[band]
         if( found == 1 ):
-            thirdlight.addFlux[LCband] = ( alpha / (1.0 - alpha) ) * TotalFlux[LCband]
+            thirdlightparams.addFlux[LCband] = ( alpha / (1.0 - alpha) ) * TotalFlux[LCband]
         else:
-            Quit("Thirdlight fraction not specified for a bandpass.")
+            sys.exit("Thirdlight fraction not specified for a bandpass.")
 
     return
 
@@ -192,78 +192,78 @@ def Normalize():
              and the calculated light curve.  This same normalization
              factor is then applied to all the calculated light curves.
     """
-    if( orbit.normalize == "MAXVALUE"):
-        for band in range(1, orbit.nbands):
+    if( orbitparams.normalize == "MAXVALUE"):
+        for band in range(1, orbitparams.nbands):
             maxflux = 0.0
-            for iphase in range(0, orbit.maxpindex):
+            for iphase in range(0, orbitparams.maxpindex):
                 if( LCflux[band][iphase] > maxflux ):
                     maxflux = LCflux[band][iphase]
             if( maxflux == 0.0 ):
                 maxflux = 1.0
-            normfactor = orbit.normvalue / maxflux
-            for iphase in range(0, orbit.maxpindex):
+            normfactor = orbitparams.normvalue / maxflux
+            for iphase in range(0, orbitparams.maxpindex):
                 NormLC[band][iphase] = normfactor * LCflux[band][iphase]
-    if( orbit.normalize == "FITDATA"):
+    if( orbitparams.normalize == "FITDATA"):
         calcband = 0
-        for band in range(1, orbit.nbands):
-            if( orbit.normfilter == orbit.filter[band]):
-                if( orbit.normfilter == "SQUARE"):
-                    if( (orbit.normMinlambda == orbit.minlambda[band]) and (orbit.normMaxlambda == orbit.maxlambda[band]) ):
+        for band in range(1, orbitparams.nbands):
+            if( orbitparams.normfilter == orbitparams.filter[band]):
+                if( orbitparams.normfilter == "SQUARE"):
+                    if( (orbitparams.normMinlambda == orbitparams.minlambda[band]) and (orbitparams.normMaxlambda == orbitparams.maxlambda[band]) ):
        	             calcband = band
                 else:
                     calcband = band
         if( calcband == 0 ):
-            Quit("Could not find a matching calculated band in Normalize().")
+            sys.exit("Could not find a matching calculated band in Normalize().")
                        
         databand = 0
-        for band in range(1, data.nbands):
-            if( orbit.normfilter == data.filter[band]):
-                if( orbit.normfilter == "SQUARE"):
-                    if( (orbit.normMinlambda == data.minlambda[band]) and (orbit.normMaxlambda == data.maxlambda[band]) ):
+        for band in range(1, dataparams.nbands):
+            if( orbitparams.normfilter == dataparams.filter[band]):
+                if( orbitparams.normfilter == "SQUARE"):
+                    if( (orbitparams.normMinlambda == dataparams.minlambda[band]) and (orbitparams.normMaxlambda == dataparams.maxlambda[band]) ):
                         databand = band
                 else:
                     databand = band
         if( databand == 0 ):
-            Quit("Could not find a matching data band in Normalize().")
+            sys.exit("Could not find a matching data band in Normalize().")
 
         if( verbose == "ON"):
-            if( orbit.normfilter == "SQUARE"):
+            if( orbitparams.normfilter == "SQUARE"):
 	          print("    Normalizing in the SQUARE {} {} bandpass.\n").format(
-                                  orbit.normMinlambda, orbit.normMaxlambda)
+                                  orbitparams.normMinlambda, orbitparams.normMaxlambda)
             else:
-	          print("    Normalizing in the {} filter.\n").format( orbit.normfilter)
+	          print("    Normalizing in the {} filter.\n").format( orbitparams.normfilter)
              
         sum1 = 0.0
         sum2 = 0.0
-        for i in range(1, data.npoints[databand]):
+        for i in range(1, dataparams.npoints[databand]):
             k = i / 10
             k = i - 10 * k
             if( k == 0 ):
                 if( verbose == "ON" ):
                     print("    phase number {}   phase =  {}\n").format(
-                                     i, data.phase[databand][i])
-            FluxesAtPhase( data.phase[databand][i], TotalFlux )
-            weight = 1.0 / ( data.standdev[databand][i] 
-                       * data.standdev[databand][i] )
-            sum1 += weight * data.flux[databand][i] * TotalFlux[calcband]
+                                     i, dataparams.phase[databand][i])
+            FluxesAtPhase( dataparams.phase[databand][i], TotalFlux )
+            weight = 1.0 / ( dataparams.standdev[databand][i] 
+                       * dataparams.standdev[databand][i] )
+            sum1 += weight * dataparams.flux[databand][i] * TotalFlux[calcband]
             sum2 += weight * TotalFlux[calcband] * TotalFlux[calcband]
         normfactor = sum1 / sum2
-        for band in range(1, orbit.nbands):
+        for band in range(1, orbitparams.nbands):
             for iphase in range(0, maxpindex):
                 NormLC[band][iphase] = normfactor * LCflux[band][iphase]
 
-        data.chisquare = 0.0
-        for i in range(1, data.npoints[databand]):
-            FluxesAtPhase( data.phase[databand][i], TotalFlux )
-            weight = 1.0 / ( data.standdev[databand][i] 
-                       * data.standdev[databand][i] )
-            error = data.flux[databand][i] - normfactor * TotalFlux[calcband]
+        dataparams.chisquare = 0.0
+        for i in range(1, dataparams.npoints[databand]):
+            FluxesAtPhase( dataparams.phase[databand][i], TotalFlux )
+            weight = 1.0 / ( dataparams.standdev[databand][i] 
+                       * dataparams.standdev[databand][i] )
+            error = dataparams.flux[databand][i] - normfactor * TotalFlux[calcband]
             data.chisquare += weight * error * error
         if( verbose == "ON"): 
-            print(" chi^2({}) = {}\n").format(data.npoints[databand], 
-	       data.chisquare)
+            print(" chi^2({}) = {}\n").format(dataparams.npoints[databand], 
+	       dataparams.chisquare)
     else:
-        Quit("Unrecognized normalization type in function Normalize().")
+        sys.exit("Unrecognized normalization type in function Normalize().")
 
     return
 
@@ -288,18 +288,18 @@ def Irradiate():
     if( verbose == "ON" ): 
         print(" Begin heating by irradiation.\n")
    
-    if( control.disk == "ON" ):
+    if( flowcontrol.disk == "ON" ):
 
-        if (control.star1 == "ON"):
+        if (flowcontrol.star1 == "ON"):
             if( verbose == "ON" ): 
                 print("   Begin heating the outer disk by star 1.\n")
 
-            for iDisktile in range(1, disk.Ntiles):
+            for iDisktile in range(1, wholediskpars.Ntiles):
                 TDiskTold[iDisktile] = TDiskT[iDisktile]
             start.x = 0.0
             start.y = 0.0
-            start.z = syspars.a
-            for iDisktile in range(1, disk.Ntiles):
+            start.z = systemparams.a
+            for iDisktile in range(1, wholediskpars.Ntiles):
                 end.x = TDiskx[iDisktile]
                 end.y = TDisky[iDisktile]
                 end.z = TDiskz[iDisktile]
@@ -320,11 +320,11 @@ def Irradiate():
                 else:
                     DeltaT41toD[iDisktile] = 0.0
                     transmit1toD[iDisktile] = 0.0
-                TDiskT4[iDisktile] = TDiskT4[iDisktile]+ disk.albedo * DeltaT41toD[iDisktile] * transmit1toD[iDisktile];
+                TDiskT4[iDisktile] = TDiskT4[iDisktile]+ wholediskpars.albedo * DeltaT41toD[iDisktile] * transmit1toD[iDisktile];
                 TDiskT[iDisktile] = pow( TDiskT4[iDisktile], 0.25 )
-            if( control.diagnostics == "INSPECTHEATING"):
+            if( flowcontrol.diagnostics == "INSPECTHEATING"):
                 InspectHeatDiskBy1(TDiskTold, muA1toD, DeltaT41toD, transmit1toD )
-        if (control.innerdisk == "ON"):
+        if (flowcontrol.innerdisk == "ON"):
             if( verbose == "ON" ): 
                 print("   Begin heating the outer disk by the inner disk.\n")
 
@@ -332,15 +332,15 @@ def Irradiate():
                 TDiskTold[iDisktile] = TDiskT[iDisktile]
                 start.x = 0.0
                 start.y = 0.0
-                start.z = syspars.a
-                for iDisktile in range(1, disk.Ntiles):
+                start.z = systemparams.a
+                for iDisktile in range(1, wholediskpars.Ntiles):
                     end.x = TDiskx[iDisktile]
                     end.y = TDisky[iDisktile]
                     end.z = TDiskz[iDisktile]
                     delta.x = end.x - start.x
                     delta.y = end.y - start.y
                     delta.z = end.z - start.z
-                    d =  sqrt( delta.x*delta.x + delta.y*delta.y + delta.z*delta.z )
+                    d =  math.sqrt( delta.x*delta.x + delta.y*delta.y + delta.z*delta.z )
                     direction.x = delta.x / d
                     direction.y = delta.y / d
                     direction.z = delta.z / d
@@ -355,22 +355,22 @@ def Irradiate():
                     else:
                         DeltaT4idtoD[iDisktile] = 0.0
                         transmitidtoD[iDisktile] = 0.0
-                    TDiskT4[iDisktile] = TDiskT4[iDisktile]+ disk.albedo * DeltaT4idtoD[iDisktile] * transmitidtoD[iDisktile]
+                    TDiskT4[iDisktile] = TDiskT4[iDisktile]+ wholediskpars.albedo * DeltaT4idtoD[iDisktile] * transmitidtoD[iDisktile]
                     TDiskT[iDisktile] = pow( TDiskT4[iDisktile], 0.25 )
-                if( control.diagnostics == "INSPECTHEATING"):
+                if( flowcontrol.diagnostics == "INSPECTHEATING"):
                     InspectHeatDiskByID(TDiskTold, muAidtoD, DeltaT4idtoD, 
                                    transmitidtoD )
 
-            if (control.adc == "ON"):
+            if (flowcontrol.adc == "ON"):
                  if( verbose == "ON" ): 
                      print("   Begin heating the outer disk by the ADC.\n")
 
-                 for iDisktile in range(1, diak.Ntiles):
+                 for iDisktile in range(1, wholediskpars.Ntiles):
                      TDiskTold[iDisktile] = TDiskT[iDisktile]
                  
                  start.x = 0.0
                  start.y = adc.height
-                 start.z = syspars.a
+                 start.z = systemparams.a
                  for iDisktile in range(1, Ntiles):
                      end.x = TDiskx[iDisktile]
                      end.y = TDisky[iDisktile]
@@ -392,15 +392,15 @@ def Irradiate():
                      else:
                          DeltaT4ADCtoD[iDisktile] = 0.0
                          transmitADCtoD[iDisktile] = 0.0
-                     TDiskT4[iDisktile] = TDiskT4[iDisktile]+ disk.albedo * DeltaT4ADCtoD[iDisktile] * transmitADCtoD[iDisktile]
+                     TDiskT4[iDisktile] = TDiskT4[iDisktile]+ wholediskpars.albedo * DeltaT4ADCtoD[iDisktile] * transmitADCtoD[iDisktile]
                      TDiskT[iDisktile] = pow( TDiskT4[iDisktile], 0.25 )
-                 if( control.diagnostics == "INSPECTHEATING"):
+                 if( flowcontrol.diagnostics == "INSPECTHEATING"):
                      InspectHeatDiskByADC( "TOP", TDiskTold, muAADCtoD, 
                                   DeltaT4ADCtoD,  transmitADCtoD )
                  start.x = 0.0
-                 start.y = -adc.height
-                 start.z = syspars.a
-                 for iDisktile in range(1, diak.Ntiles):
+                 start.y = -adcpars.height
+                 start.z = systemparams.a
+                 for iDisktile in range(1, wholediskpars.Ntiles):
                      end.x = TDiskx[iDisktile]
                      end.y = TDisky[iDisktile]
                      end.z = TDiskz[iDisktile]
@@ -421,36 +421,36 @@ def Irradiate():
                      else:
                          DeltaT4ADCtoD[iDisktile] = 0.0
                          transmitADCtoD[iDisktile] = 0.0
-                     TDiskT4[iDisktile] = TDiskT4[iDisktile]+ disk.albedo * DeltaT4ADCtoD[iDisktile] * transmitADCtoD[iDisktile]
+                     TDiskT4[iDisktile] = TDiskT4[iDisktile]+ wholediskpars.albedo * DeltaT4ADCtoD[iDisktile] * transmitADCtoD[iDisktile]
                      TDiskT[iDisktile] = pow( TDiskT4[iDisktile], 0.25 )
 
-                 if( control.diagnostics == "INSPECTHEATING"):
+                 if( flowcontrol.diagnostics == "INSPECTHEATING"):
                      InspectHeatDiskByADC( "BOTTOM", TDiskTold, muAADCtoD, 
                                   DeltaT4ADCtoD,  transmitADCtoD )
 
-            for band in range(1, orbit.nbands):
-                if( orbit.filter[band] == "SQUARE"):
-                    for iDisktile in range(1, disk.ntiles):
+            for band in range(1, orbitparams.nbands):
+                if( orbitparams.filter[band] == "SQUARE"):
+                    for iDisktile in range(1, wholediskpars.ntiles):
                         TDiskI[band][iDisktile] = BBSquareIntensity( TDiskT[iDisktile], 
-                                     orbit.minlambda[band],
-                                     orbit.maxlambda[band])
+                                     orbitparams.minlambda[band],
+                                     orbitparams.maxlambda[band])
                 else:
-                    for iDisktile in range(1, disk.Ntiles):
+                    for iDisktile in range(1, wholediskpars.Ntiles):
                         TDiskI[band][iDisktile] = BBFilterIntensity( 
-                                     TDiskT[iDisktile], orbit.filter[band])
+                                     TDiskT[iDisktile], orbitparams.filter[band])
 
-        if( control.star2 == "ON" ):
+        if( flowcontrol.star2 == "ON" ):
 
-            if( control.star1 == "ON" ):
+            if( flowcontrol.star1 == "ON" ):
                 if( verbose == "ON" ): 
                     print("   Begin heating star 2 by star 1.\n")
 
-                for i2tile in range(1, star2.Ntiles):
+                for i2tile in range(1, Star2.Ntiles):
                     T2Told[i2tile] = T2T[i2tile]
                 start.x = 0.0
                 start.y = 0.0
-                start.z = syspars.a
-                for i2tile in range(1, star2.Ntiles):
+                start.z = systemparams.a
+                for i2tile in range(1, Star2.Ntiles):
                     end.x = T2x[i2tile]
                     end.y = T2y[i2tile]
                     end.z = T2z[i2tile]
@@ -470,30 +470,30 @@ def Irradiate():
                     else:
                         DeltaT41to2[i2tile] = 0.0
                         transmit1to2[i2tile] = 0.0
-                    summation = pow( T2T[i2tile], 4.0 ) + star2.albedo * DeltaT41to2[i2tile] * transmit1to2[i2tile]
+                    summation = pow( T2T[i2tile], 4.0 ) + Star2.albedo * DeltaT41to2[i2tile] * transmit1to2[i2tile]
                     T2T[i2tile] = pow( summation, 0.25 )
 
-                if( control.diagnostics == "INSPECTHEATING"):
+                if( flowcontrol.diagnostics == "INSPECTHEATING"):
                     InspectHeat2By1(T2Told, muA1to2, DeltaT41to2, transmit1to2 )
  
-            if( control.disk == "ON" ):
-                if( control.innerdisk == "ON"):
+            if( flowcontrol.disk == "ON" ):
+                if( flowcontrol.innerdisk == "ON"):
                     if( verbose == "ON" ): 
                         print("   Begin heating star 2 by the inner disk.\n")
               
-                    for i2tile in range(1, star2.Ntiles):
+                    for i2tile in range(1, Star2.Ntiles):
                         T2Told[i2tile] = T2T[i2tile]
                     start.x = 0.0
                     start.y = 0.0
-                    start.z = syspars.a
-                    for i2tile in range(1, star2.Ntiles):
+                    start.z = systemparams.a
+                    for i2tile in range(1, Star2.Ntiles):
                         end.x = T2x[i2tile]
                         end.y = T2y[i2tile]
                         end.z = T2z[i2tile]
                         delta.x = end.x - start.x
                         delta.y = end.y - start.y
                         delta.z = end.z - start.z
-                        d =  sqrt( delta.x*delta.x + delta.y*delta.y 
+                        d =  math.sqrt( delta.x*delta.x + delta.y*delta.y 
                                                    + delta.z*delta.z )
                         direction.x = delta.x / d
                         direction.y = delta.y / d
@@ -508,18 +508,18 @@ def Irradiate():
                         else:
                            DeltaT4idto2[i2tile] = 0.0
                            transmitidto2[i2tile] = 0.0
-                        summation = pow( T2T[i2tile], 4.0 ) + star2.albedo * DeltaT4idto2[i2tile] * transmitidto2[i2tile]
+                        summation = pow( T2T[i2tile], 4.0 ) + Star2.albedo * DeltaT4idto2[i2tile] * transmitidto2[i2tile]
                         T2T[i2tile] = pow( summation, 0.25 )
-                    if( control.diagnostics == "INSPECTHEATING"):
+                    if( flowcontrol.diagnostics == "INSPECTHEATING"):
                         InspectHeat2ByID(T2Told, muAidto2, DeltaT4idto2, 
                                        transmitidto2 )
 
                 if( verbose == "ON" ): 
 	              print("   Begin heating star 2 by the outer disk.\n")
 
-                for i2tile in range(1, star2.Ntiles):
+                for i2tile in range(1, Star2.Ntiles):
                     T2Told[i2tile] = T2T[i2tile]
-                for i2tile in range(1, star2.Ntiles):
+                for i2tile in range(1, Star2.Ntiles):
                     if( verbose == "ON"):
                         k = i2tile / 100
                         k = i2tile - 100 * k
@@ -529,7 +529,7 @@ def Irradiate():
                     end.x = T2x[i2tile]
                     end.y = T2y[i2tile]
                     end.z = T2z[i2tile]
-                    for iDisktile in range(1, disk.Ntiles):
+                    for iDisktile in range(1, wholediskpars.Ntiles):
                         start.x = TDiskx[iDisktile]
                         start.y = TDisky[iDisktile]
                         start.z = TDiskz[iDisktile]
@@ -547,21 +547,21 @@ def Irradiate():
                                 delT4disk = -( TDiskT4[iDisktile] / math.pi) * (muE * muA / dsquare) * TDiskdS[iDisktile]
                                 delT4disk *= Transmission( start, end )
                                 DeltaT4Dto2[i2tile] += delT4disk 
-                            summation = pow( T2T[i2tile], 4.0) + star2.albedo * DeltaT4Dto2[i2tile]
+                            summation = pow( T2T[i2tile], 4.0) + Star2.albedo * DeltaT4Dto2[i2tile]
                             T2T[i2tile] = pow( sum, 0.25 )
-                        if( control.diagnostics == "INSPECTHEATING"):
+                        if( flowcontrol.diagnostics == "INSPECTHEATING"):
                             InspectHeat2ByDisk( T2Told, DeltaT4Dto2, T2T)
 
-                    if (control.adc == "ON"):
+                    if (flowcontrol.adc == "ON"):
                         if( verbose == "ON" ): 
                             print("   Begin heating star 2 by the ADC.\n")
-                        for i2tile in range(1, star2.Ntiles):
+                        for i2tile in range(1, Star2.Ntiles):
                             T2Told[i2tile] = T2T[i2tile]
 
                         start.x = 0.0
-                        start.y = adc.height
-                        start.z = syspars.a
-                        for i2tile in range(1, star2.Ntiles):
+                        start.y = adcpars.height
+                        start.z = systemparams.a
+                        for i2tile in range(1, Star2.Ntiles):
                             end.x = T2x[i2tile]
                             end.y = T2y[i2tile]
                             end.z = T2z[i2tile]
@@ -581,15 +581,15 @@ def Irradiate():
                             else:
                                 DeltaT4ADCto2[i2tile] = 0.0
                                 transmitADCto2[i2tile] = 0.0
-                                summation = pow( T2T[i2tile], 4.0) + star2.albedo * DeltaT4ADCto2[i2tile] * transmitADCto2[i2tile]
+                                summation = pow( T2T[i2tile], 4.0) + Star2.albedo * DeltaT4ADCto2[i2tile] * transmitADCto2[i2tile]
                             T2T[i2tile] = pow( sum, 0.25 )
-                            if( control.diagnostics == "INSPECTHEATING"):
+                            if( flowcontrol.diagnostics == "INSPECTHEATING"):
                                 InspectHeat2ByADC( "TOP", T2Told, muAADCto2, 
                                   DeltaT4ADCto2,  transmitADCto2 )
                         start.x = 0.0
-                        start.y = -adc.height
-                        start.z = syspars.a
-                        for i2tile in range(1, star2.Ntiles):
+                        start.y = -adcpars.height
+                        start.z = systemparams.a
+                        for i2tile in range(1, Star2.Ntiles):
                             end.x = T2x[i2tile]
                             end.y = T2y[i2tile]
                             end.z = T2z[i2tile]
@@ -609,30 +609,30 @@ def Irradiate():
                             else:
                                 DeltaT4ADCto2[i2tile] = 0.0
                                 transmitADCto2[i2tile] = 0.0
-                            summation = pow( T2T[i2tile], 4.0)+ star2.albedo * DeltaT4ADCto2[i2tile] * transmitADCto2[i2tile]
+                            summation = pow( T2T[i2tile], 4.0)+ Star2.albedo * DeltaT4ADCto2[i2tile] * transmitADCto2[i2tile]
                         T2T[i2tile] = pow( sum, 0.25 )
 
-                    if( control.diagnostics == "INSPECTHEATING"):
+                    if( flowcontrol.diagnostics == "INSPECTHEATING"):
                         InspectHeat2ByADC( "BOTTOM", T2Told, muAADCto2, 
                                   DeltaT4ADCto2,  transmitADCto2 )
 
-                for band in range(1, orbit.nbands):
-                    if( orbit.filter[band] == "SQUARE"):
-                        for i2tile in range(1, star2.Ntiles):
+                for band in range(1, orbitparams.nbands):
+                    if( orbitparams.filter[band] == "SQUARE"):
+                        for i2tile in range(1, Star2.Ntiles):
                             T2I[band][i2tile] = BBSquareIntensity( T2T[i2tile], 
-                                                 orbit.minlambda[band], 
-                                                 orbit.maxlambda[band])
+                                                 orbitparams.minlambda[band], 
+                                                 orbitparams.maxlambda[band])
                     else:
-                        for i2tile in range(1, star2.Ntiles):
+                        for i2tile in range(1, Star2.Ntiles):
                             if( (T2T[i2tile] > IperpT[maxIperpTindex]) or (T2T[i2tile] < IperpT[0]) ):
                                 T2I[band][i2tile] = BBFilterIntensity( T2T[i2tile], 
-                                                     orbit.filter[band])
+                                                     orbitparams.filter[band])
                             else:
                                 T2I[band][i2tile] = GetIperp( T2T[i2tile], T2logg[i2tile], 
-                                           orbit.filter[band])
+                                           orbitparams.filter[band])
 
-                if( control.diagnostics == "INSPECTHEATING"):
-                    Quit("Quit after INSPECTHEATING.")
+                if( flowcontrol.diagnostics == "INSPECTHEATING"):
+                    sys.exit("Quit after INSPECTHEATING.")
 
                 return
 
@@ -649,7 +649,7 @@ def EscapeFraction( start, direction):
     problems introduced by pixelization.
     """
     transmit = 1.0
-    steplength = 0.8 * Grid.deltal
+    steplength = 0.8 * XYGrid.deltal
     deltaray.x = steplength * direction.x
     deltaray.y = steplength * direction.y
     deltaray.z = steplength * direction.z
@@ -659,24 +659,24 @@ def EscapeFraction( start, direction):
     ray.z = start.z + 3.0 * deltaray.z
     while(True):
         ray.x = ray.x + deltaray.x
-        if( ray.x >= Grid.xmax ):
+        if( ray.x >= XYGrid.xmax ):
 	       break
-        if( ray.x <= Grid.xmin ):
+        if( ray.x <= XYGrid.xmin ):
              break
         ray.y = ray.y + deltaray.y
-        if( ray.y >= Grid.ymax ):
+        if( ray.y >= XYGrid.ymax ):
 	       break
-        if( ray.y <= Grid.ymin ):
+        if( ray.y <= XYGrid.ymin ):
 	       break
         ray.z = ray.z + deltaray.z
-        if( ray.z >= Grid.zmax ):
+        if( ray.z >= XYGrid.zmax ):
             break
-        if( ray.z <= Grid.zmin ):
+        if( ray.z <= XYGrid.zmin ):
             break
-        ix = 1.5 + ( ray.x - Grid.xmin ) / Grid.deltax
-        iz = 1.5 + ( ray.z - Grid.zmin ) / Grid.deltaz
-        if( ray.y < Grid.Topy[ix][iz] ):
-            if( ray.y > Grid.Bottomy[ix][iz] ):
+        ix = 1.5 + ( ray.x - Grid.xmin ) / XYGrid.deltax
+        iz = 1.5 + ( ray.z - Grid.zmin ) / XYGrid.deltaz
+        if( ray.y < XYGrid.Topy[ix][iz] ):
+            if( ray.y > XYGrid.Bottomy[ix][iz] ):
                 transmit = 0.0
                 return( transmit )
 
@@ -699,8 +699,8 @@ def Transmission( start, end):
     NOTE:  Program XRbinary spends the vast majority of its time
            in this function.
     """
-    ixEnd = 1.5 + ( end.x - Grid.xmin ) / Grid.deltax
-    izEnd = 1.5 + ( end.z - Grid.zmin ) / Grid.deltaz
+    ixEnd = 1.5 + ( end.x - XYGrid.xmin ) / XYGrid.deltax
+    izEnd = 1.5 + ( end.z - XYGrid.zmin ) / XYGrid.deltaz
 
     delta.x = end.x - start.x
     delta.y = end.y - start.y
@@ -709,7 +709,7 @@ def Transmission( start, end):
     direction.x = delta.x / length
     direction.y = delta.y / length
     direction.z = delta.z / length
-    nsteps = length / Grid.deltal
+    nsteps = length / XYGrid.deltal
     if( nsteps <= 3 ):
         transmit = 1.0
         return( transmit )
@@ -722,20 +722,20 @@ def Transmission( start, end):
     ray.y = start.y + 3.0 * deltaray.y
     ray.z = start.z + 3.0 * deltaray.z
 
-    InverseDeltax = 1.0 / Grid.deltax
-    InverseDeltaz = 1.0 / Grid.deltaz
+    InverseDeltax = 1.0 / XYGrid.deltax
+    InverseDeltaz = 1.0 / XYGrid.deltaz
     while(True):
         ray.x += deltaray.x
         ray.y += deltaray.y
         ray.z += deltaray.z
-        ix = 1.5 + ( ray.x - Grid.xmin ) * InverseDeltax
-        iz = 1.5 + ( ray.z - Grid.zmin ) * InverseDeltaz
+        ix = 1.5 + ( ray.x - XYGrid.xmin ) * InverseDeltax
+        iz = 1.5 + ( ray.z - XYGrid.zmin ) * InverseDeltaz
         if( abs( ixEnd - ix ) <= 3 ):
             if( abs( izEnd - iz ) <= 3 ):
                 transmit = 1.0
                 break
-        if( ray.y < Grid.Topy[ix][iz] ):
-            if( ray.y > Grid.Bottomy[ix][iz] ):
+        if( ray.y < XYGrid.Topy[ix][iz] ):
+            if( ray.y > XYGrid.Bottomy[ix][iz] ):
                 transmit = 0.0
                 break
 
@@ -751,88 +751,88 @@ def MakeYlimits():
     """
     if( verbose == "ON"):
         print(" Begin making Ylimits grid.\n")
-    margin = 0.04 * syspars.a
+    margin = 0.04 * systemparams.a
 
-    Grid.xmin = 0.0
-    Grid.xmax = 0.0
-    Grid.ymin = 0.0
-    Grid.ymax = 0.0
-    Grid.zmin = 0.0
-    Grid.zmax = 0.0
-    if(  control.star1 == "ON" ) or (control.innerdisk == "ON" ) or (control.adc == "ON" ):
-        Grid.zmin = syspars.a
-        Grid.zmax = syspars.a
-    if( control.adc == "ON" ):
-        Grid.ymin = -adc.height
-        Grid.ymax =  adc.height
+    XYGrid.xmin = 0.0
+    XYGrid.xmax = 0.0
+    XYGrid.ymin = 0.0
+    XYGrid.ymax = 0.0
+    XYGrid.zmin = 0.0
+    XYGrid.zmax = 0.0
+    if(  flowcontrol.star1 == "ON" ) or (flowcontrol.innerdisk == "ON" ) or (flowcontrol.adc == "ON" ):
+        XYGrid.zmin = systemparams.a
+        XYGrid.zmax = systemparams.a
+    if( flowcontrol.adc == "ON" ):
+        XYGrid.ymin = -adcpars.height
+        XYGrid.ymax =  adcpars.height
 
-    if( control.star2 == "ON" ):
-        for itile in range(1, star2.Ntiles):
-            if( T2x[itile] < Grid.xmin ): 
-                Grid.xmin = T2x[itile]
-            if( T2x[itile] > Grid.xmax ):
-                Grid.xmax = T2x[itile]
-            if( T2y[itile] < Grid.ymin ):
-                Grid.ymin = T2y[itile]
-            if( T2y[itile] > Grid.ymax ):
-                Grid.ymax = T2y[itile]
-            if( T2z[itile] < Grid.zmin ):
-                Grid.zmin = T2z[itile]
-            if( T2z[itile] > Grid.zmax ):
-                Grid.zmax = T2z[itile]
-    if( control.disk == "ON" ):
-        for itile in range(1, diak.Ntiles):
-            if( TDiskx[itile] < Grid.xmin ):
-                Grid.xmin = TDiskx[itile]
-            if( TDiskx[itile] > Grid.xmax ):
-                Grid.xmax = TDiskx[itile]
-            if( TDisky[itile] < Grid.ymin ):
-                Grid.ymin = TDisky[itile]
-            if( TDisky[itile] > Grid.ymax ):
-                Grid.ymax = TDisky[itile]
-            if( TDiskz[itile] < Grid.zmin ):
-                Grid.zmin = TDiskz[itile]
-            if( TDiskz[itile] > Grid.zmax ):
-                Grid.zmax = TDiskz[itile]
+    if( flowcontrol.star2 == "ON" ):
+        for itile in range(1, Star2.Ntiles):
+            if( T2x[itile] < XYGrid.xmin ): 
+                XYGrid.xmin = T2x[itile]
+            if( T2x[itile] > XYGrid.xmax ):
+                XYGrid.xmax = T2x[itile]
+            if( T2y[itile] < XYGrid.ymin ):
+                XYGrid.ymin = T2y[itile]
+            if( T2y[itile] > XYGrid.ymax ):
+                XYGrid.ymax = T2y[itile]
+            if( T2z[itile] < XYGrid.zmin ):
+                XYGrid.zmin = T2z[itile]
+            if( T2z[itile] > XYGrid.zmax ):
+                XYGrid.zmax = T2z[itile]
+    if( flowcontrol.disk == "ON" ):
+        for itile in range(1, wholediskpars.Ntiles):
+            if( TDiskx[itile] < XYGrid.xmin ):
+                XYGrid.xmin = TDiskx[itile]
+            if( TDiskx[itile] > XYGrid.xmax ):
+                XYGrid.xmax = TDiskx[itile]
+            if( TDisky[itile] < XYGrid.ymin ):
+                XYGrid.ymin = TDisky[itile]
+            if( TDisky[itile] > XYGrid.ymax ):
+                XYGrid.ymax = TDisky[itile]
+            if( TDiskz[itile] < XYGrid.zmin ):
+                XYGrid.zmin = TDiskz[itile]
+            if( TDiskz[itile] > XYGrid.zmax ):
+                XYGrid.zmax = TDiskz[itile]
 
-    Grid.xmin -= margin
-    Grid.xmax += margin
-    Grid.ymin -= margin
-    Grid.ymax += margin
-    Grid.zmin -= margin
-    Grid.zmax += margin
+    XYGrid.xmin -= margin
+    XYGrid.xmax += margin
+    XYGrid.ymin -= margin
+    XYGrid.ymax += margin
+    XYGrid.zmin -= margin
+    XYGrid.zmax += margin
 
-    Grid.Nxtiles = GRIDXTILES - 1
-    Grid.Nztiles = GRIDZTILES - 1
-    Grid.deltax = (Grid.xmax - Grid.xmin) / ( Grid.Nxtiles - 1 )
-    Grid.deltaz = (Grid.zmax - Grid.zmin) / ( Grid.Nztiles - 1 )
-    if( (Grid.deltax <=0.0) or (Grid.deltaz <= 0.0) ):
-        Quit("Either Grid.deltax or Grid.deltaz equals zero.")
-    Grid.deltal = math.sqrt( Grid.deltax*Grid.deltax + Grid.deltaz*Grid.deltaz)
+    XYGrid.Nxtiles = GRIDXTILES - 1
+    XYGrid.Nztiles = GRIDZTILES - 1
+    XYGrid.deltax = (XYGrid.xmax - XYGrid.xmin) / ( XYGrid.Nxtiles - 1 )
+    XYGrid.deltaz = (XYGrid.zmax - XYGrid.zmin) / ( XYGrid.Nztiles - 1 )
+    if( (XYGrid.deltax <=0.0) or (XYGrid.deltaz <= 0.0) ):
+        sys.exit("Either Grid.deltax or Grid.deltaz equals zero.")
+    XYGrid.deltal = math.sqrt( XYGrid.deltax*XYGrid.deltax + XYGrid.deltaz*XYGrid.deltaz)
   
-    for ix in range(1, Grid.Nxtiles):
-        for iz in range(1, Grid.Nztiles):
-            Grid.Topy[ix][iz]    = 0.0
-            Grid.Bottomy[ix][iz] = 0.0
-            x = Grid.xmin + (ix - 1) * Grid.deltax
-            z = Grid.zmin + (iz - 1) * Grid.deltaz
-            if( z < syspars.rL1 ):
-                if( control.star2 == "ON" ):
-	               Grid.Topy[ix][iz] = Star2TopY( x, z )
-	               Grid.Bottomy[ix][iz] = -Grid.Topy[ix][iz]
+    for ix in range(1, XYGrid.Nxtiles):
+        for iz in range(1, XYGrid.Nztiles):
+            XYGrid.Topy[ix][iz]    = 0.0
+            XYGrid.Bottomy[ix][iz] = 0.0
+            x = XYGrid.xmin + (ix - 1) * XYGrid.deltax
+            z = XYGrid.zmin + (iz - 1) * XYGrid.deltaz
+            if( z < systemparams.rL1 ):
+                if( flowcontrol.star2 == "ON" ):
+	               XYGrid.Topy[ix][iz] = Star2TopY( x, z )
+	               XYGrid.Bottomy[ix][iz] = -XYGrid.Topy[ix][iz]
             else:
-                if( control.disk == "ON" ):
-                    rho = math.sqrt( x*x + (z - syspars.a)*(z - syspars.a) )
-                    coszeta = (z - syspars.a) / rho
-                    zeta = acos( coszeta )
+                if( flowcontrol.disk == "ON" ):
+                    rho = math.sqrt( x*x + (z - systemparams.a)*(z - systemparams.a) )
+                    coszeta = (z - systemparams.a) / rho
+                    zeta = math.acos( coszeta )
                     if( x < 0.0 ):
                         zeta = math.pi*2 - zeta
                     a = RhoToA( rho, zeta)
                     Grid.Topy[ix][iz] = DiskTopH( a, zeta)
                     Grid.Bottomy[ix][iz] = DiskBottomH( a, zeta)
 
-    if( control.diagnostics == "INSPECTYLIMITS"):
+    if( flowcontrol.diagnostics == "INSPECTYLIMITS"):
         InspectYlimits()
-        Quit("Quit in MakeYlimits after INSPECTYLIMITS.")
+        sys.exit("Quit in MakeYlimits after INSPECTYLIMITS.")
 
     return

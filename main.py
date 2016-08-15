@@ -3,13 +3,18 @@
 
 """
 SIGMA = 5.6704e-5
+G     = 6.6742e-8
+MSOL  = 1.9891e33
 import math
 import sys
-from .diskflux import maindisk
-from .star1 import Star1
-from .star2 import Star2
+from .lightcurve import MakeYlimits, Irradiate, MakeLightCurves
+from .diskgeom import MakeDiskTiles, MakeDiskTorus, MakeDiskRim
+from .diskflux import maindisk, DiskL
+from .star1 import Star1, MeanRocheRadius
+from .star2 import Star2, MakeStar2Tiles, Star2L, V, FindL1
 from .parmeter import filenames, flowcontrol, orbitparams, systemparams, star2spotparams, wholediskpars, diskedgepars
 from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, XYGrid, dataparams, ReadInput
+from .output import WriteResults, WriteSysPars 
 
 def main():
     if( sys.argv != 2 ):
@@ -30,8 +35,8 @@ def main():
     MakeYlimits()
     if( flowcontrol.irradiation == "ON"):
         Irradiate()
-    star2.L = Star2L()
-    disk.L  = DiskL()
+    Star2.L = Star2L()
+    wholediskpars.L  = DiskL()
 
     MakeLightCurves()
 
@@ -54,6 +59,7 @@ def Initialize(parfilename ):
     filenames.lightcurves = parfilename
     filenames.lightcurves += ".LC"
 
+    global verbose
     verbose = "OFF"
     flowcontrol.diagnostics = "OFF"
     flowcontrol.diagnosephase = -1.0
@@ -69,6 +75,20 @@ def Initialize(parfilename ):
     flowcontrol.thirdlight = "MISSING"
     flowcontrol.irradiation = "MISSING"
 
+    global maxGDindex
+    global maxLDgindex
+    global maxLDTindex
+    global maxLDfilterindex
+    global maxIperpgindex
+    global maxIperpTindex
+    global maxIperpfilterindex
+    global maxIBBTindex
+    global maxIBBfilterindex
+    global IBBTmin
+    global IBBTmax
+    global IBBdeltaT
+    global maxBBzetaindex
+    
     maxGDindex          = -1
     maxLDgindex         = -1
     maxLDTindex         = -1
@@ -306,7 +326,7 @@ def CalcSysPars():
           
           diskspotpars.zetamin[i] *= math.pi*2 / 360.0
           diskspotpars.zetamax[i] *= math.pi*2 / 360.0
-          diskspotpars.amin[i]    *= syspars.a
+          diskspotpars.amin[i]    *= systemparams.a
           if( diskspotpars.amin[i] < maindisk.amin ):
               diskspotpars.amin[i] = maindisk.amin
           diskspotpars.amax[i]    *= systemparams.a

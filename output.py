@@ -2,8 +2,8 @@
 """
 All the output functions are in this file.
 """
+MSOL  =   1.9891e33
 import math
-import sys
 from .diskflux import maindisk
 from .star1 import Star1
 from .star2 import Star2
