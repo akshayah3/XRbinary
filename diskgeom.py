@@ -6,9 +6,11 @@ around the compact star are in this file.
 import sys
 import math
 from .diskflux import maindisk
+from .diagnose import InspectDiskTiles 
 from .parmeter import filenames, flowcontrol, orbitparams, systemparams, star2spotparams, wholediskpars, diskedgepars
 from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, XYGrid, dataparams, ReadInput
 
+MAXDISKTILES = 40506
 
 def MakeDiskTiles():
     """
@@ -231,57 +233,57 @@ def MakeDiskTiles():
 
     return
 
-    def DiskTopH(a, zeta):
-        """        
-        This function returns the upper boundary of the disk
-        at position (rho, zeta).
-        """
-        hdisk = MainDiskH( a )
-        hrim  = DiskRimH( a, zeta )
-        htorus = DiskTorusH( a, zeta )
-        height = hdisk + hrim + htorus
+def DiskTopH(a, zeta):
+    """        
+    This function returns the upper boundary of the disk
+    at position (rho, zeta).
+    """
+    hdisk = MainDiskH( a )
+    hrim  = DiskRimH( a, zeta )
+    htorus = DiskTorusH( a, zeta )
+    height = hdisk + hrim + htorus
 
-        return height
+    return height
 
-    def DiskBottomH(a, zeta):
-        """
-        This function returns the lower boundary of the disk at position (rho, zeta).
-        The current version assumes that the disk is symmetric
-        about the orbital plane.
-        """
-        hdisk = MainDiskH( a )
-        hrim  = DiskRimH( a, zeta )
-        htorus = DiskTorusH( a, zeta )
-        height = -( hdisk + hrim + htorus )
+def DiskBottomH(a, zeta):
+    """
+    This function returns the lower boundary of the disk at position (rho, zeta).
+    The current version assumes that the disk is symmetric
+    about the orbital plane.
+    """
+    hdisk = MainDiskH( a )
+    hrim  = DiskRimH( a, zeta )
+    htorus = DiskTorusH( a, zeta )
+    height = -( hdisk + hrim + htorus )
 
-        return height
+    return height
 
-    def MainDiskH(a):
-        """
-        This function returns the height of the main, axi-symmetric
-        part of the disk.  The height has the functional form
-        h = Hmax * ( (a - amin) / (amax - amin) )^Hpow
-        for
-        amin < a < amax
-        and
-        h = 0 otherwise.
-        Note:  To make a disk with constant thickness equal to
-           Hmax, just set Hpow = 0.
+def MainDiskH(a):
+    """
+    This function returns the height of the main, axi-symmetric
+    part of the disk.  The height has the functional form
+    h = Hmax * ( (a - amin) / (amax - amin) )^Hpow
+    for
+    amin < a < amax
+    and
+    h = 0 otherwise.
+    Note:  To make a disk with constant thickness equal to
+    Hmax, just set Hpow = 0.
 
-        The weird factor (1.0 + 1.0e-7) is protection against 
-        roundoff error at the edge of the disk.
-        """
-        if( a < maindisk.amin ):
-            height = 0.0
-        elif ( a > ( (1.0 + 1.0e-7) * maindisk.amax ) ):
-            height = 0.0
+    The weird factor (1.0 + 1.0e-7) is protection against 
+    roundoff error at the edge of the disk.
+    """
+    if( a < maindisk.amin ):
+        height = 0.0
+    elif ( a > ( (1.0 + 1.0e-7) * maindisk.amax ) ):
+        height = 0.0
+    else:
+        x = (a - maindisk.amin) / (maindisk.amax - maindisk.amin)
+        if( x == 0.0 ):
+            height = maindisk.Hmax
         else:
-            x = (a - maindisk.amin) / (maindisk.amax - maindisk.amin)
-            if( x == 0.0 ):
-	           height = maindisk.Hmax
-            else:
-                 height = maindisk.Hmax * math.pow( x, maindisk.Hpow )
-        return height
+            height = maindisk.Hmax * math.pow( x, maindisk.Hpow )
+    return height
 
 def DiskRimH( a, zeta ):
     """
@@ -536,7 +538,7 @@ def AToRho( a, zeta ):
     if( wholediskpars.e == 0.0 ):
         rho = a
     else:
-        rho =  ( a * (1.0 - wholediskpars.e * wholediskpars.e) ) / (1.0 + wholediskpars.e * cos(zeta - wholediskpars.zetazero) )
+        rho =  ( a * (1.0 - wholediskpars.e * wholediskpars.e) ) / (1.0 + wholediskpars.e * math.cos(zeta - wholediskpars.zetazero) )
                              
     return( rho )
 

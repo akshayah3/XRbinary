@@ -15,6 +15,8 @@ def MakeLightCurves():
     """
     This function makes the orbital light curve.
     """
+    global LCphase
+    LCphase = []
     if( flowcontrol.thirdlight == "ON" ):
         if( verbose == "ON" ):
             print(" Calculating third light fluxes.\n")
@@ -31,7 +33,7 @@ def MakeLightCurves():
                 print("    phase number {}   phase =  {}\n").format( iphase, 
                                                          LCphase[iphase])
         FluxesAtPhase( LCphase[iphase], TotalFlux )
-        for band in range(1, orbit.nbands):
+        for band in range(1, orbitparams.nbands):
             LCflux[band][iphase] = TotalFlux[band]
 
     if( orbitparams.normalize == "OFF" ):

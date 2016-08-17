@@ -6,10 +6,17 @@ import sys
 from .diskflux import maindisk
 from .star1 import Star1
 from .star2 import Star2
+from .fitdata import ReadData 
+from .diagnose import InspectInput
 from .parmeter import CartVector, CylVector, SphereVector, filenames, flowcontrol, orbitparams, systemparams, star2spotparams, wholediskpars, diskedgepars
-from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, XYGrid, dataparams
+from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, dataparams
 
-
+global verbose 
+MAXBANDPASSES  = 21
+MAXZETAPOINTS  = 101
+MAXPHASES     =  501
+MAX2TILES     = 40506
+MAXDISKTILES  = 40506
 
 def ReadInput():
     """
@@ -48,7 +55,6 @@ def ReadPars():
             linesplit = line.split()
             nfields = len(linesplit)
             keyword = linesplit[0]
-            param1
             if(nfields < 1):
                 keyword = "" 
             elif( keyword == "END"):
@@ -338,7 +344,7 @@ def ReadPars():
                     dataparams.filename = "%s"%linesplit[3]
                 elif( linesplit[1] == "SQUARE"):
                     if( nfields < 5 ):
-                        Quit("Too few parameters for READDATA= SQUARE.")
+                        sys.exit("Too few parameters for READDATA= SQUARE.")
                     dataparams.filter[dataparams.nbands] == "SQUARE"
                     dataparams.minlambda[dataparams.nbands] = "%lf"%linesplit[2]
                     dataparams.maxlambda[dataparams.nbands] = "%lf"%linesplit[3]
