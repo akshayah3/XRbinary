@@ -9,7 +9,7 @@ from .diskflux import maindisk
 from .star1 import Star1
 from .star2 import Star2
 from .parmeter import filenames, flowcontrol, orbitparams, systemparams, star2spotparams, wholediskpars, diskedgepars
-from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, XYGrid, dataparams, ReadInput
+from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, XYGrid, dataparams, globalvar
 
 
 def InspectInput():
@@ -201,8 +201,8 @@ def WriteGDTable():
     if out == None: 
         sys.exit("Cannot open file GDTable.inspect.")
 
-    for i in range(0, maxGDindex):
-        out.write("  %5.0f  %5.3f\n"% GDT[i], fourbeta[i])
+    for i in range(0, globalvar.maxGDindex):
+        out.write("  %5.0f  %5.3f\n"% globalvar.GDT[i], globalvar.fourbeta[i])
 
     out.close()
 
@@ -220,25 +220,25 @@ def WriteLDTable():
     if out == None:
         sys.exit("Cannot open file LDTable.inspect.")
 
-    delta = LDT[1] - LDT[0]
+    delta = globalvar.LDT[1] - globalvar.LDT[0]
     out.write( "        %5.0f  %5.0f   %4.0f\n"% 
-                             LDT[0], LDT[maxLDTindex], delta)
-    delta = LDlogg[1] - LDlogg[0]
+                             globalvar.LDT[0], globalvar.LDT[globalvar.maxLDTindex], delta)
+    delta = globalvar.LDlogg[1] - globalvar.LDlogg[0]
     out.write( "        %4.1f  %4.1f  %4.1f\n"%
-	                     LDlogg[0], LDlogg[maxLDgindex], delta)
-    nfilters = maxLDfilterindex + 1
+	                     globalvar.LDlogg[0], globalvar.LDlogg[globalvar.maxLDgindex], delta)
+    nfilters = globalvar.maxLDfilterindex + 1
     outputline = "     %2ld  "% (nfilters)
-    for findex in range(0, maxLDfilterindex):
+    for findex in range(0, globalvar.maxLDfilterindex):
         outputline +=  " "
         outputline += LDfilterName[findex]
     outputline += "\n"
     out.write("%s"% outputline)
 
-    for Tindex in range(0, maxLDTindex):
-        for gindex in range(0, maxLDgindex):
-            for findex in range(0, maxLDfilterindex):
+    for Tindex in range(0, globalvar.maxLDTindex):
+        for gindex in range(0, globalvar.maxLDgindex):
+            for findex in range(0, globalvar.maxLDfilterindex):
                 out.write( " %5.1f  %5.0f  %s   %7.4f   %7.4f   %7.4f   %7.4f\n"%
-		   LDlogg[gindex], LDT[Tindex], LDfilterName[findex],
+		   globalvar.LDlogg[gindex], globalvar.LDT[Tindex], LDfilterName[findex],
 			  LDtable[gindex][Tindex][findex][1],
 			  LDtable[gindex][Tindex][findex][2],
 			  LDtable[gindex][Tindex][findex][3],
@@ -257,24 +257,24 @@ def WriteIperpTable():
     if out == None:
         sys.exit("Cannot open file IperpTable.inspect.")
 
-    delta = IperpT[1] - IperpT[0]
+    delta = globalvar.IperpT[1] - globalvar.IperpT[0]
     out.write( "     %5.0f  %5.0f   %4.0f\n"% 
-                             IperpT[0], IperpT[maxIperpTindex], delta)
-    delta = Iperplogg[1] - Iperplogg[0]
+                             globalvar.IperpT[0], globalvar.IperpT[globalvar.maxIperpTindex], delta)
+    delta = globalvar.Iperplogg[1] - globalvar.Iperplogg[0]
     out.write( "        %4.1f  %4.1f  %4.1f\n"%
-	                     Iperplogg[0], Iperplogg[maxIperpgindex], delta)
-    nfilters = maxIperpfilterindex + 1
+	                     globalvar.Iperplogg[0], globalvar.Iperplogg[globalvar.maxIperpgindex], delta)
+    nfilters = globalvar.maxIperpfilterindex + 1
     outputline = "     %2ld  "%(nfilters)
-    for findex in range(0, maxIperpfliterindex):
+    for findex in range(0, globalvar.maxIperpfliterindex):
         outputline +=  " "
         outputline += IperpfilterName[findex]
     outputline += "\n"
     out.write("%s"% outputline)
 
-    for Tindex in range(0, maxIperpTindex):
-        for gindex in range(0, maxIperpgindex):
-            outputline = "%5.0f %4.2f"% (IperpT[Tindex], Iperplogg[gindex])
-            for findex in range(0, maxIperpfilterindex):
+    for Tindex in range(0, globalvar.maxIperpTindex):
+        for gindex in range(0, globalvar.maxIperpgindex):
+            outputline = "%5.0f %4.2f"% (globalvar.IperpT[Tindex], globalvar.Iperplogg[gindex])
+            for findex in range(0, globalvar.maxIperpfilterindex):
                 dummy = "  %10.3e"% (Iperptable[gindex][Tindex][findex])
                 outputline +=  dummy
             outputline += ("\n")
@@ -292,20 +292,20 @@ def WriteIBBfilterTable():
     if out == None:
         sys.exit("Cannot open file IBBfilter.inspect.")
 
-    delta = IBBT[1] - IBBT[0]
+    delta = globalvar.IBBT[1] - globalvar.IBBT[0]
     out.write( "     %5.0f  %5.0f   %4.0f\n"% 
-                             IBBT[0], IBBT[maxIBBTindex], delta)
-    nfilters = maxIBBfilterindex + 1
+                             globalvar.IBBT[0], globalvar.IBBT[globalvar.maxIBBTindex], delta)
+    nfilters = globalvar.maxIBBfilterindex + 1
     outputline = "     %2ld  "% (nfilters)
-    for findex in range(0, maxIBBfilterindex):
+    for findex in range(0, globalvar.maxIBBfilterindex):
         outputline +=  " "
         outputline += IBBfilterName[findex]
     outputline += "\n"
     out.write("%s"% outputline)
 
-    for Tindex in range(0, maxIBBTindex):
-        outputline =  "%7.0f"% (IBBT[Tindex])
-        for findex in range(0, maxIBBfilterindex):
+    for Tindex in range(0, globalvar.maxIBBTindex):
+        outputline =  "%7.0f"% (globalvar.IBBT[Tindex])
+        for findex in range(0, globalvar.maxIBBfilterindex):
             dummy =  "  %10.3e"% (IBBtable[Tindex][findex])
             outputline +=  dummy
     outputline +=  "\n"
@@ -325,10 +325,10 @@ def WriteZzetaTable():
     if out == None:
         sys.exit("Cannot open file ZzetaTable.inspect.")
 
-    out.write( "  %6ld  %6.4f\n"% maxBBzetaindex, deltaBBzeta)
-    for i in range(0, maxBBzetaindex):
-        BBzeta = i * deltaBBzeta
-        out.write( " %7.4f   %14.7e\n"% BBzeta, ZBBzeta[i])
+    out.write( "  %6ld  %6.4f\n"% globalvar.maxBBzetaindex, globalvar.deltaBBzeta)
+    for i in range(0, globalvar.maxBBzetaindex):
+        globalvar.BBzeta.append(i * globalvar.deltaBBzeta)
+        out.write( " %7.4f   %14.7e\n"% globalvar.BBzeta, globalvar.ZBBzeta[i])
 
     out.close()
 
@@ -359,10 +359,10 @@ def InspectStar2Tiles():
     out.write( "  Star 2 Tiles:\n\n")
     out.write( "  tile        r         theta     phi          x            y            z\n")
     for i in range(1, Star2.Ntiles):
-        theta = T2theta[i] * ( 360.0 / 2*math.pi )
-        phi   = T2phi[i]   * ( 360.0 / 2*math.pi )
+        theta = globalvar.T2theta[i] * ( 360.0 / 2*math.pi )
+        phi   = globalvar.T2phi[i]   * ( 360.0 / 2*math.pi )
         out.write( "%6ld  %12.5e %8.3f %8.3f   %12.5e %12.5e %12.5e\n"%
-            i, T2r[i], theta, phi, T2x[i], T2y[i], T2z[i])
+            i, globalvar.T2r[i], theta, phi, globalvar.T2x[i], globalvar.T2y[i], globalvar.T2z[i])
 
     out.close()
 
@@ -373,7 +373,7 @@ def InspectStar2Tiles():
 
     out.write( "  Star 2 Tiles:\n\n")
     out.write( "  tile    T2gradV.r   T2gradV.t   T2gradV.p\n")
-    for i in range(1, star2.Ntiles):
+    for i in range(1, Star2.Ntiles):
         out.write( "%6ld   %10.3e  %10.3e  %10.3e\n"%
 	       i, T2gradV[i].r, T2gradV[i].theta, T2gradV[i].phi)
 
@@ -402,7 +402,7 @@ def InspectStar2Tiles():
     out.write( "  tile        g      log(g)       dS          T\n")
     for i in range(1, Star2.Ntiles):
         out.write( "%6ld   %10.3e %6.3f   %11.4e   %5.0f\n"%
-            i, T2g[i], T2logg[i], T2dS[i], T2T[i] )
+            i, globalvar.T2g[i], globalvar.T2logg[i], globalvar.T2dS[i], globalvar.T2T[i] )
 
     out.close()
 
@@ -540,8 +540,8 @@ def InspectDiskTiles( targetarea,
     for i in range(1, wholediskpars.Ntiles):
         zeta = TDiskZeta[i] * ( 360.0 / 2*math.pi )
         out.write( "%6ld %10.3e %5.1f %10.3e %10.3e %10.3e %10.3e %10.3e\n"%
-	       i, TDiska[i] ,zeta, TDiskRho[i], TDiskH[i],
-                       TDiskx[i], TDisky[i], TDiskz[i])
+	       i, globalvar.TDiska[i] ,zeta, globalvar.TDiskRho[i], globalvar.TDiskH[i],
+                       globalvar.TDiskx[i], globalvar.TDisky[i], globalvar.TDiskz[i])
     out.close()
 
     outfile = "DiskTilesB.inspect"
@@ -558,7 +558,7 @@ def InspectDiskTiles( targetarea,
 
     out.write( "\n")
     out.write( "  Tile  normCyl.rho  normCyl.zeta   normCyl.h  normCart.x normCart.y normCart.z\n")
-    for i in range(1, disk.Ntiles):
+    for i in range(1, wholediskpars.Ntiles):
         out.write( "%6ld   %9.6f     %8.5f     %8.5f    %8.5f   %8.5f   %8.5f\n"%
             i, TDisknormCyl[i].rho, TDisknormCyl[i].zeta, TDisknormCyl[i].h,
                TDisknormCart[i].x,  TDisknormCart[i].y,   TDisknormCart[i].z)
@@ -580,7 +580,7 @@ def InspectDiskTiles( targetarea,
     out.write( "  Tile      DiskdS         DiskT\n")
     for i in range(1, wholediskpars.Ntiles): 
         out.write( "%6ld  %12.4e  %12.4e\n"%
-	      i, TDiskdS[i], TDiskT[i] )
+	      i, globalvar.TDiskdS[i], globalvar.TDiskT[i] )
     out.close()
 
     outfile = "DiskTilesD.inspect"
@@ -744,7 +744,7 @@ def InspectHeatDiskBy1(TDiskTold, muA1toD,
     for itile in range(1, wholediskpars.Ntiles):
         out.write("  %5ld  %8.0f     %7.4f   %11.4e    %5.4f    %8.0f\n"%
                 itile, TDiskTold[itile], muA1toD[itile],
-                DeltaT41toD[itile], transmit1toD[itile], TDiskT[itile] )
+                DeltaT41toD[itile], transmit1toD[itile], globalvar.TDiskT[itile] )
     out.close()
 
     return
@@ -765,7 +765,7 @@ def InspectHeatDiskByID(TDiskTold, muAidtoD,
     for itile in range(1, wholediskpars.Ntiles):
         out.write("  %5ld  %8.0f     %7.4f   %11.4e    %5.4f    %8.0f\n"%
                 itile, TDiskTold[itile], muAidtoD[itile],
-                DeltaT4idtoD[itile], transmitidtoD[itile], TDiskT[itile] )
+                DeltaT4idtoD[itile], transmitidtoD[itile], globalvar.TDiskT[itile] )
     out.close()
 
     return
@@ -793,7 +793,7 @@ def InspectHeatDiskByADC( whatside,
     for itile in range(1, wholediskpars.Ntiles):
         out.write("  %5ld  %8.0f     %7.4f   %11.4e    %5.4f    %8.0f\n"%
                 itile, TDiskTold[itile], muAADCtoD[itile],
-                DeltaT4ADCtoD[itile], transmitADCtoD[itile], TDiskT[itile] )
+                DeltaT4ADCtoD[itile], transmitADCtoD[itile], globalvar.TDiskT[itile] )
     out.close()
 
     return
@@ -815,7 +815,7 @@ def InspectHeat2By1( T2Told, muA1to2,
     for itile in range(1, Star2.Ntiles):
         out.write("  %5ld  %8.0f     %7.4f   %11.4e   %5.4f   %8.0f\n"%
 	         itile, T2Told[itile], muA1to2[itile], 
-                 DeltaT41to2[itile], transmit1to2[itile], T2T[itile] )
+                 DeltaT41to2[itile], transmit1to2[itile], globalvar.T2T[itile] )
 
     out.close()
 
@@ -837,7 +837,7 @@ def InspectHeat2ByID( T2Told, muAidto2,
     for itile in range(1, Star2.Ntiles):
         out.write("  %5ld  %8.0f     %7.4f   %11.4e   %5.4f   %8.0f\n"%
 	         itile, T2Told[itile], muAidto2[itile], 
-                 DeltaT4idto2[itile], transmitidto2[itile], T2T[itile] )
+                 DeltaT4idto2[itile], transmitidto2[itile], globalvar.T2T[itile] )
 
     out.close()
 
@@ -858,7 +858,7 @@ def InspectHeat2ByDisk( T2Told, DeltaT4Dto2, T2T):
     out.write( "   Tile  Temperature    DeltaT4Dto2    Temperature\n")
     for itile in range(1, Star2.Ntiles):
         out.write("  %5ld  %8.0f      %11.4e    %8.0f\n"%
-	         itile, T2Told[itile], DeltaT4Dto2[itile], T2T[itile] )
+	         itile, T2Told[itile], DeltaT4Dto2[itile], globalvar.T2T[itile] )
 
     out.close()
 
@@ -887,7 +887,7 @@ def InspectHeat2ByADC( whatside,
     for itile in range(1, Star2.Ntiles):
         out.write("  %5ld  %8.0f     %7.4f   %11.4e    %5.4f    %8.0f\n"%
                 itile, T2Told[itile], muAADCto2[itile],
-                DeltaT4ADCto2[itile], transmitADCto2[itile], T2T[itile] )
+                DeltaT4ADCto2[itile], transmitADCto2[itile], globalvar.T2T[itile] )
     out.close()
 
     return

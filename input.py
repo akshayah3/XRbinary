@@ -9,7 +9,7 @@ from .star2 import Star2
 from .fitdata import ReadData 
 from .diagnose import InspectInput
 from .parmeter import CartVector, CylVector, SphereVector, filenames, flowcontrol, orbitparams, systemparams, star2spotparams, wholediskpars, diskedgepars
-from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, dataparams
+from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, dataparams, globalvar
 
 global verbose 
 MAXBANDPASSES  = 21
@@ -17,6 +17,7 @@ MAXZETAPOINTS  = 101
 MAXPHASES     =  501
 MAX2TILES     = 40506
 MAXDISKTILES  = 40506
+MAXFILTERS    =   12
 
 def ReadInput():
     """
@@ -638,7 +639,7 @@ def CheckPars():
             if( (thirdlightparams.fraction[i] < 0.0) or (thirdlightparams.fraction[i] >= 1.0) ):
                 sys.exit("3rd light fraction must be ge 0.0 and lt 1.0.")
 
-    if( verbose != "ON") and (verbose !="OFF"):
+    if( globalvar.verbose != "ON") and (globalvar.verbose !="OFF"):
         sys.exit("VERBOSE must be ON or OFF.")
     return
 
@@ -666,9 +667,9 @@ def ReadGDTable():
         if( inputline[0] != '*' ):
             i = i +1
             a = inputline.split()
-            GDT[i], fourbeta[i] = ("%lf")%(a[0]), ("%lf")%(a[1])
+            globalvar.GDT[i], globalvar.fourbeta[i] = ("%lf")%(a[0]), ("%lf")%(a[1])
             #sscanf(inputline, "%lf %lf", &GDT[i], &fourbeta[i] )
-    maxGDindex = i
+    globalvar.maxGDindex = i
     out.close()
 
     return
@@ -718,12 +719,12 @@ def ReadLDTable():
             Tmin, Tmax, deltaT = float(e[0]), float(e[1]), float(e[2])
             maxLDTindex = ( Tmax - Tmin + 0.1 ) / deltaT
             for i in range(1, maxLDTindex):
-                LDT[i] = Tmin + i * deltaT
+                globalvar.LDT[i] = Tmin + i * deltaT
             b = lines[1].split()
             gmin, gmax, deltag = float(b[0]), float(b[1]), float(b[2])
             maxLDgindex = ( gmax - gmin + 0.001) / deltag
             for i in range(0, maxLDgindex):
-                LDlogg[i] = gmin + i * deltag
+                globalvar.LDlogg[i] = gmin + i * deltag
             c = lines[2].split()
             nfilters = int(c[0])
             LDfilterName[0] = float(c[1])
@@ -755,7 +756,7 @@ def ReadLDTable():
          sys.exit("Tindex out of range in ReadLDTable.")
     findex = -1
     for i in range(0, maxLDfilterindex):
-        if( filtername == LDfilterName[i]): 
+        if( filtername == globalvar.LDfilterName[i]): 
             findex = i
     if( (findex < 0) or (findex > maxLDfilterindex) ):
         sys.exit("Unrecognized filter name in ReadLDTable.")
@@ -797,12 +798,12 @@ def ReadIperpTable():
     Tmin ,Tmax, deltaT = float(b[0]), float(b[1]), float(b[2])
     maxIperpTindex = ( Tmax - Tmin + 1.0 ) / deltaT
     for Tindex in range(0, maxIperpTindex):
-        IperpT[Tindex] = Tmin + Tindex * deltaT
+        globalvar.IperpT[Tindex] = Tmin + Tindex * deltaT
     c = lines[1].split()#fscanf( in, "%lf  %lf  %lf", &gmin, &gmax, &deltag);
     gmin, gmax, deltag = float(c[0]), float(c[1]), float(c[2])
     maxIperpgindex = ( gmax - gmin + 0.01) / deltag
     for gindex in range(0, maxIperpgindex):
-        Iperplogg[gindex] = gmin + gindex * deltag
+        globalvar.Iperplogg[gindex] = gmin + gindex * deltag
     d = lines[2].split()
     nfilters = int(d[0])
     IperpfilterName[0] = float(d[1])
@@ -814,7 +815,7 @@ def ReadIperpTable():
     IperpfilterName[6] = float(d[8])
     IperpfilterName[7] = float(d[9])
     maxIperpfilterindex = nfilters - 1
-    if( maxIperpfilterindex > (MAXFILTERS - 1) ):
+    if( globalvar.maxIperpfilterindex > (MAXFILTERS - 1) ):
         sys.exit("Too many filters in the Iperp table.")
 
     while(True):
@@ -831,7 +832,7 @@ def ReadIperpTable():
         xiperp[7] = float(e[9])
         gindex = (xlogg - gmin + 0.01) / deltag
         if( (gindex < 0) or (gindex > maxIperpgindex) ):
-            Quit("gindex out of range in ReadIperpTable.")
+            sys.exit("gindex out of range in ReadIperpTable.")
         Tindex = ( xT - Tmin + 1.0) / deltaT
         if( (Tindex < 0) or (Tindex > maxIperpTindex) ):
             sys.exit("Tindex out of range in ReadIperpTable.")
@@ -869,9 +870,9 @@ def ReadIBBfilterTable():
         if( lines[0][0] != '*' ):
             e = lines[0].split() #sscanf( inputline, "%lf %lf %lf", &Tmin, &Tmax, &deltaT);
             IBBTmin, IBBTmax, IBBdeltaT = float(e[0]), float(e[1]), float(e[2])
-            maxLDTindex = ( IBBTmax - IBBTmin + 0.1 ) / IBBdeltaT
-            for i in range(1, maxIBBindex):
-                IBBT[i] = IBBTmin + i * IBBdeltaT
+            globalvar.maxLDTindex = ( IBBTmax - IBBTmin + 0.1 ) / IBBdeltaT
+            for i in range(1, globalvar.maxIBBindex):
+                globalvar.IBBT[i] = IBBTmin + i * IBBdeltaT
             c = lines[1].split()
             nfilters = int(c[0])
             IBBfilterName[0] = float(c[1])
@@ -883,7 +884,7 @@ def ReadIBBfilterTable():
             IBBfilterName[6] = float(c[8])
             IBBfilterName[7] = float(c[9])
             maxLDfilterindex = nfilters - 1
-            if( maxIBBfilterindex > (MAXFILTERS - 1) ):
+            if( globalvar.maxIBBfilterindex > (MAXFILTERS - 1) ):
 	          sys.exit("Too many filters in the LD table.")
             break
 
@@ -898,9 +899,9 @@ def ReadIBBfilterTable():
     xIBB[6] = float(d[7])
     xIBB[7] = float(d[8]) 
     Tindex = ( xT - IBBTmin + 1.0) / IBBdeltaT
-    if( (Tindex < 0) or (Tindex > maxIBBTindex) ):
+    if( (Tindex < 0) or (Tindex > globalvar.maxIBBTindex) ):
         sys.exit("Tindex out of range in ReadIBBTable.")
-    for findex in range(0, maxIBBfilterindex):
+    for findex in range(0,globalvar.maxIBBfilterindex):
          IBBtable[Tindex][findex] = xIBB[findex]
     out.close()
 
@@ -920,8 +921,8 @@ def ReadZzetaTable():
     b = lines[0].split()   
     maxBBzetaindex , deltaBBzeta= float(b[0]), float(b[1])   
     for i in range(1, maxBBzetaindex):
-        dummy, ZBBzeta[i] = float(lines[i].split()[0]), float(lines[i].split()[1])
-    BBzetamax = maxBBzetaindex * deltaBBzeta
+        dummy, globalvar.ZBBzeta[i] = float(lines[i].split()[0]), float(lines[i].split()[1])
+    globalvar.BBzetamax = maxBBzetaindex * deltaBBzeta
 
     out.close()
 

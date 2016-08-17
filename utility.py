@@ -10,6 +10,7 @@ Utility functions needed for the project
 
 import math
 import sys
+from .parameter import globalvar, CylVector, CartVector
 
 def BBSquareIntensity(T, lowlambda, highlambda):
     """
@@ -32,37 +33,37 @@ def BBSquareIntensity(T, lowlambda, highlambda):
     Zeta2 = ( h * c ) / (  lowlambda * k * T )
     Zeta1 = ( h * c ) / ( highlambda * k * T )
     
-    if( (Zeta1 < deltaBBzeta) or (Zeta2 < deltaBBzeta) ):
+    if( (Zeta1 < globalvar.deltaBBzeta) or (Zeta2 < globalvardeltaBBzeta) ):
         print("lambda x T too high in BBSquareIntensity().")
 
-    if( Zeta1 >= BBzetamax ):
+    if( Zeta1 >= globalvar.BBzetamax ):
         meanI = 0.0
         return meanI
     else:
         logZeta1 = math.log( Zeta1 )
-        nlow = Zeta1 / deltaBBzeta
-        ZetaLow = nlow * deltaBBzeta
+        nlow = Zeta1 / globalvar.deltaBBzeta
+        ZetaLow = nlow * globalvar.deltaBBzeta
         logZetaLow = math.log( ZetaLow )
         nhigh = nlow + 1
-        logZetaHigh = math.log( ZetaLow + deltaBBzeta )
-        logZBBzetaLow  = math.log( ZBBzeta[nlow]  )
-        logZBBzetaHigh = math.log( ZBBzeta[nhigh] )
+        logZetaHigh = math.log( ZetaLow + globalvar.deltaBBzeta )
+        logZBBzetaLow  = math.log( globalvar.ZBBzeta[nlow]  )
+        logZBBzetaHigh = math.log( globalvar.ZBBzeta[nhigh] )
         slope = (logZBBzetaHigh - logZBBzetaLow) / (logZetaHigh - logZetaLow)
         logZBBzeta1 = logZBBzetaLow + (logZeta1 - logZetaLow) * slope
         ZBBzeta1 = math.exp( logZBBzeta1 )
 
-    if( Zeta2 >= BBzetamax ):
-      ZBBzeta2 = ZBBzeta[maxBBzetaindex]
+    if( Zeta2 >= globalvar.BBzetamax ):
+      ZBBzeta2 = globalvar.ZBBzeta[globalvar.maxBBzetaindex]
 
     else:
         logZeta2 = math.log( Zeta2 )
-        nlow = Zeta2 / deltaBBzeta
-        ZetaLow = nlow * deltaBBzeta
+        nlow = Zeta2 / globalvar.deltaBBzeta
+        ZetaLow = nlow * globalvar.deltaBBzeta
         logZetaLow = math.log( ZetaLow )
         nhigh = nlow + 1
-        logZetaHigh = math.log( ZetaLow + deltaBBzeta )
-        logZBBzetaLow  = math.log( ZBBzeta[nlow]  )
-        logZBBzetaHigh = math.log( ZBBzeta[nhigh] )
+        logZetaHigh = math.log( ZetaLow + globalvar.deltaBBzeta )
+        logZBBzetaLow  = math.log( globalvar.ZBBzeta[nlow]  )
+        logZBBzetaHigh = math.log( globalvar.ZBBzeta[nhigh] )
         slope = (logZBBzetaHigh - logZBBzetaLow) / (logZetaHigh - logZetaLow)
         logZBBzeta2 = logZBBzetaLow + (logZeta2 - logZetaLow) * slope
         ZBBzeta2 = math.exp( logZBBzeta2 )
@@ -78,7 +79,7 @@ def BBSquareIntensity(T, lowlambda, highlambda):
         body with temperature T observed through a filter.
         """
         findex = -1;
-        for i in range(maxIBBfilterindex):
+        for i in range(globalvar.maxIBBfilterindex):
             if IBBfilterName[i] == filter:
                 findex = i
                 break
@@ -86,16 +87,16 @@ def BBSquareIntensity(T, lowlambda, highlambda):
         if( findex == -1 ):
             print("Unknown filter name in BBFilterIntensity.");
 
-        if( (T < IBBT[0]) or (T > IBBT[maxIBBTindex]) ):
+        if( (T < globalvar.IBBT[0]) or (T > globalvar.IBBT[globalvar.maxIBBTindex]) ):
             print("T out of range in BBFilterIntensity.")
-        if( T == IBBT[maxIBBTindex] ):
+        if( T == globalvar.IBBT[globalvar.maxIBBTindex] ):
             intensity = IBBtable[maxIBBTindex][findex]
             return( intensity )
 
-        minTindex = (T - IBBTmin) / IBBdeltaT
+        minTindex = (T - globalvar.IBBTmin) / globalvar.IBBdeltaT
         maxTindex = minTindex + 1
-        slope = (IBBtable[maxTindex][findex] - IBBtable[minTindex][findex]) / IBBdeltaT
-        intensity = slope * (T - IBBT[minTindex]) + IBBtable[minTindex][findex]
+        slope = (IBBtable[maxTindex][findex] - IBBtable[minTindex][findex]) / globalvar.IBBdeltaT
+        intensity = slope * (T - globalvar.IBBT[minTindex]) + IBBtable[minTindex][findex]
 
         return intensity
 
@@ -143,6 +144,7 @@ def Cart2Sphere( Acart, theta, phi ):
     m23 = - sint
     m33 =   0.0
 
+    Asphere = CylVector()
     Asphere.r     = m11 * Acart.x + m12 * Acart.y + m13 * Acart.z
     Asphere.theta = m21 * Acart.x + m22 * Acart.y + m23 * Acart.z
     Asphere.phi   = m31 * Acart.x + m32 * Acart.y + m33 * Acart.z
@@ -173,6 +175,7 @@ def Sphere2Cart( Asphere, theta, phi ):
     m23 =   cosp
     m33 =   0.0
 
+    Acart = CartVector()
     Acart.x = m11 * Asphere.r + m12 * Asphere.theta + m13 * Asphere.phi
     Acart.y = m21 * Asphere.r + m22 * Asphere.theta + m23 * Asphere.phi
     Acart.z = m31 * Asphere.r + m32 * Asphere.theta + m33 * Asphere.phi
@@ -201,6 +204,7 @@ def Cyl2Cart( Asphere, zeta ):
     m23 =   1
     m33 =   0.0
 
+    Acart = CartVector()
     Acart.x = m11 * Asphere.rho + m12 * Asphere.zeta + m13 * Asphere.h
     Acart.y = m21 * Asphere.rho + m22 * Asphere.zeta + m23 * Asphere.h
     Acart.z = m31 * Asphere.rho + m32 * Asphere.zeta + m33 * Asphere.h

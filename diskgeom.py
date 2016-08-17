@@ -5,10 +5,11 @@ around the compact star are in this file.
 """
 import sys
 import math
-from .diskflux import maindisk
+from .diskflux import maindisk, DiskTopT, DiskEdgeT
+from .utility import BBSquareIntensity, BBFilterIntensity, Cyl2Cart
 from .diagnose import InspectDiskTiles 
 from .parmeter import filenames, flowcontrol, orbitparams, systemparams, star2spotparams, wholediskpars, diskedgepars
-from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, XYGrid, dataparams, ReadInput
+from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, XYGrid, dataparams, ReadInput, globalvar, CyclVector
 
 MAXDISKTILES = 40506
 
@@ -18,7 +19,7 @@ def MakeDiskTiles():
     and calculates various properties of the tiles. The tiles
     all have roughly the same area.
     """
-    if( verbose == "ON"):
+    if( globalvar.verbose == "ON"):
      print(" Begin making disk tiles.\n")
     
     """
@@ -116,20 +117,20 @@ def MakeDiskTiles():
             zeta1 = (i - 1) * dzeta
             zeta2 = zeta1 + dzeta - 1.0e-10
             zeta = 0.5 * (zeta1 + zeta2)
-            TDiska[tilenumber] = a
-            TDiskZeta[tilenumber] = zeta
-            TDiskH[tilenumber] = 0.5 * ( DiskTopH( a1, zeta) 
+            globalvar.TDiska[tilenumber] = a
+            globalvar.TDiskZeta[tilenumber] = zeta
+            globalvar.TDiskH[tilenumber] = 0.5 * ( DiskTopH( a1, zeta) 
                                    +  DiskTopH( a2, zeta) )
-            TDiskRho[tilenumber] = AToRho( a, zeta )
-            TDiskx[tilenumber] = TDiskRho[tilenumber] * math.sin( zeta )
-            TDisky[tilenumber] = TDiskH[tilenumber]
-            TDiskz[tilenumber] = TDiskRho[tilenumber] * math.cos( zeta ) + systemparams.a
-            TDisknormCyl[tilenumber] = DiskNormal( "TOP", a1, a2, zeta1, zeta2)
-            TDisknormCart[tilenumber] = Cyl2Cart( TDisknormCyl[tilenumber], 
+            globalvar.TDiskRho[tilenumber] = AToRho( a, zeta )
+            globalvar.TDiskx[tilenumber] = globalvar.TDiskRho[tilenumber] * math.sin( zeta )
+            globalvar.TDisky[tilenumber] = globalvar.TDiskH[tilenumber]
+            globalvar.TDiskz[tilenumber] = globalvar.TDiskRho[tilenumber] * math.cos( zeta ) + systemparams.a
+            globalvar.TDisknormCyl[tilenumber] = DiskNormal( "TOP", a1, a2, zeta1, zeta2)
+            globalvar.TDisknormCart[tilenumber] = Cyl2Cart( globalvar.TDisknormCyl[tilenumber], 
                                           zeta )
-            TDiskdS[tilenumber] = TopTileArea( tilenumber, a1, a2, zeta1, zeta2)
-            TDiskT[tilenumber] = DiskTopT( a, zeta )
-            TDiskT4[tilenumber] = math.pow( TDiskT[tilenumber], 4.0)
+            globalvar.TDiskdS[tilenumber] = TopTileArea( tilenumber, a1, a2, zeta1, zeta2)
+            globalvar.TDiskT[tilenumber] = DiskTopT( a, zeta )
+            globalvar.TDiskT4[tilenumber] = math.pow( globalvar.TDiskT[tilenumber], 4.0)
         if( ring == 1 ):
             maindisk.Tamin = maindisk.MainDiskT( a, 0.0)
         if( ring == nringMain ):
@@ -159,20 +160,20 @@ def MakeDiskTiles():
             tilenumber += 1
             if( tilenumber >= (MAXDISKTILES / 2) ):
 	           sys.quit("Attempted to make too many disk tiles.")
-            TDiska[tilenumber] = maindisk.amax
+            globalvar.TDiska[tilenumber] = maindisk.amax
             h = (ring - 0.5) * dh
-            TDiskRho[tilenumber] = AToRho( maindisk.amax, zeta )
-            TDiskZeta[tilenumber] = zeta
-            TDiskH[tilenumber] = h
-            TDiskx[tilenumber] = TDiskRho[tilenumber] * math.sin( zeta )
-            TDisky[tilenumber] = TDiskH[tilenumber]
-            TDiskz[tilenumber] = TDiskRho[tilenumber] * math.cos( zeta ) + systemparams.a
-            TDisknormCyl[tilenumber] = DiskNormal( "EDGE", a1, a2, zeta1, zeta2)
-            TDisknormCart[tilenumber] = Cyl2Cart( TDisknormCyl[tilenumber],
+            globalvar.TDiskRho[tilenumber] = AToRho( maindisk.amax, zeta )
+            globalvar.TDiskZeta[tilenumber] = zeta
+            globalvar.TDiskH[tilenumber] = h
+            globalvar.TDiskx[tilenumber] = globalvar.TDiskRho[tilenumber] * math.sin( zeta )
+            globalvar.TDisky[tilenumber] = globalvar.TDiskH[tilenumber]
+            globalvar.TDiskz[tilenumber] = globalvar.TDiskRho[tilenumber] * math.cos( zeta ) + systemparams.a
+            globalvar.TDisknormCyl[tilenumber] = DiskNormal( "EDGE", a1, a2, zeta1, zeta2)
+            globalvar.TDisknormCart[tilenumber] = Cyl2Cart( globalvar.TDisknormCyl[tilenumber],
                                                       zeta )
-            TDiskdS[tilenumber] = EdgeTileArea( tilenumber, zeta1, zeta2, dh)
+            globalvar.TDiskdS[tilenumber] = EdgeTileArea( tilenumber, zeta1, zeta2, dh)
             TDiskT[tilenumber] = DiskEdgeT( zeta )
-            TDiskT4[tilenumber] = math.pow( TDiskT[tilenumber], 4.0)
+            globalvar.TDiskT4[tilenumber] = math.pow( globalvar.TDiskT[tilenumber], 4.0)
     edgetiles = tilenumber - maintiles
    
     """
@@ -187,22 +188,22 @@ def MakeDiskTiles():
     for i in range(1, tilenumber):
         if( (i+tilenumber) >= MAXDISKTILES ):
 	      sys.quit("Attempted to make too many disk tiles.")
-        TDiska[i+tilenumber]    =  TDiska[i]
-        TDiskRho[i+tilenumber]  =  TDiskRho[i]
-        TDiskZeta[i+tilenumber] =  TDiskZeta[i]
-        TDiskH[i+tilenumber]    = -TDiskH[i]
-        TDiskx[i+tilenumber]    =  TDiskx[i]
-        TDisky[i+tilenumber]    = -TDisky[i]
-        TDiskz[i+tilenumber]    =  TDiskz[i]
-        TDiskdS[i+tilenumber]   =  TDiskdS[i]
+        globalvar.TDiska[i+tilenumber]    =  globalvar.TDiska[i]
+        globalvar.TDiskRho[i+tilenumber]  =  globalvar.TDiskRho[i]
+        globalvar.TDiskZeta[i+tilenumber] =  globalvar.TDiskZeta[i]
+        globalvar.TDiskH[i+tilenumber]    = -globalvar.TDiskH[i]
+        globalvar.TDiskx[i+tilenumber]    =  globalvar.TDiskx[i]
+        globalvar.TDisky[i+tilenumber]    = -globalvar.TDisky[i]
+        globalvar.TDiskz[i+tilenumber]    =  globalvar.TDiskz[i]
+        globalvar.TDiskdS[i+tilenumber]   =  globalvar.TDiskdS[i]
         TDisknormCyl[i+tilenumber].rho  =  TDisknormCyl[i].rho
         TDisknormCyl[i+tilenumber].zeta =  TDisknormCyl[i].zeta
         TDisknormCyl[i+tilenumber].h    = -TDisknormCyl[i].h
         TDisknormCart[i+tilenumber].x   =  TDisknormCart[i].x
         TDisknormCart[i+tilenumber].y   = -TDisknormCart[i].y
         TDisknormCart[i+tilenumber].z   =  TDisknormCart[i].z
-        TDiskT[i+tilenumber]  = TDiskT[i]
-        TDiskT4[i+tilenumber] = TDiskT4[i]
+        globalvar.TDiskT[i+tilenumber]  = globalvar.TDiskT[i]
+        globalvar.TDiskT4[i+tilenumber] = globalvar.TDiskT4[i]
     wholediskpars.Ntiles = 2 * tilenumber
 
     """   
@@ -224,7 +225,7 @@ def MakeDiskTiles():
         else:
             for i in range(1, wholediskpars.Ntiles):
                 TDiskI[band][i] = BBFilterIntensity( 
-                                  TDiskT[i], orbitparams.filter[band])
+                                  globalvar.TDiskT[i], orbitparams.filter[band])
 
     if( flowcontrol.diagnostics == "INSPECTDISKTILES"):
         InspectDiskTiles( targetarea, nringMain, maintiles, 
@@ -451,6 +452,7 @@ def DiskNormal( where, a1, a2, zeta1, zeta2):
         h1 = DiskTopH( a, zeta1)
         h2 = DiskTopH( a, zeta2)
         DhDzeta = (h2 - h1) / (zeta2 - zeta1)
+        norm = CyclVector()        
         norm.rho  = -DhDrho
         norm.zeta = -(1.0 / rho) * DhDzeta
         norm.h    =  1.0
@@ -507,12 +509,12 @@ def EdgeTileArea( itile, zeta1, zeta2, dh):
         sys.exit("zeta less than zero in EdgeTileArea.")
     if( zeta2 > 2*math.pi ):
         sys.exit("zeta greater than TWOPI in EdgeTileArea.")
-    zeta = 0.5 * (zeta1 + zeta2)
+    #zeta = 0.5 * (zeta1 + zeta2)
     dzeta = zeta2 - zeta1
     if( dzeta < 0.0 ):
         sys.exit("dzeta less than zero in EdgeTileArea.")
 
-    flatarea = TDiskRho[itile] * dzeta * dh
+    flatarea = globalvar.TDiskRho[itile] * dzeta * dh
 
     if( TDisknormCyl[itile].rho == 0.0 ):
         sys.exit("TDisknormCyl.rho equals zero in EdgeTileArea.")
