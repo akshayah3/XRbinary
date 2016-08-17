@@ -538,7 +538,7 @@ def InspectDiskTiles( targetarea,
     out.write( "\n")
     out.write( "  Tile      a      zeta     rho         h          x          y          z\n")
     for i in range(1, wholediskpars.Ntiles):
-        zeta = TDiskZeta[i] * ( 360.0 / 2*math.pi )
+        zeta = globalvar.TDiskZeta[i] * ( 360.0 / 2*math.pi )
         out.write( "%6ld %10.3e %5.1f %10.3e %10.3e %10.3e %10.3e %10.3e\n"%
 	       i, globalvar.TDiska[i] ,zeta, globalvar.TDiskRho[i], globalvar.TDiskH[i],
                        globalvar.TDiskx[i], globalvar.TDisky[i], globalvar.TDiskz[i])

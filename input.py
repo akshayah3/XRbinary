@@ -66,7 +66,7 @@ def ReadPars():
                 x = 1.0
 
             elif( keyword == "VERBOSE="):
-      	     verbose =  linesplit[1]
+      	     globalvar.verbose =  linesplit[1]
             elif( keyword == "DIAGNOSTICS="):
                 if( nfields < 4 ):
                     sys.exit("Too few parameters for keyword DIAGNOSTICS.")
@@ -727,6 +727,7 @@ def ReadLDTable():
                 globalvar.LDlogg[i] = gmin + i * deltag
             c = lines[2].split()
             nfilters = int(c[0])
+            LDfilterName = [0 for i in range(0,8)]
             LDfilterName[0] = float(c[1])
             LDfilterName[1] = float(c[2])
             LDfilterName[2] = float(c[3]) 
@@ -744,6 +745,7 @@ def ReadLDTable():
     logg = float(d[0])
     T =    float(d[1])
     filtername = (d[2])
+    a = [0 for i in range(0,5)]
     a[1] = float(d[3]) 
     a[2] = float(d[4])
     a[3] = float(d[5])
@@ -806,6 +808,7 @@ def ReadIperpTable():
         globalvar.Iperplogg[gindex] = gmin + gindex * deltag
     d = lines[2].split()
     nfilters = int(d[0])
+    IperpfilterName = [0 for i in range(0,8)]
     IperpfilterName[0] = float(d[1])
     IperpfilterName[1] = float(d[2])
     IperpfilterName[2] = float(d[3]) 
@@ -822,14 +825,15 @@ def ReadIperpTable():
         e = lines[3].split()
         xT = float(d[0])
         xlogg =    float(e[1])
-        xiperp[0] = float(e[2])
-        xiperp[1] = float(e[3]) 
-        xiperp[2] = float(e[4])
-        xiperp[3] = float(e[5])
-        xiperp[4] = float(e[6])
-        xiperp[5] = float(e[7])
-        xiperp[6] = float(e[8])
-        xiperp[7] = float(e[9])
+        xIperp = [0 for i in range(0, 8)]
+        xIperp[0] = float(e[2])
+        xIperp[1] = float(e[3]) 
+        xIperp[2] = float(e[4])
+        xIperp[3] = float(e[5])
+        xIperp[4] = float(e[6])
+        xIperp[5] = float(e[7])
+        xIperp[6] = float(e[8])
+        xIperp[7] = float(e[9])
         gindex = (xlogg - gmin + 0.01) / deltag
         if( (gindex < 0) or (gindex > maxIperpgindex) ):
             sys.exit("gindex out of range in ReadIperpTable.")
@@ -875,6 +879,7 @@ def ReadIBBfilterTable():
                 globalvar.IBBT[i] = IBBTmin + i * IBBdeltaT
             c = lines[1].split()
             nfilters = int(c[0])
+            IBBfilterName = [0 for i in range(0, 8)]
             IBBfilterName[0] = float(c[1])
             IBBfilterName[1] = float(c[2])
             IBBfilterName[2] = float(c[3]) 
@@ -890,6 +895,7 @@ def ReadIBBfilterTable():
 
     d = lines[2].split()
     xT = float(d[0])
+    xIBB = [0 for i in range(0, 8)]
     xIBB[0] = float(d[1])
     xIBB[1]=  float(d[2])
     xIBB[2] = float(d[3]) 
