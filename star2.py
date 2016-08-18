@@ -8,10 +8,10 @@ G  = 6.6742e-8
 SIGMA = 5.6704e-5
 import sys
 import math
-from .parmeter import systemparams
-from .parmeter import XYGrid, globalvar
+from parmeter import systemparams
+from parmeter import XYGrid, globalvar
 
-class star2:
+class Star2:
     targetNtiles = None
     meanT = None
     albedo = None
@@ -200,45 +200,45 @@ class star2:
 	           print( x, z, y)
             print("Too many iterations in Star2Topy.")
 
-        r = math.sqrt( x*x + y*y + z*z)
-        costheta = z / r
-        theta = math.acos( costheta )
-        cosphi = x / math.sqrt( x*x + y*y )
-        phi = math.acos( cosphi )
-        Vzero  = self.V( r, theta, phi)
-        change = (Vzero - Vtarget) / Vtarget
-        if( math.abs( change ) <= converge ):
-            break
+            r = math.sqrt( x*x + y*y + z*z)
+            costheta = z / r
+            theta = math.acos( costheta )
+            cosphi = x / math.sqrt( x*x + y*y )
+            phi = math.acos( cosphi )
+            Vzero  = self.V( r, theta, phi)
+            change = (Vzero - Vtarget) / Vtarget
+            if( math.abs( change ) <= converge ):
+                break
 
-        yplus = y + epsilony
-        r = math.sqrt(x*x + yplus*yplus + z*z)
-        costheta = z / r
-        theta = math.acos(costheta);
-        cosphi = x / math.sqrt(x*x + yplus*yplus)
-        phi = math.acos( cosphi )
-        Vplus  = self.V( r, theta, phi)
+            yplus = y + epsilony
+            r = math.sqrt(x*x + yplus*yplus + z*z)
+            costheta = z / r
+            theta = math.acos(costheta);
+            cosphi = x / math.sqrt(x*x + yplus*yplus)
+            phi = math.acos( cosphi )
+            Vplus  = self.V( r, theta, phi)
 
-        yminus = y - epsilony
-        if( yminus < 0.0 ):
-	       yminus = 0.0
-        r = math.sqrt( x*x + yminus*yminus + z*z)
-        costheta = z / r
-        theta = math.acos(costheta)
-        cosphi = x / math.sqrt( x*x + yminus*yminus )
-        phi = math.acos(cosphi)
-        Vminus = self.V(r, theta, phi)
+            yminus = y - epsilony
+            if( yminus < 0.0 ):
+                yminus = 0.0
+            r = math.sqrt( x*x + yminus*yminus + z*z)
+            costheta = z / r
+            theta = math.acos(costheta)
+            cosphi = x / math.sqrt( x*x + yminus*yminus )
+            phi = math.acos(cosphi)
+            Vminus = self.V(r, theta, phi)
 
-        slope = (Vplus - Vminus) / (yplus - yminus)
-        if(slope == 0.0):
-            slope = 100.0 * Vzero / systemparams.a
-        deltay = (Vtarget - Vzero) / slope
-        if( math.abs(deltay) > (0.05 * y) ): 
-            deltay = (0.05 * y) * ( deltay / math.abs( deltay ) )
-        y = y + deltay 
-        if( y > (1.01 * XYGrid.ymax) ):
-            y = 1.01 * XYGrid.ymax
-        if( y < 0.0 ):
-	       y = 0.0
+            slope = (Vplus - Vminus) / (yplus - yminus)
+            if(slope == 0.0):
+                slope = 100.0 * Vzero / systemparams.a
+            deltay = (Vtarget - Vzero) / slope
+            if( math.abs(deltay) > (0.05 * y) ): 
+                deltay = (0.05 * y) * ( deltay / math.abs( deltay ) )
+            y = y + deltay 
+            if( y > (1.01 * XYGrid.ymax) ):
+                y = 1.01 * XYGrid.ymax
+            if( y < 0.0 ):
+                y = 0.0
         topy = y 
     
         return topy
@@ -253,14 +253,14 @@ class star2:
         if( globalvar.maxGDindex == 1):
             beta = 0.25 * globalvar.fourbeta[1]
             return( beta )
-        if( star2.meanT <= globalvar.GDT[0] ):
+        if( Star2.meanT <= globalvar.GDT[0] ):
              beta = 0.25 * globalvar.fourbeta[1]
              return( beta )
-        if( star2.meanT >= globalvar.GDT[globalvar.maxGDindex] ):
+        if( Star2.meanT >= globalvar.GDT[globalvar.maxGDindex] ):
             beta = 0.25 * globalvar.fourbeta[globalvar.maxGDindex]
             return( beta )      
         for i in range(0, globalvar.maxGDindex):
-            if( (star2.meanT >= globalvar.GDT[i]) and (star2.meanT < globalvar.GDT[i+1]) ):
+            if( (Star2.meanT >= globalvar.GDT[i]) and (Star2.meanT < globalvar.GDT[i+1]) ):
                 ilow = i
                 ihigh = i + 1
                 break
@@ -269,7 +269,7 @@ class star2:
             beta = 0.25 * globalvar.fourbeta[ilow]
             return( beta )
         slope = ( globalvar.fourbeta[ihigh] - globalvar.fourbeta[ilow] ) / ( globalvar.GDT[ihigh] - globalvar.GDT[ilow] )
-        beta = globalvar.fourbeta[ilow] + slope * ( star2.meanT - globalvar.GDT[ilow] )
+        beta = globalvar.fourbeta[ilow] + slope * ( Star2.meanT - globalvar.GDT[ilow] )
         beta = 0.25 * beta;
 
         return( beta )
@@ -368,7 +368,7 @@ class star2:
         after heating by irradiation has been calculated.
         """
         luminosity = 0.0
-        for itile in range(1, star2.Ntiles):
+        for itile in range(1, Star2.Ntiles):
             luminosity += SIGMA * pow( globalvar.T2T[itile], 4.0) * globalvar.T2dS[itile]
 
         return( luminosity )

@@ -5,11 +5,11 @@ line broadening program.
 """
 import math
 import sys
-from .diskflux import maindisk
-from .star1 import Star1
-from .star2 import Star2
-from .parmeter import flowcontrol, orbitparams, systemparams, wholediskpars, diskedgepars
-from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, XYGrid, dataparams, globalvar
+from diskflux import maindisk
+from star1 import Star1
+from star2 import Star2
+from parmeter import flowcontrol, orbitparams, systemparams, wholediskpars, diskedgepars
+from parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, XYGrid, dataparams, globalvar
 
 
 def InspectInput():

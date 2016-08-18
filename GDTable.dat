@@ -1,0 +1,29 @@
+*
+*             TYPE 1 GRAVITY DARKENING FILE
+*
+*  The columns of the table are mean effective temperature and gravity
+*  darkening exponent, beta1, where
+*
+*    Teff = <Teff> * ( g / <g> )^beta1
+*
+*  The gravity darkening exponents were taken from Figure 8 in
+*  A. Claret (2000, A&A, 359, 289.
+*
+  3500  0.180
+  3650  0.190
+  3900  0.230
+  4250  0.340
+  4600  0.415
+  5050  0.435
+  5550  0.405
+  5700  0.390
+  5900  0.370
+  6100  0.325
+  6600  0.280
+  6900  0.260
+  7100  0.220
+  7200  0.205
+  7500  0.250
+  8000  1.000
+
+

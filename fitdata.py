@@ -6,7 +6,7 @@ synthetic light curves to observational data.
 
 MAXDATAPOINTS =  1001
 import sys
-from .parmeter import  dataparams
+from parmeter import  dataparams
 
 def ReadData(band):
     """

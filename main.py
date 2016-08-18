@@ -7,14 +7,15 @@ G     = 6.6742e-8
 MSOL  = 1.9891e33
 import math
 import sys
-from .lightcurve import MakeYlimits, Irradiate, MakeLightCurves
-from .diskgeom import MakeDiskTiles, MakeDiskTorus, MakeDiskRim
-from .diskflux import maindisk, DiskL
-from .star1 import Star1, MeanRocheRadius
-from .star2 import Star2, MakeStar2Tiles, Star2L, V, FindL1
-from .parmeter import filenames, flowcontrol, orbitparams, systemparams, star2spotparams, wholediskpars, diskedgepars
-from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, XYGrid, dataparams, ReadInput
-from .output import WriteResults, WriteSysPars 
+from lightcurve import MakeYlimits, Irradiate, MakeLightCurves
+from diskgeom import MakeDiskTiles, MakeDiskTorus, MakeDiskRim
+from diskflux import maindisk, DiskL
+from star1 import Star1
+from star2 import Star2
+from parmeter import filenames, flowcontrol, orbitparams, systemparams, star2spotparams, wholediskpars, diskedgepars
+from parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, XYGrid, dataparams
+from input import ReadInput
+from output import WriteResults, WriteSysPars 
 
 def main():
     if( sys.argv != 2 ):
@@ -27,7 +28,7 @@ def main():
     CalcSysPars()
 
     if( flowcontrol.star2 == "ON" ):
-        MakeStar2Tiles()
+        Star2.MakeStar2Tiles()
 
     if( flowcontrol.disk == "ON"):
         MakeDiskTiles()
@@ -35,7 +36,7 @@ def main():
     MakeYlimits()
     if( flowcontrol.irradiation == "ON"):
         Irradiate()
-    Star2.L = Star2L()
+    Star2.L = Star2.Star2L()
     wholediskpars.L  = DiskL()
 
     MakeLightCurves()
@@ -254,10 +255,10 @@ def CalcSysPars():
         V2orb           = systemparams.omega * a_2 / 1.0e5
         systemparams.K2      = V2orb * math.sin( systemparams.i )
     systemparams.zcm        = systemparams.a / (1.0 + systemparams.q)
-    systemparams.rL1        = FindL1()  
-    systemparams.VL1        = V( systemparams.rL1, 0.0, 0.0 )
-    systemparams.MeanLobe2Radius = MeanRocheRadius( systemparams.q )
-    systemparams.MeanLobe1Radius = MeanRocheRadius( 1.0 / systemparams.q )
+    systemparams.rL1        = Star2.FindL1()  
+    systemparams.VL1        = Star2.V( systemparams.rL1, 0.0, 0.0 )
+    systemparams.MeanLobe2Radius = Star1.MeanRocheRadius( systemparams.q )
+    systemparams.MeanLobe1Radius = Star1.MeanRocheRadius( 1.0 / systemparams.q )
 
     Star1.sigmaT4      = SIGMA * pow( Star1.T, 4.0 )
     r2                 = Star1.L / ( 4.0 * math.pi * Star1.sigmaT4 )

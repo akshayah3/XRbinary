@@ -10,7 +10,7 @@ Utility functions needed for the project
 
 import math
 import sys
-from .parameter import globalvar, CylVector, CartVector
+from parmeter import globalvar, CylVector, CartVector
 
 def BBSquareIntensity(T, lowlambda, highlambda):
     """
@@ -33,7 +33,7 @@ def BBSquareIntensity(T, lowlambda, highlambda):
     Zeta2 = ( h * c ) / (  lowlambda * k * T )
     Zeta1 = ( h * c ) / ( highlambda * k * T )
     
-    if( (Zeta1 < globalvar.deltaBBzeta) or (Zeta2 < globalvardeltaBBzeta) ):
+    if( (Zeta1 < globalvar.deltaBBzeta) or (Zeta2 < globalvar.deltaBBzeta) ):
         print("lambda x T too high in BBSquareIntensity().")
 
     if( Zeta1 >= globalvar.BBzetamax ):
@@ -73,32 +73,32 @@ def BBSquareIntensity(T, lowlambda, highlambda):
 
     return meanI
 
-    def BBFilterIntensity(T, filter):
-        """
-        This function returns the mean specific intensity emitted by a black 
-        body with temperature T observed through a filter.
-        """
-        findex = -1;
-        for i in range(globalvar.maxIBBfilterindex):
-            if IBBfilterName[i] == filter:
-                findex = i
-                break
+def BBFilterIntensity(T, filter):
+    """
+    This function returns the mean specific intensity emitted by a black 
+    body with temperature T observed through a filter.
+    """
+    findex = -1;
+    for i in range(globalvar.maxIBBfilterindex):
+        if globalvar.IBBfilterName[i] == filter:
+            findex = i
+            break
 
-        if( findex == -1 ):
-            print("Unknown filter name in BBFilterIntensity.");
+    if( findex == -1 ):
+        print("Unknown filter name in BBFilterIntensity.");
 
-        if( (T < globalvar.IBBT[0]) or (T > globalvar.IBBT[globalvar.maxIBBTindex]) ):
-            print("T out of range in BBFilterIntensity.")
-        if( T == globalvar.IBBT[globalvar.maxIBBTindex] ):
-            intensity = IBBtable[maxIBBTindex][findex]
-            return( intensity )
+    if( (T < globalvar.IBBT[0]) or (T > globalvar.IBBT[globalvar.maxIBBTindex]) ):
+        print("T out of range in BBFilterIntensity.")
+    if( T == globalvar.IBBT[globalvar.maxIBBTindex] ):
+        intensity = globalvar.IBBtable[globalvar.maxIBBTindex][findex]
+        return( intensity )
 
-        minTindex = (T - globalvar.IBBTmin) / globalvar.IBBdeltaT
-        maxTindex = minTindex + 1
-        slope = (IBBtable[maxTindex][findex] - IBBtable[minTindex][findex]) / globalvar.IBBdeltaT
-        intensity = slope * (T - globalvar.IBBT[minTindex]) + IBBtable[minTindex][findex]
+    minTindex = (T - globalvar.IBBTmin) / globalvar.IBBdeltaT
+    maxTindex = minTindex + 1
+    slope = (globalvar.IBBtable[maxTindex][findex] - globalvar.IBBtable[minTindex][findex]) / globalvar.IBBdeltaT
+    intensity = slope * (T - globalvar.IBBT[minTindex]) + globalvar.IBBtable[minTindex][findex]
 
-        return intensity
+    return intensity
 
 def AngleDistance( theta1, phi1, theta2, phi2):
     """

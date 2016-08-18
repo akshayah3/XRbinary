@@ -4,11 +4,11 @@ All the output functions are in this file.
 """
 MSOL  =   1.9891e33
 import math
-from .diskflux import maindisk
-from .star1 import Star1
-from .star2 import Star2
-from .parmeter import filenames, flowcontrol, orbitparams, systemparams, star2spotparams, wholediskpars, diskedgepars
-from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, dataparams, globalvar
+from diskflux import maindisk
+from star1 import Star1
+from star2 import Star2
+from parmeter import filenames, flowcontrol, orbitparams, systemparams, star2spotparams, wholediskpars, diskedgepars
+from parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, dataparams, globalvar
 
 def Quit(outputline):
     print("\n   {}\n", outputline)

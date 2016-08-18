@@ -5,11 +5,11 @@ around the compact star are in this file.
 """
 import sys
 import math
-from .diskflux import maindisk, DiskTopT, DiskEdgeT
-from .utility import BBSquareIntensity, BBFilterIntensity, Cyl2Cart
-from .diagnose import InspectDiskTiles 
-from .parmeter import flowcontrol, orbitparams, systemparams, wholediskpars
-from .parmeter import diskrimpars, disktorusparams, globalvar, CyclVector
+from diskflux import maindisk
+from utility import BBSquareIntensity, BBFilterIntensity, Cyl2Cart
+from diagnose import InspectDiskTiles 
+from parmeter import flowcontrol, orbitparams, systemparams, wholediskpars
+from parmeter import diskrimpars, disktorusparams, globalvar, CylVector
 
 MAXDISKTILES = 40506
 
@@ -129,7 +129,7 @@ def MakeDiskTiles():
             globalvar.TDisknormCart[tilenumber] = Cyl2Cart( globalvar.TDisknormCyl[tilenumber], 
                                           zeta )
             globalvar.TDiskdS[tilenumber] = TopTileArea( tilenumber, a1, a2, zeta1, zeta2)
-            globalvar.TDiskT[tilenumber] = DiskTopT( a, zeta )
+            globalvar.TDiskT[tilenumber] = maindisk.DiskTopT( a, zeta )
             globalvar.TDiskT4[tilenumber] = math.pow( globalvar.TDiskT[tilenumber], 4.0)
         if( ring == 1 ):
             maindisk.Tamin = maindisk.MainDiskT( a, 0.0)
@@ -172,7 +172,7 @@ def MakeDiskTiles():
             globalvar.TDisknormCart[tilenumber] = Cyl2Cart( globalvar.TDisknormCyl[tilenumber],
                                                       zeta )
             globalvar.TDiskdS[tilenumber] = EdgeTileArea( tilenumber, zeta1, zeta2, dh)
-            globalvar.TDiskT[tilenumber] = DiskEdgeT( zeta )
+            globalvar.TDiskT[tilenumber] = maindisk.DiskEdgeT( zeta )
             globalvar.TDiskT4[tilenumber] = math.pow( globalvar.TDiskT[tilenumber], 4.0)
     edgetiles = tilenumber - maintiles
    
@@ -452,7 +452,7 @@ def DiskNormal( where, a1, a2, zeta1, zeta2):
         h1 = DiskTopH( a, zeta1)
         h2 = DiskTopH( a, zeta2)
         DhDzeta = (h2 - h1) / (zeta2 - zeta1)
-        norm = CyclVector()        
+        norm = CylVector()        
         norm.rho  = -DhDrho
         norm.zeta = -(1.0 / rho) * DhDzeta
         norm.h    =  1.0

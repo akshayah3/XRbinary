@@ -12,15 +12,15 @@ class CartVector():
         self.x = x
         self.y = y
         self.z = z
-    @set
+    
     def x(self, x):
         self.x = x
 
-    @set
+    
     def y(self, y):
         self.y = y
 
-    @set
+    
     def z(self, z):
         self.z = z
     
@@ -32,15 +32,15 @@ class CylVector():
         self.rho = rho
         self.zeta = zeta
         self.h = h
-    @set
+    
     def rho(self, rho):
         self.rho = rho
 
-    @set
+    
     def zeta(self, zeta):
         self.zeta = zeta
 
-    @set
+    
     def h(self, h):
         self.h = h
 
@@ -53,15 +53,15 @@ class SphereVector():
         self.theta = theta
         self.phi = phi
 
-    @set
+    
     def r(self, r):
         self.r = r
 
-    @set
+    
     def theta(self, theta):
         self.theta = theta
 
-    @set
+    
     def phi(self, phi):
         self.phi = phi
 
@@ -74,15 +74,15 @@ class filenames():
         self.syspars = syspars
         self.lightcurves = lightcurves
 
-    @set
+    
     def parfile(self, parfile):
         self.parfile = parfile
 
-    @set
+    
     def syspars(self, syspars):
         self.syspars = syspars
 
-    @set
+    
     def lightcurves(self, lightcurves):
         self.lightcurves = lightcurves
 
@@ -120,63 +120,63 @@ class flowcontrol():
                       self.diagnoseband = diagnoseband
                       self.diagnoseindex = diagnoseindex
 
-    @set
+    
     def star1(self, star1):
         self.star1 = star1
     
-    @set
+    
     def star2(self, star2):
         self.star2 = star2
 
-    @set
+    
     def star2spots(self, star2spots):
         self.star2spots = star2spots
 
-    @set
+    
     def disk(self, disk):
         self.disk = disk
 
-    @set
+    
     def diskrim(self, diskrim):
         self.diskrim = diskrim
 
-    @set
+    
     def disktorus(self, disktorus):
         self.disktorus = disktorus
 
-    @set
+    
     def innerdisk(self, innerdisk):
         self.innerdisk = innerdisk
 
-    @set
+    
     def diskspots(self, diskspots):
         self.diskspots = diskspots
 
-    @set
+    
     def adc(self, adc):
         self.adc = adc
 
-    @set
+    
     def thirdlight(self, thirdlight):
         self.thirdlight = thirdlight
 
-    @set
+    
     def irradiation(self, irradiation):
         self.irradiation = irradiation
 
-    @set
+    
     def diagnostics(self, diagnostics):
         self.diagnostics = diagnostics
 
-    @set
+    
     def diagnosephase(self, diagnosephase):
         self.diagnosephase = diagnosephase
 
-    @set
+    
     def diagnoseband(self, diagnoseband):
         self.diagnoseband = diagnoseband
 
-    @set
+    
     def diagnoseindex(self, diagnoseindex):
         self.diagnoseindex = diagnoseindex
 
@@ -213,59 +213,59 @@ class orbitparams():
                      self.normMaxlambda = normMaxlambda
                      self.normvalue = normvalue
                 
-    @set
+    
     def phasemin(self, phasemin):
         self.phasemin = phasemin
 
-    @set
+    
     def phasemax(self, phasemax):
         self.phasemax = phasemax
 
-    @set
+    
     def deltaphase(self, deltaphase):
         self.deltaphase = deltaphase
 
-    @set
+    
     def maxpindex(self, maxpindex):
         self.maxpindex = maxpindex
 
-    @set
+    
     def phaseoffset(self, phaseoffset):
         self.phaseoffset = phaseoffset
 
-    @set
+    
     def nbands(self, nbands):
         self.nbands = nbands
 
-    @set
+    
     def filtermax(self, filtermax):
         self.filtermax = filtermax
 
-    @set
+    
     def minlambda(self, minlambda):
         self.minlambda = minlambda
 
-    @set
+    
     def maxlambda(self, maxlambda):
         self.maxlambda = maxlambda
 
-    @set
+    
     def normalize(self, normalize):
         self.normalize = normalize
 
-    @set
+    
     def normfilter(self, normfilter):
         self.normfilter = normfilter
 
-    @set
+    
     def normMinlambda(self, normMinlambda):
         self.normMinlambda = normMinlambda
 
-    @set
+    
     def normMaxlambda(self, normMaxlambda):
         self.normMaxlambda = normMaxlambda
 
-    @set
+    
     def normvalue(self, normvalue):
         self.normvalue = normvalue
 
@@ -299,55 +299,55 @@ class systemparams():
                      self.MeanLobe1Radius = MeanLobe1Radius
                      self.MeanLobe2Radius = MeanLobe2Radius
 
-    @set
+    
     def p(self, p):
         self.p = p
 
-    @set
+    
     def omega(self, omega):
         self.omega = omega
 
-    @set
+    
     def K2(self, K2):
         self.K2 = K2
         
-    @set
+    
     def q(self, q):
         self.q = q
 
-    @set
+    
     def i(self, i):
         self.i = i
 
-    @set
+    
     def a(self, a):
         self.a = a
 
-    @set
+    
     def zcm(self, zcm):
         self.zcm = zcm
 
-    @set
+    
     def M1(self, M1):
         self.M1 = M1
 
-    @set
+    
     def M2(self, M2):
         self.M2 = M2
 
-    @set
+    
     def rL1(self, rL1):
         self.rL1 = rL1
         
-    @set
+    
     def VL1(self, VL1):
         self.VL1 = VL1
 
-    @set
+    
     def MeanLobe1Radius(self, r):
         self.MeanLobe1Radius = r
 
-    @set
+    
     def MeanLobe2Radius(self, r):
         self.MeanLobe2Radius = r
 
@@ -363,23 +363,23 @@ class star2spotparams():
         self.phi = phi
         self.radius = radius
         self.SpotToverStarT = SpotToverStarT
-    @set
+    
     def nspots(self, nspots):
         self.nspots = nspots
 
-    @set
+    
     def theta(self, theta):
         self.theta = theta
 
-    @set
+    
     def phi(self, phi):
         self.phi = phi
 
-    @set
+    
     def radius(self, radius):
         self.radius = radius
 
-    @set
+    
     def SpotToverStarT(self, s):
         self.SpotToverStarT = s
 
@@ -402,35 +402,35 @@ class wholediskpars():
                      self.TopTmax = TopTmax
                      self.TopTmin = TopTmin
 
-    @set
+    
     def targetNtiles(self, t):
         self.targetNtiles = t
 
-    @set
+    
     def Ntiles(self, n):
         self.Ntiles = n
 
-    @set
+    
     def e(self, e):
         self.e = e
 
-    @set
+    
     def zetazero(self, z):
         self.zetazero = z
 
-    @set
+    
     def albedo(self, albedo):
         self.albedo = albedo
 
-    @set
+    
     def L(self, L):
         self.L = L
 
-    @set
+    
     def TopTmax(self, t):
         self.TopTmax = t
 
-    @set 
+     
     def TopTmin(self, t):
         self.Toptmin = t
 
@@ -445,19 +445,19 @@ class diskedgepars():
         self.ZetaMid = ZetaMid
         self.ZetaWidth = ZetaWidth
  
-    @set
+    
     def T(self, T):
         self.T = T
 
-    @set
+    
     def Tspot(self, Tspot):
         self.Tspot = Tspot
 
-    @set
+    
     def ZetaMid(self, z):
         self.ZetaMid = z
 
-    @set
+    
     def ZetaWidth(self, ZetaWidth):
         self.ZetaWidth = ZetaWidth
 
@@ -473,7 +473,7 @@ class diskrimpars():
     points = None
     PointZeta = [0 for i in range(102)]
     PointH = [0 for i in range(102)]
-    PointT = [0 for i in rabge(102)]
+    PointT = [0 for i in range(102)]
     def __init__(self, Type=None, awidth=None, Hmax=None, Hmin=None, ZetaHmax=None,
                  Tmax=None, Tmin=None, ZetaTmax=None, points=None, PointZeta=None,
                  PointH=None, PointT=None):
@@ -489,51 +489,51 @@ class diskrimpars():
                      self.PointZeta = PointZeta
                      self.PointH = PointH
                      self.PointT = PointT
-    @set
+    
     def Type(self, Type):
         self.Type = Type
 
-    @set
+    
     def awidth(self, awidth):
         self.awidth = awidth
 
-    @set
+    
     def Hmax(self, Hmax):
         self.Hmax = Hmax
 
-    @set
+    
     def Hmin(self, Hmin):
         self.Hmin = Hmin
 
-    @set
+    
     def ZetaHmax(self, z):
         self.ZetaHmax = z
 
-    @set
+    
     def Tmax(self, t):
         self.Tmax = t
 
-    @set
+    
     def Tmin(self, t):
         self.Tmin = t
 
-    @set
+    
     def ZetaTmax(self, z):
         self.ZetaTmax = z
 
-    @set
+    
     def points(self, p):
         self.points = p
 
-    @set
+    
     def PointZeta(self, p):
         self.PointZeta = p
 
-    @set
+    
     def PointH(self, p):
         self.PointH = p
 
-    @set
+    
     def PointT(self, p):
         self.PointT = p
 
@@ -567,55 +567,55 @@ class disktorusparams():
                      self.PointH = PointH
                      self.PointT = PointT
                      self.azero = azero
-    @set
+    
     def Type(self, Type):
         self.Type = Type
 
-    @set
+    
     def awidth(self, awidth):
         self.awidth = awidth
 
-    @set
+    
     def Hmax(self, Hmax):
         self.Hmax = Hmax
 
-    @set
+    
     def Hmin(self, Hmin):
         self.Hmin = Hmin
 
-    @set
+    
     def ZetaHmax(self, z):
         self.ZetaHmax = z
 
-    @set
+    
     def Tmax(self, t):
         self.Tmax = t
 
-    @set
+    
     def Tmin(self, t):
         self.Tmin = t
 
-    @set
+    
     def ZetaTmax(self, z):
         self.ZetaTmax = z
 
-    @set
+    
     def points(self, p):
         self.points = p
 
-    @set
+    
     def PointZeta(self, p):
         self.PointZeta = p
 
-    @set
+    
     def PointH(self, p):
         self.PointH = p
 
-    @set
+    
     def PointT(self, p):
         self.PointT = p
 
-    @set
+    
     def azero(self, azero):
         self.azero = azero
 
@@ -627,7 +627,7 @@ class diskspotpars():
     amax = [0 for i in range(21)]
     spotToverT = [0 for i in range(21)]
     def __init__(self, nspots=None, zetamin=None, zetamax=None, amin=None, amax=None,
-                 spotToverT):
+                 spotToverT=None):
                      self.nspots = nspots
                      self.zetamin = zetamin
                      self.zetamax = zetamax
@@ -635,27 +635,27 @@ class diskspotpars():
                      self.amax = amax
                      self.spotToverT = spotToverT
 
-    @set
+    
     def nspots(self, n):
         self.nspots = n
 
-    @set
+    
     def zetamin(self, z):
         self.zetamin = z
 
-    @set
+    
     def zetamax(self, z):
         self.zetamax = z
 
-    @set
+    
     def amin(self, amin):
         self.amin = amin
 
-    @set
+    
     def amax(self, amax):
         self.amax = amax
 
-    @set
+    
     def spotToverT(self, s):
         self.spotToverT = s
 
@@ -670,19 +670,19 @@ class innerdiskpars():
         self.sigmaT4 = sigmaT4
         self.radius = radius
 
-    @set
+    
     def T(self, T):
         self.T = T
 
-    @set
+    
     def L(self, L):
         self.L = L
 
-    @set
+    
     def sigmaT4(self, s):
         self.sigmaT4 = s
 
-    @set
+    
     def radius(self, r):
         self.radius = r
 
@@ -693,11 +693,11 @@ class adcpars():
         self.L = L
         self.height = height
 
-    @set
+    
     def L(self, L):
         self.L = L
 
-    @set
+    
     def height(self, height):
         self.height = height
 
@@ -719,31 +719,31 @@ class thirdlightparams():
                      self.fraction = fraction
                      self.addFlux = addFlux
 
-    @set
+    
     def orbphase(self, o):
         self.orbphase = o
 
-    @set
+    
     def nbands(self, n):
         self.nbands = n
 
-    @set
+    
     def Filter(self, f):
         self.Filter = f
 
-    @set
+    
     def minlambda(self, m):
         self.minlambda = m
 
-    @set
+    
     def maxlambda(self, m):
         self.maxlambda = m
 
-    @set
+    
     def fraction(self, fraction):
         self.fraction = fraction
 
-    @set
+    
     def addFlux(self, addFlux):
         self.addFlux = addFlux
 
@@ -778,55 +778,54 @@ class XYGrid():
                      self.Topy = Topy
                      self.Bottomy = Bottomy
     
-    @set
+    
     def Nxtiles(self, x):
         self.Nxtiles = x
 
-    @set
+    
     def Nztiles(self, z):
         self.Nztiles = z
 
-    @set
+    
     def deltax(self, x):
         self.deltax = x
 
-    @set
+    
     def deltaz(self, z):
         self.deltaz = z
 
-    @set
+    
     def deltal(self, l):
         self.deltal = l
 
-    @set
+    
     def xmin(self, x):
         self.xmin = x
 
-    @set
+    
     def xmax(self, x):
         self.xmax = x
 
-    @set
+    
     def ymin(self, y):
         self.ymin = y
 
-    @set
+    
     def ymax(self, y):
         self.ymax = y
 
-    @set
+    
     def zmin(self, z):
         self.zmin = z
 
-    @set
     def zmax(self, z):
         self.zmax = z
 
-    @set
+    
     def Topy(self, y):
         self.Topy = y
 
-    @set
+    
     def Bottomy(self, y):
         self.Bottomy = y
 
@@ -853,43 +852,43 @@ class dataparams():
                      self.flux = flux
                      self.standdev = standdev
                      self.chisquare = chisquare
-    @set
+    
     def nbands(self, b):
         self.nbands = b
 
-    @set
+    
     def filename(self, filename):
         self.filename = filename
 
-    @set
+    
     def Filter(self, Filter):
         self.Filter = Filter
 
-    @set
+    
     def minlambda(self, minlambda):
         self.minlambda = minlambda
 
-    @set
+    
     def maxlambda(self, maxlambda):
         self.maxlambda = maxlambda
 
-    @set
+    
     def npointa(self, npoints):
         self.npoints = npoints
 
-    @set
+    
     def phase(self, phase):
         self.phase = phase
 
-    @set
+    
     def flux(self, flux):
         self.flux = flux
 
-    @set
+    
     def standdev(self, standdev):
         self.standdev = standdev
 
-    @set
+    
     def chisquare(self, chisquare):
         self.chisquare = chisquare
 

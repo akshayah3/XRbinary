@@ -5,9 +5,9 @@ Created on Tue Jul  5 12:05:51 2016
 """
 import sys
 import math
-from .utility import BBSquareIntensity, BBFilterIntensity
-from .parmeter import flowcontrol, wholediskpars, diskedgepars
-from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, globalvar
+from utility import BBSquareIntensity, BBFilterIntensity
+from parmeter import flowcontrol, wholediskpars, diskedgepars
+from parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, globalvar
 
 sigma = 5.6704e-5
 
@@ -169,16 +169,16 @@ class maindisk:
                 for i in range(diskrimpars.points):
                     zetalow = disktorusparams.PointZeta[i]
                     Tlow = disktorusparams.PointT[i]
-            if( i < disktorusparams.points ):
-                zetahigh = disktorusparams.PointZeta[i+1]
-                Thigh = disktorusparams.PointT[i+1]
-            else:
-                zetahigh = 2*math.pi
-                Thigh = disktorusparams.PointT[1]
-            if( (zeta >= zetalow) and (zeta < zetahigh) ):
-                slope = (Thigh - Tlow) / (zetahigh - zetalow)
-                temperature = Tlow + slope * (zeta - zetalow)
-                break
+                    if( i < disktorusparams.points ):
+                        zetahigh = disktorusparams.PointZeta[i+1]
+                        Thigh = disktorusparams.PointT[i+1]
+                    else:
+                        zetahigh = 2*math.pi
+                        Thigh = disktorusparams.PointT[1]
+                    if( (zeta >= zetalow) and (zeta < zetahigh) ):
+                        slope = (Thigh - Tlow) / (zetahigh - zetalow)
+                        temperature = Tlow + slope * (zeta - zetalow)
+                        break
         else:
             sys.exit("Unrecognized disk torus type in DiskTorusT.")
 
@@ -263,64 +263,64 @@ class maindisk:
 	          temperature = diskedgepars.Tspot
         return temperature
 
-    def DiskL(self):
-        """
-        Calculate the luminosity of the disk by adding up the fluxes from all 
-        its tiles.This function should not be used until after heating by 
-        irradiation has been calculated.  Note that the luminosity of the disk 
-        will be different from maindiskL if there are spots, edges, torii, etc.
-        on the disk.Also find the maximum and minimum temperatures of the disk
-        tiles on the top and bottom (not the edge) of the disk.
-        """
-        luminosity = 0.0;
-        wholediskpars.TopTmax = 0.0;
-        wholediskpars.TopTmin = 1.0e12;
-        for itile in range(wholediskpars.ntiles):
-            luminosity += sigma * globalvar.TDiskT4[itile] * globalvar.TDiskdS[itile]
-            if( globalvar.TDiska[itile] < 0.999 * self.amax ):
-                if( globalvar.TDiskT[itile] > wholediskpars.TopTmax ):
-                    wholediskpars.TopTmax = globalvar.TDiskT[itile]
-                if( globalvar.TDiskT[itile] < wholediskpars.TopTmin ):
-                    wholediskpars.TopTmin = globalvar.TDiskT[itile]
-        return luminosity
+def DiskL(self):
+    """
+    Calculate the luminosity of the disk by adding up the fluxes from all 
+    its tiles.This function should not be used until after heating by 
+    irradiation has been calculated.  Note that the luminosity of the disk 
+    will be different from maindiskL if there are spots, edges, torii, etc.
+    on the disk.Also find the maximum and minimum temperatures of the disk
+    tiles on the top and bottom (not the edge) of the disk.
+    """
+    luminosity = 0.0;
+    wholediskpars.TopTmax = 0.0;
+    wholediskpars.TopTmin = 1.0e12;
+    for itile in range(wholediskpars.ntiles):
+        luminosity += sigma * globalvar.TDiskT4[itile] * globalvar.TDiskdS[itile]
+        if( globalvar.TDiska[itile] < 0.999 * self.amax ):
+            if( globalvar.TDiskT[itile] > wholediskpars.TopTmax ):
+                wholediskpars.TopTmax = globalvar.TDiskT[itile]
+            if( globalvar.TDiskT[itile] < wholediskpars.TopTmin ):
+                wholediskpars.TopTmin = globalvar.TDiskT[itile]
+    return luminosity
 
-    def InnerDiskFlambda( Filter, minlambda, maxlambda):
-        """
-        This function returns the contribution of the inner disk to the
-        observed spectrum at wavelength lambda.  Note that the wavelengths
-        must be in centimeters but the returned flux is in
-        ergs/sec/cm^2/Angstrom.  The returned quantity must be 
-        multiplied by the geometric projection factor
-                    mu = cos( theta ) 
-        to get the observed quantity.
-        """
-        if( Filter == "SQUARE"):
-            flux = ( innerdiskpars.L / (2.0 * innerdiskpars.sigmaT4) )* BBSquareIntensity( innerdiskpars.T, minlambda, maxlambda )
-        else:
-            flux = ( innerdiskpars.L / (2.0 * innerdiskpars.sigmaT4) )* BBFilterIntensity( innerdiskpars.T, Filter )
+def InnerDiskFlambda( Filter, minlambda, maxlambda):
+    """
+    This function returns the contribution of the inner disk to the
+    observed spectrum at wavelength lambda.  Note that the wavelengths
+    must be in centimeters but the returned flux is in
+    ergs/sec/cm^2/Angstrom.  The returned quantity must be 
+    multiplied by the geometric projection factor
+    mu = cos( theta ) 
+    to get the observed quantity.
+    """
+    if( Filter == "SQUARE"):
+        flux = ( innerdiskpars.L / (2.0 * innerdiskpars.sigmaT4) )* BBSquareIntensity( innerdiskpars.T, minlambda, maxlambda )
+    else:
+        flux = ( innerdiskpars.L / (2.0 * innerdiskpars.sigmaT4) )* BBFilterIntensity( innerdiskpars.T, Filter )
 
-        return( flux )
+    return( flux )
 
 
-    def ADCTotFlux(distance):
-        """
-        This function returns the integrated flux from ONE of
-        the ADC points:
-        The integrated flux is just adc.L/2.0 diluted by the
-        area of the sphere around the ADC point.
-        """
-        totalflux = 0.5 * adcpars.L / (4*math.pi * distance * distance )
-        return( totalflux )
+def ADCTotFlux(distance):
+    """
+    This function returns the integrated flux from ONE of
+    the ADC points:
+    The integrated flux is just adc.L/2.0 diluted by the
+    area of the sphere around the ADC point.
+    """
+    totalflux = 0.5 * adcpars.L / (4*math.pi * distance * distance )
+    return( totalflux )
 
-    def InnerDiskTotFlux(distance):
-        """
-        This function returns the integrated flux from the inner disk.
-        The flux has been integrated over wavelength and over 
-        the surface of the disk.  The returned quantity must by
-        multiplied by the geometric projection factor 
-             mu = cos( theta ) 
-        to get the irradiating flux.  The factor is TWOPI
-        instead of FOURPI because of the mu factor.
-        """
-        totalflux = innerdiskpars.L / (2*math.pi * distance * distance )
-        return( totalflux )
+def InnerDiskTotFlux(distance):
+    """
+    This function returns the integrated flux from the inner disk.
+    The flux has been integrated over wavelength and over 
+    the surface of the disk.  The returned quantity must by
+    multiplied by the geometric projection factor 
+    mu = cos( theta ) 
+    to get the irradiating flux.  The factor is TWOPI
+    instead of FOURPI because of the mu factor.
+    """
+    totalflux = innerdiskpars.L / (2*math.pi * distance * distance )
+    return( totalflux )

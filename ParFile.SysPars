@@ -1,0 +1,79 @@
+STAR1=            OFF
+STAR2=            ON
+DISK=             ON
+DISKRIM=          OFF
+DISKTORUS=        OFF
+INNERDISK=        OFF
+DISKSPOTS=        OFF
+ADC=              OFF
+THIRDLIGHT=       OFF
+IRRADIATION=      OFF
+
+orbit.phasemin      =  -0.5000
+orbit.phasemax      =   0.5000
+orbit.deltaphase    =   0.0200
+orbit.maxpindex     =    50
+orbit.phaseoffset   =   0.0000
+  Bandpass    Type     Min Wavelength  Max Wavelength
+      1      SQUARE         6300            6700
+NORMALIZE=   MAXVALUE    1.0000e+00
+
+syspars.p           =   1.91980800e+04
+syspars.omega       =   3.27281963e-04
+syspars.K2          =   3.29747877e+02
+syspars.q           =   0.2500
+syspars.i           =   1.3963
+syspars.a           =   1.27884671e+11
+syspars.zcm         =   1.02307737e+11
+syspars.M1 (gm)     =   2.685e+33
+syspars.M2 (gm)     =   6.713e+32
+syspars.M1 (Msun)   =   1.350
+syspars.M2 (Msun)   =   0.338
+syspars.rL1         =   4.62845370e+10
+syspars.VL1         =  -3.33246973e+15
+syspars.MeanLobe1Radius =   0.5014
+syspars.MeanLobe2Radius =   0.2676
+
+star2.targetNtiles  =    5000
+star2.Ntiles        =    5002
+star2.frontradius   =   4.62845e+10
+star2.poleradius    =   3.17379e+10
+star2.sideradius    =   3.30284e+10
+star2.backradius    =   3.71979e+10
+star2.volume        =   1.66245e+32
+star2.meanr         =   3.41104e+10
+star2.meang         =  -3.459e+04
+star2.logg          =    4.539
+star2.meanT         =    500
+star2.beta          =   0.048
+star2.albedo        =    0.50
+star2.L             =   5.23475e+28
+
+disk.targetNtiles   =   20000
+disk.Ntiles         =   20226
+disk.e              =   0.000
+disk.zetazero       =    30.0
+disk.albedo         =    1.00
+disk.L              =   1.00228e+37
+disk.TopTmax        =   4.068e+05
+disk.TopTmin        =   5.126e+03
+
+maindisk.amin       =   6.3942e+06
+maindisk.amax       =   5.1154e+10
+maindisk.Hmax       =   5.1154e+09
+maindisk.Hpow       =   1.10
+maindisk.Ttype      =  POWERLAW
+maindisk.maindiskL  =   1.000e+37
+maindisk.Tamax      =   5.126e+03
+maindisk.Tamin      =   4.068e+05
+
+diskedge.T          =   5.000e+02
+diskedge.Tspot      =   5.000e+02
+diskedge.ZetaMid    =   110.0
+diskedge.ZetaWidth  =    20.0
+
+Observed Light Curve Data Files:
+                      Minimum     Maximum     Data
+  Bandpass   Type    Wavelength  Wavelength  Points    Filename
+      1     SQUARE      6300        6700         8   Sqlightcurve.dat
+      2        R                                20   Rlightcurve.dat

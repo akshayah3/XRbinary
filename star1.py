@@ -4,6 +4,7 @@ Created on Tue Jun 28 15:47:31 2016
 
 """
 import math
+from utility import BBFilterIntensity, BBSquareIntensity
 
 sigma = 5.6704e-5
 
@@ -73,7 +74,7 @@ class Star1:
         radius = 0.49 * x * x / ( 0.6 * x * x + math.log(1 + x) )
         return radius
 
-    def Star1Flambda(self, filter = "Square", minlambda, maxlambda):
+    def Star1Flambda(self, minlambda, maxlambda, filter = "Square"):
         """
         This function returns the contribution of star 1 to the observed 
         spectrum at wavelength lambda.  Note that the wavelengths must be in 

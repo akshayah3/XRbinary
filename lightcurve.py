@@ -11,14 +11,14 @@ MAXDISKTILES = 40506
 
 import math
 import sys
-from .utility import CartDotProd, BBSquareIntensity, BBFilterIntensity
-from .diagnose import InspectYlimits, InspectEscape, InspectHeat2ByADC, InspectHeatDiskBy1, InspectHeatDiskByID, InspectHeatDiskByADC, InspectHeat2By1, InspectHeat2ByID, InspectHeat2ByDisk
-from .diskgeom import DiskTopH, DiskBottomH, RhoToA
-from .diskflux import InnerDiskFlambda, InnerDiskTotFlux, ADCTotFlux
-from .star1 import  Star1Flambda, Star1TotFlux
-from .star2 import Star2, Star2TopY, ClaretHmu, GetIperp
-from .parmeter import flowcontrol, orbitparams, systemparams, wholediskpars
-from .parmeter import adcpars, thirdlightparams, XYGrid, dataparams, globalvar, CartVector
+from utility import CartDotProd, BBSquareIntensity, BBFilterIntensity
+from diagnose import InspectYlimits, InspectEscape, InspectHeat2ByADC, InspectHeatDiskBy1, InspectHeatDiskByID, InspectHeatDiskByADC, InspectHeat2By1, InspectHeat2ByID, InspectHeat2ByDisk
+from diskgeom import DiskTopH, DiskBottomH, RhoToA
+from diskflux import InnerDiskFlambda, InnerDiskTotFlux, ADCTotFlux
+from star1 import Star1
+from star2 import Star2
+from parmeter import flowcontrol, orbitparams, systemparams, wholediskpars
+from parmeter import adcpars, thirdlightparams, XYGrid, dataparams, globalvar, CartVector
 
 def MakeLightCurves():
     """
@@ -116,7 +116,7 @@ def FluxesAtPhase( phase, TotalFlux ):
         TotalFlux[band] = 0.0
 
         if( flowcontrol.star1 == "ON" ):
-            Star1Emitted = Star1Flambda( orbitparams.filter[band], 
+            Star1Emitted = Star1.Star1Flambda( orbitparams.filter[band], 
                                    orbitparams.minlambda[band],
                                    orbitparams.maxlambda[band] )
             star1flux = Star1Emitted * Star1Escape
@@ -140,7 +140,7 @@ def FluxesAtPhase( phase, TotalFlux ):
                         if( (globalvar.T2T[itile] > globalvar.IperpT[globalvar.maxIperpTindex]) or (globalvar.T2T[itile] < globalvar.IperpT[0]) ):
                             T2Emitted[itile] = globalvar.T2I[band][itile]*T2mu[itile] * globalvar.T2dS[itile]
                         else:
-                            T2Emitted[itile] = globalvar.T2I[band][itile]* ClaretHmu( globalvar.T2T[itile],globalvar.T2logg[itile],orbitparams.filter[band],T2mu[itile] )* T2mu[itile] * globalvar.T2dS[itile]
+                            T2Emitted[itile] = globalvar.T2I[band][itile]* Star2.ClaretHmu( globalvar.T2T[itile],globalvar.T2logg[itile],orbitparams.filter[band],T2mu[itile] )* T2mu[itile] * globalvar.T2dS[itile]
                     star2flux += T2Emitted[itile] * T2Escape[itile]
             TotalFlux[band] += star2flux
         if( flowcontrol.disk == "ON" ):
@@ -364,7 +364,7 @@ def Irradiate():
                 muA1toD[iDisktile] = CartDotProd( direction, 
                                                globalvar.TDisknormCart[iDisktile])
                 if( muA1toD[iDisktile] < 0.0 ):
-                    DeltaT41toD[iDisktile] = math.abs( Star1TotFlux( d )
+                    DeltaT41toD[iDisktile] = math.abs( Star1.Star1TotFlux( d )
                                             * muA1toD[iDisktile]
                                             / SIGMA )
                     transmit1toD[iDisktile] = Transmission( start, end )
@@ -514,7 +514,7 @@ def Irradiate():
                     direction.z = delta.z / d
                     muA1to2[i2tile] = CartDotProd( direction, globalvar.T2normCart[i2tile] )
                     if( muA1to2[i2tile] < 0.0 ):
-                        DeltaT41to2[i2tile] = math.abs( Star1TotFlux( d )
+                        DeltaT41to2[i2tile] = math.abs( Star1.Star1TotFlux( d )
                                            * muA1to2[i2tile] 
                                            / SIGMA )
                         transmit1to2[i2tile] = Transmission( start, end)
@@ -680,7 +680,7 @@ def Irradiate():
                                 globalvar.T2I[band][i2tile] = BBFilterIntensity( globalvar.T2T[i2tile], 
                                                      orbitparams.filter[band])
                             else:
-                                globalvar.T2I[band][i2tile] = GetIperp( globalvar.T2T[i2tile], globalvar.T2logg[i2tile], 
+                                globalvar.T2I[band][i2tile] = Star2.GetIperp( globalvar.T2T[i2tile], globalvar.T2logg[i2tile], 
                                            orbitparams.filter[band])
 
                 if( flowcontrol.diagnostics == "INSPECTHEATING"):
@@ -876,7 +876,7 @@ def MakeYlimits():
             z = XYGrid.zmin + (iz - 1) * XYGrid.deltaz
             if( z < systemparams.rL1 ):
                 if( flowcontrol.star2 == "ON" ):
-	               XYGrid.Topy[ix][iz] = Star2TopY( x, z )
+	               XYGrid.Topy[ix][iz] = Star2.Star2TopY( x, z )
 	               XYGrid.Bottomy[ix][iz] = -XYGrid.Topy[ix][iz]
             else:
                 if( flowcontrol.disk == "ON" ):

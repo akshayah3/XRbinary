@@ -3,13 +3,13 @@
 All the input functions are in this file.
 """
 import sys
-from .diskflux import maindisk
-from .star1 import Star1
-from .star2 import Star2
-from .fitdata import ReadData 
-from .diagnose import InspectInput
-from .parmeter import CartVector, CylVector, SphereVector, filenames, flowcontrol, orbitparams, systemparams, star2spotparams, wholediskpars, diskedgepars
-from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, dataparams, globalvar
+from diskflux import maindisk
+from star1 import Star1
+from star2 import Star2
+from fitdata import ReadData 
+from diagnose import InspectInput
+from parmeter import CartVector, CylVector, SphereVector, filenames, flowcontrol, orbitparams, systemparams, star2spotparams, wholediskpars, diskedgepars
+from parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, dataparams, globalvar
 
 global verbose 
 MAXBANDPASSES  = 21
