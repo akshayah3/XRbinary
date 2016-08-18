@@ -4,7 +4,12 @@ All functions concerned with the secondary star (the lobe-filling star or
 "star 2") of the binary system are in this file.
 """
 
+G  = 6.6742e-8
+SIGMA = 5.6704e-5
+import sys
 import math
+from .parmeter import systemparams
+from .parmeter import XYGrid, globalvar
 
 class star2:
     targetNtiles = None
@@ -44,13 +49,13 @@ class star2:
         """
         l = math.sin(theta) * math.cos(phi);
         n = math.cos(theta);
-        r1 = math.sqrt( syspars.a * syspars.a  +  r * r  - 2.0 * syspars.a  * r * n )
+        r1 = math.sqrt( systemparams.a * systemparams.a  +  r * r  - 2.0 * systemparams.a  * r * n )
         r2 = r
         if (r1 <= 0.0) or (r2 <= 0.0):
             print("Failure in function V.")
-        rho = math.sqrt( (r*l)*(r*l) + (r*n - syspars.zcm)*(r*n - syspars.zcm) )
-        potential =   syspars.a / r1 + syspars.q * syspars.a / r2 + 0.5 * (1 + syspars.q) * (rho / syspars.a) * (rho / syspars.a)
-        potential = -(G * syspars.M1 / syspars.a) * potential
+        rho = math.sqrt( (r*l)*(r*l) + (r*n - systemparams.zcm)*(r*n - systemparams.zcm) )
+        potential =   systemparams.a / r1 + systemparams.q * systemparams.a / r2 + 0.5 * (1 + systemparams.q) * (rho / systemparams.a) * (rho / systemparams.a)
+        potential = -(G * systemparams.M1 / systemparams.a) * potential
         return potential
 
     def gradV(self, r, theta, phi):
@@ -60,7 +65,7 @@ class star2:
         spherical polar coordinates.
         """  
         epsilon    = 1.0e-7
-        deltar     = epsilon * syspars.a
+        deltar     = epsilon * systemparams.a
         deltatheta = epsilon * math.pi
         deltaphi   = epsilon * (math.pi*2)
 
@@ -102,15 +107,15 @@ class star2:
         This function finds the position of the inner Lagrangian point.
         """
         epsilon = 1.0e-7;
-        epsilonr = epsilon * syspars.a;
-        rOld = 0.5 * syspars.a;
+        epsilonr = epsilon * systemparams.a;
+        rOld = 0.5 * systemparams.a;
         for i in range(500):
             delVplus, _, _  = self.gradV( rOld + epsilonr, 0.0, 0.0)
             delVminus, _, _ = self.gradV( rOld - epsilonr, 0.0, 0.0)
             slope = (delVplus - delVminus) / (2.0 * epsilonr)
             deltar = 0.5 * (delVplus + delVminus) / slope
             r = rOld - deltar
-            if (r <= 0.0) or (r >= syspars.a):
+            if (r <= 0.0) or (r >= systemparams.a):
                 print("FindL1 failed.")
             if i == 500:
                 print("Too many iterations in function FindL1.")
@@ -127,11 +132,11 @@ class star2:
         fraction of a. NOTE: This function only works if the target potential 
         is less than the potential at the Roche lobe.
         """
-        if( Vtarget > syspars.VL1 ): 
+        if( Vtarget > systemparams.VL1 ): 
             print("Attempted to find a point outside the Roche lobe in findR).")
 
-        epsilonr = 1.0e-7 * syspars.a
-        r = 0.8 * syspars.rL1
+        epsilonr = 1.0e-7 * systemparams.a
+        r = 0.8 * systemparams.rL1
         for i in range(100):
             if i ==100:
                 print("Too many iterations in findR.")
@@ -140,13 +145,13 @@ class star2:
             Vzero  = self.V( r,           theta, phi)
             slope = (Vplus - Vminus) / (2.0 * epsilonr)
             if slope == 0.0:
-                slope = 100.0 * Vzero / syspars.a
+                slope = 100.0 * Vzero / systemparams.a
             deltar = (Vtarget - Vzero) / slope
             if( math.abs(deltar) > (0.05 * r) ): 
                 deltar = (0.05 * r) * (deltar / math.abs(deltar))
             r = r + deltar 
-            if( r >= syspars.rL1 ):
-                r = syspars.rL1
+            if( r >= systemparams.rL1 ):
+                r = systemparams.rL1
             x = math.abs( (Vtarget - self.V(r, theta, phi)) / Vtarget )
             if( x <= 1.0e-6 ):
                 break
@@ -171,9 +176,9 @@ class star2:
         This function returns the value of y at the surface of star 2 for (x,z)
         """
         converge = 1.0e-6
-        Vtarget = syspars.VL1
+        Vtarget = systemparams.VL1
 
-        if( z >= syspars.rL1 ):
+        if( z >= systemparams.rL1 ):
             topy = 0.0
             return topy
         r = math.sqrt( x*x + z*z )
@@ -188,8 +193,8 @@ class star2:
             topy = 0.0
             return topy
 
-        epsilony = 1.0e-7 * syspars.a
-        y = 0.5 * syspars.rL1
+        epsilony = 1.0e-7 * systemparams.a
+        y = 0.5 * systemparams.rL1
         for i in range(150):
             if i == 149:
 	           print( x, z, y)
@@ -225,13 +230,13 @@ class star2:
 
         slope = (Vplus - Vminus) / (yplus - yminus)
         if(slope == 0.0):
-            slope = 100.0 * Vzero / syspars.a
+            slope = 100.0 * Vzero / systemparams.a
         deltay = (Vtarget - Vzero) / slope
         if( math.abs(deltay) > (0.05 * y) ): 
             deltay = (0.05 * y) * ( deltay / math.abs( deltay ) )
         y = y + deltay 
-        if( y > (1.01 * Grid.ymax) ):
-            y = 1.01 * Grid.ymax
+        if( y > (1.01 * XYGrid.ymax) ):
+            y = 1.01 * XYGrid.ymax
         if( y < 0.0 ):
 	       y = 0.0
         topy = y 
@@ -245,26 +250,26 @@ class star2:
         gravity darkening law is:
         Teff = <Teff> * ( g / <g> )^beta
         """
-        if( maxGDindex == 1):
-            beta = 0.25 * fourbeta[1]
+        if( globalvar.maxGDindex == 1):
+            beta = 0.25 * globalvar.fourbeta[1]
             return( beta )
-        if( star2.meanT <= GDT[0] ):
-             beta = 0.25 * fourbeta[1]
+        if( star2.meanT <= globalvar.GDT[0] ):
+             beta = 0.25 * globalvar.fourbeta[1]
              return( beta )
-        if( star2.meanT >= GDT[maxGDindex] ):
-            beta = 0.25 * fourbeta[maxGDindex]
+        if( star2.meanT >= globalvar.GDT[globalvar.maxGDindex] ):
+            beta = 0.25 * globalvar.fourbeta[globalvar.maxGDindex]
             return( beta )      
-        for i in range(0, maxGDindex):
-            if( (star2.meanT >= GDT[i]) and (star2.meanT < GDT[i+1]) ):
+        for i in range(0, globalvar.maxGDindex):
+            if( (star2.meanT >= globalvar.GDT[i]) and (star2.meanT < globalvar.GDT[i+1]) ):
                 ilow = i
                 ihigh = i + 1
                 break
 
-        if( GDT[ihigh] == GDT[ilow] ):
-            beta = 0.25 * fourbeta[ilow]
+        if( globalvar.GDT[ihigh] == globalvar.GDT[ilow] ):
+            beta = 0.25 * globalvar.fourbeta[ilow]
             return( beta )
-        slope = ( fourbeta[ihigh] - fourbeta[ilow] ) / ( GDT[ihigh] - GDT[ilow] )
-        beta = fourbeta[ilow] + slope * ( star2.meanT - GDT[ilow] )
+        slope = ( globalvar.fourbeta[ihigh] - globalvar.fourbeta[ilow] ) / ( globalvar.GDT[ihigh] - globalvar.GDT[ilow] )
+        beta = globalvar.fourbeta[ilow] + slope * ( star2.meanT - globalvar.GDT[ilow] )
         beta = 0.25 * beta;
 
         return( beta )
@@ -278,34 +283,34 @@ class star2:
         It does interpolate in mu.
         """
         findex = -1
-        for i in range(0, maxLDfilterindex):
-            if( LDfilterName[i] == Filter):
+        for i in range(0, globalvar.maxLDfilterindex):
+            if( globalvar.LDfilterName[i] == Filter):
                 findex = i
                 break
         if( findex == -1 ):
-            Quit("Unknown filter name in ClaretHmu.")
+            sys.exit("Unknown filter name in ClaretHmu.")
 
-        if( T <= LDT[0] ):
+        if( T <= globalvar.LDT[0] ):
             Tindex = 0
-        elif( T >= LDT[maxLDTindex] ):
-            Tindex = maxLDTindex
+        elif( T >= globalvar.LDT[globalvar.maxLDTindex] ):
+            Tindex = globalvar.maxLDTindex
         else:
-            deltaT = LDT[1] - LDT[0]
-            Tindex = 0.5 + ( T - LDT[0] ) / deltaT
-        if( logg <= LDlogg[0] ):
+            deltaT = globalvar.LDT[1] - globalvar.LDT[0]
+            Tindex = 0.5 + ( T - globalvar.LDT[0] ) / deltaT
+        if( logg <= globalvar.LDlogg[0] ):
             gindex = 0
-        elif( logg >= LDlogg[maxLDgindex] ):
-            gindex = maxLDgindex
+        elif( logg >= globalvar.LDlogg[globalvar.maxLDgindex] ):
+            gindex = globalvar.maxLDgindex
         else:
-            deltag =  LDlogg[1] - LDlogg[0]
-            gindex = 0.5 + ( logg - LDlogg[0] ) / deltag
+            deltag =  globalvar.LDlogg[1] - globalvar.LDlogg[0]
+            gindex = 0.5 + ( logg - globalvar.LDlogg[0] ) / deltag
 
-        a1 = LDtable[gindex][Tindex][findex][1]
-        a2 = LDtable[gindex][Tindex][findex][2]
-        a3 = LDtable[gindex][Tindex][findex][3]
-        a4 = LDtable[gindex][Tindex][findex][4]
+        a1 = globalvar.LDtable[gindex][Tindex][findex][1]
+        a2 = globalvar.LDtable[gindex][Tindex][findex][2]
+        a3 = globalvar.LDtable[gindex][Tindex][findex][3]
+        a4 = globalvar.LDtable[gindex][Tindex][findex][4]
         if( mu < 0.0 ):
-            Quit("mu less than zero in ClaretHmu.")
+            sys.exit("mu less than zero in ClaretHmu.")
         sqrtmu = math.sqrt( mu )
         h = 1.0 - a1 * (1.0 - sqrtmu)    - a2 * (1.0 - mu) - a3 * (1.0 - mu*sqrtmu) - a4 * (1.0 - mu*mu)
         return ( h )
@@ -318,40 +323,40 @@ class star2:
         and log(g).
         """
         findex = -1
-        for i in range(0, maxIperpfilterindex):
-            if( IperpfilterName[i] == Filter):
+        for i in range(0, globalvar.maxIperpfilterindex):
+            if( globalvar.IperpfilterName[i] == Filter):
                 findex = i
                 break
         if( findex == -1 ):
-            Quit("Unknown filter name in GetIperp.")
+            sys.exit("Unknown filter name in GetIperp.")
 
-        if( T <= IperpT[0] ):
-            Quit("T out of range (too low) in GetIperp.")
-        elif( T >= IperpT[maxIperpTindex] ):
-            Quit("T out of range (too high) in GetIperp.")
+        if( T <= globalvar.IperpT[0] ):
+            sys.exit("T out of range (too low) in GetIperp.")
+        elif( T >= globalvar.IperpT[globalvar.maxIperpTindex] ):
+            sys.exit("T out of range (too high) in GetIperp.")
         else:
-            deltaT = IperpT[1] - IperpT[0]
-            Tindex1 = ( T - IperpT[0] + 0.1 ) / deltaT
+            deltaT = globalvar.IperpT[1] - globalvar.IperpT[0]
+            Tindex1 = ( T - globalvar.IperpT[0] + 0.1 ) / deltaT
             Tindex2 = Tindex1 + 1
-            weightT2 = ( T - IperpT[Tindex1] ) / deltaT
+            weightT2 = ( T - globalvar.IperpT[Tindex1] ) / deltaT
             weightT1 = 1.0 - weightT2
-        if( logg <= Iperplogg[0] ):
+        if( logg <= globalvar.Iperplogg[0] ):
             gindex1 = 0
             gindex2 = 0
             weightg1 = 1.0
             weightg2 = 0.0
-        elif( logg >= Iperplogg[maxIperpgindex] ):
-            gindex1 = maxIperpgindex
-            gindex2 = maxIperpgindex
+        elif( logg >= globalvar.Iperplogg[globalvar.maxIperpgindex] ):
+            gindex1 = globalvar.maxIperpgindex
+            gindex2 = globalvar.maxIperpgindex
             weightg1 = 0.0
             weightg2 = 1.0
         else:
-            deltag =  Iperplogg[1] - Iperplogg[0]
-            gindex1 = ( logg - Iperplogg[0] + 0.1 ) / deltag
+            deltag =  globalvar.Iperplogg[1] - globalvar.Iperplogg[0]
+            gindex1 = ( logg - globalvar.Iperplogg[0] + 0.1 ) / deltag
             gindex2 = gindex1 + 1
-            weightg2 = ( logg - Iperplogg[gindex1] ) / deltag
+            weightg2 = ( logg - globalvar.Iperplogg[gindex1] ) / deltag
             weightg1 = 1.0 - weightg2
-        intensity =  weightg1 * weightT1 * Iperptable[gindex1][Tindex1][findex] + weightg1 * weightT2 * Iperptable[gindex1][Tindex2][findex]+ weightg2 * weightT1 * Iperptable[gindex2][Tindex1][findex]+ weightg2 * weightT2 * Iperptable[gindex2][Tindex2][findex]
+        intensity =  weightg1 * weightT1 * globalvar.Iperptable[gindex1][Tindex1][findex] + weightg1 * weightT2 * globalvar.Iperptable[gindex1][Tindex2][findex]+ weightg2 * weightT1 * globalvar.Iperptable[gindex2][Tindex1][findex]+ weightg2 * weightT2 * globalvar.Iperptable[gindex2][Tindex2][findex]
 
         return( intensity )
 
@@ -364,6 +369,6 @@ class star2:
         """
         luminosity = 0.0
         for itile in range(1, star2.Ntiles):
-            luminosity += SIGMA * pow( T2T[itile], 4.0) * T2dS[itile]
+            luminosity += SIGMA * pow( globalvar.T2T[itile], 4.0) * globalvar.T2dS[itile]
 
         return( luminosity )

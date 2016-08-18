@@ -8,7 +8,7 @@ from .diskflux import maindisk
 from .star1 import Star1
 from .star2 import Star2
 from .parmeter import filenames, flowcontrol, orbitparams, systemparams, star2spotparams, wholediskpars, diskedgepars
-from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, XYGrid, dataparams, ReadInput
+from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, dataparams, globalvar
 
 def Quit(outputline):
     print("\n   {}\n", outputline)
@@ -73,9 +73,9 @@ def WriteLightCurves():
     out.write("%s" %outputline)
 
     for i in range(0, orbitparams.maxpindex):
-        outputline = "    {} ".format(LCphase[i])
+        outputline = "    {} ".format(globalvar.LCphase[i])
         for band in range(1, orbitparams.nbands):
-            dummy =  " {}  {}".format( LCflux[band][i], NormLC[band][i])
+            dummy =  " {}  {}".format( globalvar.LCflux[band][i], globalvar.NormLC[band][i])
             outputline += dummy
         outputline += "\n"
         out.write("%s"% (outputline))

@@ -3,12 +3,11 @@
 Created on Tue Jul  5 12:05:51 2016
 
 """
-
+import sys
 import math
-from .star1 import Star1
-from .star2 import Star2
-from .parmeter import filenames, flowcontrol, orbitparams, systemparams, star2spotparams, wholediskpars, diskedgepars
-from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, XYGrid, dataparams, ReadInput
+from .utility import BBSquareIntensity, BBFilterIntensity
+from .parmeter import flowcontrol, wholediskpars, diskedgepars
+from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, globalvar
 
 sigma = 5.6704e-5
 
@@ -276,13 +275,13 @@ class maindisk:
         luminosity = 0.0;
         wholediskpars.TopTmax = 0.0;
         wholediskpars.TopTmin = 1.0e12;
-        for i in range(wholediskpars.ntiles):
-            luminosity += sigma * TDiskT4[i] * TDiskdS[i]
-            if( TDiska[itile] < 0.999 * self.amax ):
-                if( TDiskT[itile] > wholediskpars.TopTmax ):
-                    wholediskpars.TopTmax = TDiskT[itile]
-                if( TDiskT[itile] < wholediskpars.TopTmin ):
-                    wholediskpars.TopTmin = TDiskT[itile]
+        for itile in range(wholediskpars.ntiles):
+            luminosity += sigma * globalvar.TDiskT4[itile] * globalvar.TDiskdS[itile]
+            if( globalvar.TDiska[itile] < 0.999 * self.amax ):
+                if( globalvar.TDiskT[itile] > wholediskpars.TopTmax ):
+                    wholediskpars.TopTmax = globalvar.TDiskT[itile]
+                if( globalvar.TDiskT[itile] < wholediskpars.TopTmin ):
+                    wholediskpars.TopTmin = globalvar.TDiskT[itile]
         return luminosity
 
     def InnerDiskFlambda( Filter, minlambda, maxlambda):

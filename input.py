@@ -763,7 +763,7 @@ def ReadLDTable():
     if( (findex < 0) or (findex > maxLDfilterindex) ):
         sys.exit("Unrecognized filter name in ReadLDTable.")
     for i in range(1,4):
-        LDtable[gindex][Tindex][findex][i] = a[i]
+        globalvar.LDtable[gindex][Tindex][findex][i] = a[i]
     out.close()
     return
 
@@ -841,7 +841,7 @@ def ReadIperpTable():
         if( (Tindex < 0) or (Tindex > maxIperpTindex) ):
             sys.exit("Tindex out of range in ReadIperpTable.")
         for findex in range(0, maxIperpfilterindex):
-            Iperptable[gindex][Tindex][findex] = xIperp[findex]
+            globalvar.Iperptable[gindex][Tindex][findex] = xIperp[findex]
     out.close()
 
     return
@@ -888,7 +888,7 @@ def ReadIBBfilterTable():
             IBBfilterName[5] = float(c[6])
             IBBfilterName[6] = float(c[8])
             IBBfilterName[7] = float(c[9])
-            maxLDfilterindex = nfilters - 1
+            globalvar.maxLDfilterindex = nfilters - 1
             if( globalvar.maxIBBfilterindex > (MAXFILTERS - 1) ):
 	          sys.exit("Too many filters in the LD table.")
             break
@@ -908,7 +908,7 @@ def ReadIBBfilterTable():
     if( (Tindex < 0) or (Tindex > globalvar.maxIBBTindex) ):
         sys.exit("Tindex out of range in ReadIBBTable.")
     for findex in range(0,globalvar.maxIBBfilterindex):
-         IBBtable[Tindex][findex] = xIBB[findex]
+         globalvar.IBBtable[Tindex][findex] = xIBB[findex]
     out.close()
 
     return

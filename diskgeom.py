@@ -8,8 +8,8 @@ import math
 from .diskflux import maindisk, DiskTopT, DiskEdgeT
 from .utility import BBSquareIntensity, BBFilterIntensity, Cyl2Cart
 from .diagnose import InspectDiskTiles 
-from .parmeter import filenames, flowcontrol, orbitparams, systemparams, star2spotparams, wholediskpars, diskedgepars
-from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, XYGrid, dataparams, ReadInput, globalvar, CyclVector
+from .parmeter import flowcontrol, orbitparams, systemparams, wholediskpars
+from .parmeter import diskrimpars, disktorusparams, globalvar, CyclVector
 
 MAXDISKTILES = 40506
 
@@ -172,7 +172,7 @@ def MakeDiskTiles():
             globalvar.TDisknormCart[tilenumber] = Cyl2Cart( globalvar.TDisknormCyl[tilenumber],
                                                       zeta )
             globalvar.TDiskdS[tilenumber] = EdgeTileArea( tilenumber, zeta1, zeta2, dh)
-            TDiskT[tilenumber] = DiskEdgeT( zeta )
+            globalvar.TDiskT[tilenumber] = DiskEdgeT( zeta )
             globalvar.TDiskT4[tilenumber] = math.pow( globalvar.TDiskT[tilenumber], 4.0)
     edgetiles = tilenumber - maintiles
    
@@ -196,12 +196,12 @@ def MakeDiskTiles():
         globalvar.TDisky[i+tilenumber]    = -globalvar.TDisky[i]
         globalvar.TDiskz[i+tilenumber]    =  globalvar.TDiskz[i]
         globalvar.TDiskdS[i+tilenumber]   =  globalvar.TDiskdS[i]
-        TDisknormCyl[i+tilenumber].rho  =  TDisknormCyl[i].rho
-        TDisknormCyl[i+tilenumber].zeta =  TDisknormCyl[i].zeta
-        TDisknormCyl[i+tilenumber].h    = -TDisknormCyl[i].h
-        TDisknormCart[i+tilenumber].x   =  TDisknormCart[i].x
-        TDisknormCart[i+tilenumber].y   = -TDisknormCart[i].y
-        TDisknormCart[i+tilenumber].z   =  TDisknormCart[i].z
+        globalvar.TDisknormCyl[i+tilenumber].rho  =  globalvar.TDisknormCyl[i].rho
+        globalvar.TDisknormCyl[i+tilenumber].zeta =  globalvar.TDisknormCyl[i].zeta
+        globalvar.TDisknormCyl[i+tilenumber].h    = -globalvar.TDisknormCyl[i].h
+        globalvar.TDisknormCart[i+tilenumber].x   =  globalvar.TDisknormCart[i].x
+        globalvar.TDisknormCart[i+tilenumber].y   = -globalvar.TDisknormCart[i].y
+        globalvar.TDisknormCart[i+tilenumber].z   =  globalvar.TDisknormCart[i].z
         globalvar.TDiskT[i+tilenumber]  = globalvar.TDiskT[i]
         globalvar.TDiskT4[i+tilenumber] = globalvar.TDiskT4[i]
     wholediskpars.Ntiles = 2 * tilenumber
@@ -219,12 +219,12 @@ def MakeDiskTiles():
     for band in range(1, orbitparams.nbands):
         if( orbitparams.filter[band] == "SQUARE"):
             for i in range(1, wholediskpars.Ntiles):
-                TDiskI[band][i] = BBSquareIntensity( TDiskT[i], 
+                globalvar.TDiskI[band][i] = BBSquareIntensity( globalvar.TDiskT[i], 
                                   orbitparams.minlambda[band],
                                   orbitparams.maxlambda[band])
         else:
             for i in range(1, wholediskpars.Ntiles):
-                TDiskI[band][i] = BBFilterIntensity( 
+                globalvar.TDiskI[band][i] = BBFilterIntensity( 
                                   globalvar.TDiskT[i], orbitparams.filter[band])
 
     if( flowcontrol.diagnostics == "INSPECTDISKTILES"):
@@ -495,9 +495,9 @@ def TopTileArea( itile, a1, a2, zeta1, zeta2):
     rho2 = AToRho( a2, zeta)
     flatarea = math.pi * (rho2*rho2 - rho1*rho1) * ( dzeta / 2*math.pi )
 
-    if( TDisknormCyl[itile].h == 0.0 ):
+    if( globalvar.TDisknormCyl[itile].h == 0.0 ):
         sys.exit("TDisknormCyl.h equals zero in TopTileArea.")
-    Area = flatarea / TDisknormCyl[itile].h
+    Area = flatarea / globalvar.TDisknormCyl[itile].h
 
     return( Area )
 
@@ -516,9 +516,9 @@ def EdgeTileArea( itile, zeta1, zeta2, dh):
 
     flatarea = globalvar.TDiskRho[itile] * dzeta * dh
 
-    if( TDisknormCyl[itile].rho == 0.0 ):
+    if( globalvar.TDisknormCyl[itile].rho == 0.0 ):
         sys.exit("TDisknormCyl.rho equals zero in EdgeTileArea.")
-    Area = flatarea / TDisknormCyl[itile].rho
+    Area = flatarea / globalvar.TDisknormCyl[itile].rho
 
     return( Area )
 

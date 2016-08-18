@@ -8,7 +8,7 @@ import sys
 from .diskflux import maindisk
 from .star1 import Star1
 from .star2 import Star2
-from .parmeter import filenames, flowcontrol, orbitparams, systemparams, star2spotparams, wholediskpars, diskedgepars
+from .parmeter import flowcontrol, orbitparams, systemparams, wholediskpars, diskedgepars
 from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, XYGrid, dataparams, globalvar
 
 
@@ -230,7 +230,7 @@ def WriteLDTable():
     outputline = "     %2ld  "% (nfilters)
     for findex in range(0, globalvar.maxLDfilterindex):
         outputline +=  " "
-        outputline += LDfilterName[findex]
+        outputline += globalvar.LDfilterName[findex]
     outputline += "\n"
     out.write("%s"% outputline)
 
@@ -238,11 +238,11 @@ def WriteLDTable():
         for gindex in range(0, globalvar.maxLDgindex):
             for findex in range(0, globalvar.maxLDfilterindex):
                 out.write( " %5.1f  %5.0f  %s   %7.4f   %7.4f   %7.4f   %7.4f\n"%
-		   globalvar.LDlogg[gindex], globalvar.LDT[Tindex], LDfilterName[findex],
-			  LDtable[gindex][Tindex][findex][1],
-			  LDtable[gindex][Tindex][findex][2],
-			  LDtable[gindex][Tindex][findex][3],
-			  LDtable[gindex][Tindex][findex][4])
+		   globalvar.LDlogg[gindex], globalvar.LDT[Tindex], globalvar.LDfilterName[findex],
+			  globalvar.LDtable[gindex][Tindex][findex][1],
+			  globalvar.LDtable[gindex][Tindex][findex][2],
+			  globalvar.LDtable[gindex][Tindex][findex][3],
+			  globalvar.LDtable[gindex][Tindex][findex][4])
     out.close()
 
     return
@@ -267,7 +267,7 @@ def WriteIperpTable():
     outputline = "     %2ld  "%(nfilters)
     for findex in range(0, globalvar.maxIperpfliterindex):
         outputline +=  " "
-        outputline += IperpfilterName[findex]
+        outputline += globalvar.IperpfilterName[findex]
     outputline += "\n"
     out.write("%s"% outputline)
 
@@ -275,7 +275,7 @@ def WriteIperpTable():
         for gindex in range(0, globalvar.maxIperpgindex):
             outputline = "%5.0f %4.2f"% (globalvar.IperpT[Tindex], globalvar.Iperplogg[gindex])
             for findex in range(0, globalvar.maxIperpfilterindex):
-                dummy = "  %10.3e"% (Iperptable[gindex][Tindex][findex])
+                dummy = "  %10.3e"% (globalvar.Iperptable[gindex][Tindex][findex])
                 outputline +=  dummy
             outputline += ("\n")
             out.write("%s"% outputline)
@@ -299,14 +299,14 @@ def WriteIBBfilterTable():
     outputline = "     %2ld  "% (nfilters)
     for findex in range(0, globalvar.maxIBBfilterindex):
         outputline +=  " "
-        outputline += IBBfilterName[findex]
+        outputline += globalvar.IBBfilterName[findex]
     outputline += "\n"
     out.write("%s"% outputline)
 
     for Tindex in range(0, globalvar.maxIBBTindex):
         outputline =  "%7.0f"% (globalvar.IBBT[Tindex])
         for findex in range(0, globalvar.maxIBBfilterindex):
-            dummy =  "  %10.3e"% (IBBtable[Tindex][findex])
+            dummy =  "  %10.3e"% (globalvar.IBBtable[Tindex][findex])
             outputline +=  dummy
     outputline +=  "\n"
     out.write("%s"% outputline)
@@ -375,7 +375,7 @@ def InspectStar2Tiles():
     out.write( "  tile    T2gradV.r   T2gradV.t   T2gradV.p\n")
     for i in range(1, Star2.Ntiles):
         out.write( "%6ld   %10.3e  %10.3e  %10.3e\n"%
-	       i, T2gradV[i].r, T2gradV[i].theta, T2gradV[i].phi)
+	       i, globalvar.T2gradV[i].r, globalvar.T2gradV[i].theta, globalvar.T2gradV[i].phi)
 
     out.close()
 
@@ -388,8 +388,8 @@ def InspectStar2Tiles():
     out.write( "  tile normSphere.r normSphere.t normSphere.p normCart.x normCart.y normCart.z\n")
     for i in range(1, Star2.Ntiles):
         out.write( "%6ld  %9.6f     %8.5f     %8.5f   %8.5f   %8.5f   %8.5f\n"%
-            i, T2normSphere[i].r, T2normSphere[i].theta, T2normSphere[i].phi,
-               T2normCart[i].x, T2normCart[i].y, T2normCart[i].z)
+            i, globalvar.T2normSphere[i].r, globalvar.T2normSphere[i].theta, globalvar.T2normSphere[i].phi,
+               globalvar.T2normCart[i].x, globalvar.T2normCart[i].y, globalvar.T2normCart[i].z)
 
     out.close()
 
@@ -429,7 +429,7 @@ def InspectStar2Tiles():
     for i in range(1, Star2.Ntiles):
         outputline =  "  %6ld "% (i)
         for band in range(1, orbitparams.nbands):
-            dummy =  " %10.3e "% T2I[band][i]
+            dummy =  " %10.3e "% globalvar.T2I[band][i]
             outputline += dummy
         outputline += "\n"
         out.write("%s"% outputline)
@@ -560,8 +560,8 @@ def InspectDiskTiles( targetarea,
     out.write( "  Tile  normCyl.rho  normCyl.zeta   normCyl.h  normCart.x normCart.y normCart.z\n")
     for i in range(1, wholediskpars.Ntiles):
         out.write( "%6ld   %9.6f     %8.5f     %8.5f    %8.5f   %8.5f   %8.5f\n"%
-            i, TDisknormCyl[i].rho, TDisknormCyl[i].zeta, TDisknormCyl[i].h,
-               TDisknormCart[i].x,  TDisknormCart[i].y,   TDisknormCart[i].z)
+            i, globalvar.TDisknormCyl[i].rho, globalvar.TDisknormCyl[i].zeta, globalvar.TDisknormCyl[i].h,
+               globalvar.TDisknormCart[i].x,  globalvar.TDisknormCart[i].y,   globalvar.TDisknormCart[i].z)
     out.close()
 
     outfile = "DiskTilesC.inspect"
@@ -613,7 +613,7 @@ def InspectDiskTiles( targetarea,
     for i in range(1, wholediskpars.Ntiles):
         outputline =  "  %6ld "% i
         for band in range(1, orbitparams.nbands):
-            dummy =  " %10.3e "% (TDiskI[band][i])
+            dummy =  " %10.3e "% (globalvar.TDiskI[band][i])
             outputline +=  dummy
         outputline += "\n"
         out.write("%s"% outputline)

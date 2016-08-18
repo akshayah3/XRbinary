@@ -17,13 +17,14 @@ from .diskgeom import DiskTopH, DiskBottomH, RhoToA
 from .diskflux import InnerDiskFlambda, InnerDiskTotFlux, ADCTotFlux
 from .star1 import  Star1Flambda, Star1TotFlux
 from .star2 import Star2, Star2TopY, ClaretHmu, GetIperp
-from .parmeter import filenames, flowcontrol, orbitparams, systemparams, star2spotparams, wholediskpars, diskedgepars
-from .parmeter import diskrimpars, disktorusparams, diskspotpars, innerdiskpars, adcpars, thirdlightparams, XYGrid, dataparams, ReadInput, globalvar, CylVector, CartVector
+from .parmeter import flowcontrol, orbitparams, systemparams, wholediskpars
+from .parmeter import adcpars, thirdlightparams, XYGrid, dataparams, globalvar, CartVector
 
 def MakeLightCurves():
     """
     This function makes the orbital light curve.
     """
+    TotalFlux = [0 for i in range(22)]
     if( flowcontrol.thirdlight == "ON" ):
         if( globalvar.verbose == "ON" ):
             print(" Calculating third light fluxes.\n")
@@ -50,7 +51,7 @@ def MakeLightCurves():
     else:
         for band in range(1, orbitparams.nbands):
             for iphase in range(0, orbitparams.maxpindex):
-	           NormLC[band][iphase] = 0.0
+	           globalvar.NormLC[band][iphase] = 0.0
 
     return
 
@@ -129,7 +130,7 @@ def FluxesAtPhase( phase, TotalFlux ):
                     if( T2mu[itile] < 0.0 ):
                        T2Emitted[itile] = 0.0
                     else:
-   	                  T2Emitted[itile] =  T2I[band][itile]*T2mu[itile] * globalvar.T2dS[itile]
+   	                  T2Emitted[itile] =  globalvar.T2I[band][itile]*T2mu[itile] * globalvar.T2dS[itile]
                     star2flux += T2Emitted[itile] * T2Escape[itile]
             else:
                 for itile in range(1, Star2.Ntiles):
@@ -137,9 +138,9 @@ def FluxesAtPhase( phase, TotalFlux ):
 		             T2Emitted[itile] = 0.0
                     else:
                         if( (globalvar.T2T[itile] > globalvar.IperpT[globalvar.maxIperpTindex]) or (globalvar.T2T[itile] < globalvar.IperpT[0]) ):
-                            T2Emitted[itile] = T2I[band][itile]*T2mu[itile] * globalvar.T2dS[itile]
+                            T2Emitted[itile] = globalvar.T2I[band][itile]*T2mu[itile] * globalvar.T2dS[itile]
                         else:
-                            T2Emitted[itile] = T2I[band][itile]* ClaretHmu( globalvar.T2T[itile],globalvar.T2logg[itile],orbitparams.filter[band],T2mu[itile] )* T2mu[itile] * globalvar.T2dS[itile]
+                            T2Emitted[itile] = globalvar.T2I[band][itile]* ClaretHmu( globalvar.T2T[itile],globalvar.T2logg[itile],orbitparams.filter[band],T2mu[itile] )* T2mu[itile] * globalvar.T2dS[itile]
                     star2flux += T2Emitted[itile] * T2Escape[itile]
             TotalFlux[band] += star2flux
         if( flowcontrol.disk == "ON" ):
@@ -150,7 +151,7 @@ def FluxesAtPhase( phase, TotalFlux ):
                 if( TDiskmu[itile] < 0.0 ):
 	              TDiskEmitted[itile] = 0.0
                 else:
-   	              TDiskEmitted[itile] = TDiskI[band][itile] * TDiskmu[itile] * globalvar.TDiskdS[itile]
+   	              TDiskEmitted[itile] = globalvar.TDiskI[band][itile] * TDiskmu[itile] * globalvar.TDiskdS[itile]
                 diskflux += TDiskEmitted[itile] * TDiskEscape[itile]
             TotalFlux[band] += diskflux
             if( flowcontrol.innerdisk == "ON" ):
@@ -178,6 +179,7 @@ def ThirdLight():
     to be added to each bandpass.  The flux is actually added in
     function FluxesAtPhase().  
     """
+    TotalFlux = [0 for i in range(22)]
     FluxesAtPhase( thirdlightparams.orbphase, TotalFlux )
 
     for LCband in range(1, orbitparams.nbands):
@@ -213,17 +215,18 @@ def Normalize():
              and the calculated light curve.  This same normalization
              factor is then applied to all the calculated light curves.
     """
+    TotalFlux = [0 for i in range(22)]
     if( orbitparams.normalize == "MAXVALUE"):
         for band in range(1, orbitparams.nbands):
             maxflux = 0.0
             for iphase in range(0, orbitparams.maxpindex):
-                if( LCflux[band][iphase] > maxflux ):
-                    maxflux = LCflux[band][iphase]
+                if( globalvar.LCflux[band][iphase] > maxflux ):
+                    maxflux = globalvar.LCflux[band][iphase]
             if( maxflux == 0.0 ):
                 maxflux = 1.0
             normfactor = orbitparams.normvalue / maxflux
             for iphase in range(0, orbitparams.maxpindex):
-                NormLC[band][iphase] = normfactor * LCflux[band][iphase]
+                globalvar.NormLC[band][iphase] = normfactor * globalvar.LCflux[band][iphase]
     if( orbitparams.normalize == "FITDATA"):
         calcband = 0
         for band in range(1, orbitparams.nbands):
@@ -271,7 +274,7 @@ def Normalize():
         normfactor = sum1 / sum2
         for band in range(1, orbitparams.nbands):
             for iphase in range(0, orbitparams.maxpindex):
-                NormLC[band][iphase] = normfactor * LCflux[band][iphase]
+                globalvar.NormLC[band][iphase] = normfactor * globalvar.LCflux[band][iphase]
 
         dataparams.chisquare = 0.0
         for i in range(1, dataparams.npoints[databand]):
@@ -279,7 +282,7 @@ def Normalize():
             weight = 1.0 / ( dataparams.standdev[databand][i] 
                        * dataparams.standdev[databand][i] )
             error = dataparams.flux[databand][i] - normfactor * TotalFlux[calcband]
-            data.chisquare += weight * error * error
+            dataparams.chisquare += weight * error * error
         if( globalvar.verbose == "ON"): 
             print(" chi^2({}) = {}\n").format(dataparams.npoints[databand], 
 	       dataparams.chisquare)
@@ -668,16 +671,16 @@ def Irradiate():
                 for band in range(1, orbitparams.nbands):
                     if( orbitparams.filter[band] == "SQUARE"):
                         for i2tile in range(1, Star2.Ntiles):
-                            T2I[band][i2tile] = BBSquareIntensity( globalvar.T2T[i2tile], 
+                            globalvar.T2I[band][i2tile] = BBSquareIntensity( globalvar.T2T[i2tile], 
                                                  orbitparams.minlambda[band], 
                                                  orbitparams.maxlambda[band])
                     else:
                         for i2tile in range(1, Star2.Ntiles):
                             if( (globalvar.T2T[i2tile] > globalvar.IperpT[globalvar.maxIperpTindex]) or (globalvar.T2T[i2tile] < globalvar.IperpT[0]) ):
-                                T2I[band][i2tile] = BBFilterIntensity( globalvar.T2T[i2tile], 
+                                globalvar.T2I[band][i2tile] = BBFilterIntensity( globalvar.T2T[i2tile], 
                                                      orbitparams.filter[band])
                             else:
-                                T2I[band][i2tile] = GetIperp( globalvar.T2T[i2tile], globalvar.T2logg[i2tile], 
+                                globalvar.T2I[band][i2tile] = GetIperp( globalvar.T2T[i2tile], globalvar.T2logg[i2tile], 
                                            orbitparams.filter[band])
 
                 if( flowcontrol.diagnostics == "INSPECTHEATING"):

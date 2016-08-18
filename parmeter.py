@@ -187,10 +187,10 @@ class orbitparams():
     phaseoffset = None
     nbands = None
     filtermax = None
-    minlambda = []
-    maxlambda = []
-    normalize = None
-    normfilter = None
+    minlambda = [0 for i in range(22)]
+    maxlambda = [0 for i in range(22)]
+    normalize = [0 for i in range(21)]
+    normfilter = [0 for i in range(21)]
     normMinlambda = None
     normMaxlambda = None
     normvalue = None
@@ -353,10 +353,10 @@ class systemparams():
 
 class star2spotparams():
     nspots = None
-    theta = []
-    phi = []
-    radius = []
-    SpotoverStarT = None
+    theta = [0 for i in range(21)]
+    phi = [0 for i in range(21)]
+    radius = [0 for i in range(21)]
+    SpotoverStarT = [0 for i in range(21)]
     def __init__(self, nspots=None, theta=None, phi=None, radius=None, SpotToverStarT=None):
         self.nspots = nspots
         self.theta = theta
@@ -471,9 +471,9 @@ class diskrimpars():
     Tmin = None
     ZetaTmax = None
     points = None
-    PointZeta = []
-    PointH = []
-    PointT = []
+    PointZeta = [0 for i in range(102)]
+    PointH = [0 for i in range(102)]
+    PointT = [0 for i in rabge(102)]
     def __init__(self, Type=None, awidth=None, Hmax=None, Hmin=None, ZetaHmax=None,
                  Tmax=None, Tmin=None, ZetaTmax=None, points=None, PointZeta=None,
                  PointH=None, PointT=None):
@@ -547,9 +547,9 @@ class disktorusparams():
     Tmin = None
     ZetaTmax = None
     points = None
-    PointZeta = []
-    PointH = []
-    PointT = []
+    PointZeta = [0 for i in range(102)]
+    PointH = [0 for i in range(102)]
+    PointT = [0 for i in range(102)]
     azero = None
     def __init(self, Type=None, awidth=None, Hmax=None, Hmin=None, ZetaHmax=None,
                  Tmax=None, Tmin=None, ZetaTmax=None, points=None, PointZeta=None,
@@ -621,11 +621,11 @@ class disktorusparams():
 
 class diskspotpars():
     nspots = None
-    zetamin = []
-    zetamax = []
-    amin = []
-    amax = []
-    spotToverT = []
+    zetamin = [0 for i in range(21)]
+    zetamax = [0 for i in range(21)]
+    amin = [0 for i in range(21)]
+    amax = [0 for i in range(21)]
+    spotToverT = [0 for i in range(21)]
     def __init__(self, nspots=None, zetamin=None, zetamax=None, amin=None, amax=None,
                  spotToverT):
                      self.nspots = nspots
@@ -704,11 +704,11 @@ class adcpars():
 class thirdlightparams():
     orbphase = None
     nbands = None
-    Filter = []
-    minlambda = []
-    maxlambda = []
-    fraction = []
-    addFlux = None
+    Filter = None
+    minlambda = [0 for i in range(22)]
+    maxlambda = [0 for i in range(22)]
+    fraction = [0 for i in range(22)]
+    addFlux = [0 for i in range(22)]
     def __init__(self, orbphase=None, nbands=None, Filter=None, minlambda=None,
                  maxlambda=None, fraction=None, addFlux=None):
                      self.orbphase = orbphase
@@ -759,8 +759,8 @@ class XYGrid():
     ymax = None
     zmin = None
     zmax = None
-    Topy = []
-    Bottomy = []
+    Topy = [[0 for i in range(402)] for j in range(402)]
+    Bottomy = [[0 for i in range(402)] for j in range(402)]
     def __init__(self, Nxtiles=None, Nztiles=None, deltax=None, deltaz=None, deltal=None,
                  xmin=None, xmax=None, ymin=None, ymax=None, zmin=None, zmax=None,
                  Topy=[], Bottomy=[]):
@@ -832,14 +832,14 @@ class XYGrid():
 
 class dataparams():
     nbands = None
-    filename = []
-    Filter = []
-    minlambda = []
-    maxlambda = []
-    npoints = None
-    phase = []
-    flux = []
-    standdev = []
+    filename = None
+    Filter = None
+    minlambda = [0 for i in range(22)]
+    maxlambda = [0 for i in range(22)]
+    npoints = [0 for i in range(22)]
+    phase = [[0 for i in range(22)] for j in range(1002)]
+    flux = [[0 for i in range(22)] for j in range(1002)]
+    standdev = [[0 for i in range(22)] for j in range(1002)]
     chisquare = None
     def __init__(self, nbands=None, filename=None, Filter=None, minlambda=None,
                  maxlambda=None, npoints=None, phase=None, flux=None, standdev=None, chisquare=None):
@@ -896,54 +896,65 @@ class dataparams():
 class globalvar:
     verbose = None
     maxGDindex = None
-    GDT = []
-    fourbeta = []
+    GDT = [0 for i in range(31)]
+    fourbeta = [0 for i in range(31)]
+    LDfilterName = None
     maxLDgindex = None
     maxLDTindex = None
     maxLDfilterindex = None
-    LDlogg = []
-    LDT = []
-    Iperplogg = []
-    IperpT = []
+    LDlogg = [0 for i in range(21)]
+    LDT = [0 for i in range(101)]
+    LDtable = [[[[0 for i in range(21)] for j in range(101)] for k in range(13)] for l in range(6)]
+    IperpfilterName = None
+    Iperplogg = [0 for i in range(21)]
+    IperpT = [0 for i in range(101)]
     maxIperpgindex = None
     maxIperpTindex = None
     maxIperpfilterindex = None
-    Iperplogg = []
-    IperpT = []
+    Iperptable = [[[0 for i in range(21)] for j in range(101)] for k in range(13)]
+    IBBfilterName = None
     maxIBBTindex = None
     maxIBBfilterindex = None
     IBBTmin  = None
     IBBTmax = None
     IBBdeltaT = None
-    IBBT = []
+    IBBT = [0 for i in range(15002)]
+    IBBtable = [[0 for i in range(15002)] for j in range(13)]
     maxBBzetaindex = None
     deltaBBzeta = None
     BBzetamax = None
-    ZBBzeta = []
-    T1I = []
-    T2normCart = []
-    T2gradV = []
-    T2normSphere = []
-    T2r = []
-    T2theta = []
-    T2phi = [] 
-    T2x = []
-    T2y = []
-    T2z = []
-    T2g = []
-    T2logg = []
-    T2dS = []
-    T2T = []
-    TDisknormCyl = []
-    TDisknormCart = []
-    TDiskRho = []
-    TDiskZeta = []
-    TDiskH = [] 
-    TDiskx = []
-    TDisky = []
-    TDiskz = [] 
-    TDiskdS = []
-    TDiskT = []
-    TDiskT4 = []
-    TDiska = []
-    LCphase = []
+    ZBBzeta = [0 for i in range(40001)]
+    T1I = [0 for i in range(22)]
+    a = CartVector()
+    b = CylVector()
+    c = SphereVector()
+    T2normCart = [a for i in range(40507)]
+    T2gradV = [c for i in range(40507)]
+    T2normSphere = [c for i in range(40507)]
+    T2r = [0 for i in range(40507)]
+    T2theta = [0 for i in range(40507)]
+    T2phi = [0 for i in range(40507)] 
+    T2x = [0 for i in range(40507)]
+    T2y = [0 for i in range(40507)]
+    T2z = [0 for i in range(40507)]
+    T2g = [0 for i in range(40507)]
+    T2logg = [0 for i in range(40507)]
+    T2dS = [0 for i in range(40507)]
+    T2T = [0 for i in range(40507)]
+    T2I = [[0 for i in range(22)] for j in range(40507)]
+    TDisknormCyl = [b for i in range(40507)]
+    TDisknormCart = [a for i in range(40507)]
+    TDiskRho = [0 for i in range(40507)]
+    TDiskZeta = [0 for i in range(40507)]
+    TDiskH = [0 for i in range(40507)] 
+    TDiskx = [0 for i in range(40507)]
+    TDisky = [0 for i in range(40507)]
+    TDiskz = [0 for i in range(40507)] 
+    TDiskdS = [0 for i in range(40507)]
+    TDiskT = [0 for i in range(40507)]
+    TDiskT4 = [0 for i in range(40507)]
+    TDiska = [0 for i in range(40507)]
+    TDiskI = [[0 for i in range(22)] for j in range(40507)]
+    LCphase = [0 for i in range(502)]
+    LCflux = [[0 for i in range(22)] for j in range(502)]
+    NormLC = [[0 for i in range(22)] for j in range(502)]
